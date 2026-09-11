@@ -12,13 +12,25 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-    <ImageView
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="144dp"
-        android:background="@color/hero_sky"
-        android:contentDescription="高铁出行插画"
-        android:scaleType="centerCrop"
-        android:src="@drawable/hero_railway_journey" />
+        android:layout_height="144dp">
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/hero_sky"
+            android:contentDescription="高铁出行插画"
+            android:scaleType="centerCrop"
+            android:src="@drawable/hero_railway_journey" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="72dp"
+            android:layout_gravity="bottom"
+            android:background="@drawable/bg_hero_fade" />
+
+    </FrameLayout>
 
     <!-- 车站选择区域 -->
     <com.google.android.material.card.MaterialCardView

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="20dp"
+    android:height="20dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!-- Two route legs meet at a highlighted interchange point. -->
+    <path
+        android:fillColor="@android:color/transparent"
+        android:pathData="M5,6L10,6C11.1,6 12,6.9 12,8L12,16C12,17.1 12.9,18 14,18L19,18M5,18L10,18C11.1,18 12,17.1 12,16L12,8C12,6.9 12.9,6 14,6L19,6"
+        android:strokeColor="#5D6B7C"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:strokeWidth="1.8" />
+    <path
+        android:fillColor="#5D6B7C"
+        android:pathData="M12,9.7C10.73,9.7 9.7,10.73 9.7,12C9.7,13.27 10.73,14.3 12,14.3C13.27,14.3 14.3,13.27 14.3,12C14.3,10.73 13.27,9.7 12,9.7Z" />
+</vector>

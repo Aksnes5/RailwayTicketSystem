@@ -47,6 +47,11 @@
                     android:textSize="15sp"
                     app:backgroundTint="@color/route_type_toggle_bg"
                     app:cornerRadius="0dp"
+                    app:icon="@drawable/ic_route_direct"
+                    app:iconGravity="textStart"
+                    app:iconPadding="6dp"
+                    app:iconSize="20dp"
+                    app:iconTint="@color/route_type_toggle_text"
                     app:strokeWidth="0dp" />
 
                 <com.google.android.material.button.MaterialButton
@@ -61,6 +66,11 @@
                     android:textSize="15sp"
                     app:backgroundTint="@color/route_type_toggle_bg"
                     app:cornerRadius="0dp"
+                    app:icon="@drawable/ic_route_transfer"
+                    app:iconGravity="textStart"
+                    app:iconPadding="6dp"
+                    app:iconSize="20dp"
+                    app:iconTint="@color/route_type_toggle_text"
                     app:strokeWidth="0dp" />
 
             </com.google.android.material.button.MaterialButtonToggleGroup>
