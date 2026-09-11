@@ -92,20 +92,15 @@ class SearchResultsActivity : AppCompatActivity() {
     }
     
     private fun setupUI() {
+        // 分段选择条：选中哪半边由 ToggleGroup 自己管，这里只跟随业务状态。
+        binding.routeTypeToggle.addOnButtonCheckedListener { _, checkedId, isChecked ->
+            if (isChecked) selectRouteType(checkedId == R.id.btnDirect)
+        }
+        // 走 ToggleGroup 而不是直接调 selectRouteType，这样分段条的选中态会一起更新
+        binding.btnEmptySwitchTransfer.setOnClickListener { binding.routeTypeToggle.check(R.id.btnTransfer) }
         // 顶部导航栏已删除
         
-        // 设置路线类型选择
-        binding.btnDirect.setOnClickListener {
-            android.util.Log.d("SearchResults", "直达按钮被点击")
-            Toast.makeText(this, "直达按钮被点击", Toast.LENGTH_SHORT).show()
-            selectRouteType(true)
-        }
-        
-        binding.btnTransfer.setOnClickListener {
-            android.util.Log.d("SearchResults", "中转按钮被点击")
-            Toast.makeText(this, "中转按钮被点击", Toast.LENGTH_SHORT).show()
-            selectRouteType(false)
-        }
+        // 选中态由 ToggleGroup 的监听器统一处理，这里不再重复挂点击，否则一次点击会跑两遍查询
         
         // 设置初始按钮状态（默认选择直达）
         selectRouteType(true)
@@ -269,15 +264,21 @@ class SearchResultsActivity : AppCompatActivity() {
             currentTrains = trains.filter {
                 DepartureTimingPolicy.isBookable(selectedDate, it.departureTime)
             }
+
+            // 判空必须放在 applySort() 之前。初始化阶段 setupUI() 会先触发一次搜索，
+            // 那时 trainAdapter 还没建好，applySort() 抛出的异常会被下面的 catch 吞掉，
+            // 连带把这段判空整个跳过 —— 结果就是列表空白却没有任何提示。
+            val displayed = if (isDirectRoute) currentTrains else trains
+            if (displayed.isEmpty()) {
+                showEmptyState()
+            } else {
+                hideEmptyState()
+            }
+
             if (isDirectRoute) {
                 applySort()
             } else {
                 trainAdapter.updateTrains(trains)
-            }
-            
-            // 如果没有车次，显示空状态提示
-            if (trains.isEmpty()) {
-                showEmptyState()
             }
         } catch (e: Exception) {
             e.printStackTrace()
@@ -286,17 +287,29 @@ class SearchResultsActivity : AppCompatActivity() {
     }
     
     private fun showEmptyState() {
-        val message = if (isDirectRoute) {
-            "暂无直达车次\n建议选择中转方案"
+        // 常驻空状态而不是 Toast：这段文案要读完，其中"改用中转换乘"还要引导操作。
+        binding.tvEmptyMessage.text = if (isDirectRoute) {
+            "很抱歉，按您的查询条件，当前未找到从${departureStation}到${arrivalStation}的列车。" +
+                "您可使用中转换乘功能，查询途中换乘一次的部分列车余票情况。"
         } else {
-            "暂无中转车次\n建议选择直达方案"
+            "很抱歉，按您的查询条件，当前未找到从${departureStation}到${arrivalStation}的中转列车。"
         }
-        Toast.makeText(this, message, Toast.LENGTH_LONG).show()
+        // 只有直达查不到时，换成中转才有意义。
+        binding.btnEmptySwitchTransfer.visibility = if (isDirectRoute) View.VISIBLE else View.GONE
+        binding.rvTrains.visibility = View.GONE
+        binding.llEmptyState.visibility = View.VISIBLE
+    }
+
+    private fun hideEmptyState() {
+        binding.llEmptyState.visibility = View.GONE
+        binding.rvTrains.visibility = View.VISIBLE
     }
     
     private fun findTransferRoutes(): List<Train> {
         val transferTrains = mutableListOf<TransferTrain>()
-        
+        com.railway.ticketsystem.model.RailwayRouteManager.Probe.reset()
+        val probeStartedAt = System.nanoTime()
+
         // 获取所有真实线路，查找可能的中转站
         val allRoutes = com.railway.ticketsystem.data.RealRailwayRoutes.getAllRoutes()
         val possibleTransferStations = mutableSetOf<String>()
@@ -351,6 +364,14 @@ class SearchResultsActivity : AppCompatActivity() {
             }
         }
         
+        // 中转搜索慢在哪里：候选站数、生成了几对、图搜索各占多久。归因前先看这行。
+        android.util.Log.d(
+            "SearchResults",
+            "中转搜索耗时 ${(System.nanoTime() - probeStartedAt) / 1_000_000}ms " +
+                "候选中转站=${possibleTransferStations.size} " +
+                com.railway.ticketsystem.model.RailwayRouteManager.Probe.summary()
+        )
+
         // 按总时间排序，返回前20个最佳方案，并转换为Train对象
         return transferTrains.sortedBy { parseDurationToMinutes(it.totalDuration) }.take(20).map { transferTrain ->
             // 将TransferTrain转换为Train对象用于显示
@@ -467,8 +488,7 @@ class SearchResultsActivity : AppCompatActivity() {
         isDirectRoute = isDirect
         
         if (isDirect) {
-            // 使用Material Design的方式设置按钮状态
-            binding.btnDirect.isSelected = true
+                binding.btnDirect.isSelected = true
             binding.btnTransfer.isSelected = false
             android.util.Log.d("SearchResults", "设置直达按钮为选中状态")
             binding.sortBar.visibility = android.view.View.VISIBLE

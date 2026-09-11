@@ -33,6 +33,15 @@ android {
     buildFeatures {
         viewBinding true
     }
+    testOptions {
+        unitTests.returnDefaultValues = true   // 生成器里有 android.util.Log，JVM 测试直接当空操作
+        unitTests.all { it.maxHeapSize = "2g" }  // 中转基准要在同一个 JVM 里跑好几对站
+    }
+}
+
+// 性能基准的结论写在 println 里，跑的时候要能看见。
+tasks.withType(Test).configureEach {
+    testLogging { showStandardStreams = true }
 }
 
 // 将生成的 APK 复制并重命名到项目根目录，便于统一获取

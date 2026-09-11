@@ -21,7 +21,7 @@ object ServiceSeparatedTrainCatalog {
             } else {
                 val key = "${type.name}:$from→$to"
                 cache.getOrPut(key) {
-                    TrainGenerator.generateTrainsForPair(from, to, routeType = type)
+                    generate(from, to, type)
                 }
             }
         }
@@ -30,7 +30,16 @@ object ServiceSeparatedTrainCatalog {
     fun find(from: String, to: String, routeType: RouteType): List<Train> = synchronized(lock) {
         if (RailwayRouteManager.getRouteStationsMinStops(from, to, routeType).size < 2) return@synchronized emptyList()
         cache.getOrPut("${routeType.name}:$from→$to") {
-            TrainGenerator.generateTrainsForPair(from, to, routeType = routeType)
+            generate(from, to, routeType)
         }
+    }
+
+    /** 生成一次并按探针记账，便于把中转搜索的耗时拆到"生成了几对、共花多久"上。 */
+    private fun generate(from: String, to: String, routeType: RouteType): List<Train> {
+        val startedAt = System.nanoTime()
+        val trains = TrainGenerator.generateTrainsForPair(from, to, routeType = routeType)
+        RailwayRouteManager.Probe.generations++
+        RailwayRouteManager.Probe.generateNanos += System.nanoTime() - startedAt
+        return trains
     }
 }

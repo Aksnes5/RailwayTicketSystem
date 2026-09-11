@@ -42,6 +42,19 @@ class SeatInventoryRepository(context: Context) {
     companion object {
         private const val INVENTORY_KEY = "seat_inventory"
         private val inventoryLock = Any()
+
+        /**
+         * 整份库存的内存副本，按应用共享。
+         *
+         * 原来每次读都要把整个 JSON 反序列化一遍，每次写都要整份序列化并同步落盘。中转列表
+         * 排序一次要查上千次库存，光这一步实测三十多秒，界面看着像卡死。常驻内存后读变成
+         * 查表，只有真正改动才写回，且改用 apply() 不再阻塞调用线程等磁盘。
+         *
+         * 必须是 companion：本类在多个 Activity 和 PaymentLifecycle 里各 new 一个，缓存
+         * 放在实例上会让彼此读到陈旧副本。所有访问都在 inventoryLock 之下。
+         */
+        @Volatile
+        private var cachedRecords: List<SeatAvailability>? = null
         val supportedSeatTypes = listOf("二等座", "一等座", "商务座", "硬座", "硬卧", "软卧", "无座")
     }
 
@@ -72,7 +85,13 @@ class SeatInventoryRepository(context: Context) {
                 }
                 result[seatType] = availability
             }
-            if (changed) persist(records)
+            // 读取阶段补出来的记录只更新内存副本，不写回磁盘。
+            //
+            // 写回要把整份库存序列化一遍，而 inventory 会随着读过的车次增长——中转列表
+            // 排序一次要读上千次，等于上千次全量序列化加落盘，实测三十秒都跑不完。
+            // 只在内存里补，同一进程内取值仍然稳定；真正的变更（下单、退票、候补）
+            // 走 persist()，会把这批记录一并带上。
+            if (changed) cachedRecords = records.toList()
             result
         }
 
@@ -123,8 +142,20 @@ class SeatInventoryRepository(context: Context) {
         if (order.seatType !in supportedSeatTypes) return false
         return synchronized(inventoryLock) {
             val records = readRecords().toMutableList()
-            val index = records.indexOfFirst { matches(it, order.trainNumber, order.departureDate, order.seatType) }
-            if (index < 0) return@synchronized false
+            var index = records.indexOfFirst { matches(it, order.trainNumber, order.departureDate, order.seatType) }
+            if (index < 0) {
+                // 库存记录可能只存在于内存里（读路径不再落盘），不能把这当成"没有这个车次"。
+                // 按 getAvailabilities 的方式补一条初始库存再走下面的核销。
+                records.add(
+                    SeatAvailability(
+                        order.trainNumber,
+                        order.departureDate,
+                        order.seatType,
+                        generateInitialCount(order.seatType)
+                    )
+                )
+                index = records.lastIndex
+            }
             if (records[index].availableSeats > 0) {
                 records[index] = records[index].copy(availableSeats = records[index].availableSeats - 1)
                 persist(records)
@@ -155,10 +186,14 @@ class SeatInventoryRepository(context: Context) {
             } else {
                 records[index] = normalize(records[index].copy(availableSeats = records[index].availableSeats + 1))
             }
+            // 这一处要连回执一起写，所以没走 persist()；但内存副本必须跟着更新，
+            // 否则后续读取会拿到退票前的旧库存。
+            cachedRecords = records.toList()
             prefs.edit()
                 .putString(INVENTORY_KEY, gson.toJson(records))
                 .putBoolean(receiptKey, true)
-                .commit()
+                .apply()
+            true
         }
     }
 
@@ -199,14 +234,22 @@ class SeatInventoryRepository(context: Context) {
             record.departureDate == departureDate &&
             record.seatType == seatType
 
-    private fun readRecords(): List<SeatAvailability> {
+    /** 调用方一律 toMutableList() 后再改，所以这里返回的共享副本不会被就地篡改。 */
+    private fun readRecords(): List<SeatAvailability> =
+        cachedRecords ?: loadRecords().also { cachedRecords = it }
+
+    private fun loadRecords(): List<SeatAvailability> {
         val json = prefs.getString(INVENTORY_KEY, null) ?: return emptyList()
         val type = object : TypeToken<List<SeatAvailability>>() {}.type
         return runCatching { gson.fromJson<List<SeatAvailability>>(json, type) ?: emptyList() }
             .getOrDefault(emptyList())
     }
 
-    private fun persist(records: List<SeatAvailability>): Boolean = prefs.edit()
-        .putString(INVENTORY_KEY, gson.toJson(records))
-        .commit()
+    private fun persist(records: List<SeatAvailability>): Boolean {
+        cachedRecords = records.toList()
+        prefs.edit()
+            .putString(INVENTORY_KEY, gson.toJson(records))
+            .apply()
+        return true
+    }
 }

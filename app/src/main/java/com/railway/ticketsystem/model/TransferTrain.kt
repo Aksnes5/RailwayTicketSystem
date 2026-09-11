@@ -56,13 +56,6 @@ data class TransferTrain(
             TransferRisk.NOT_RECOMMENDED -> "不建议换乘"
         }
 
-    val stationGuide: String
-        get() = when (risk) {
-            TransferRisk.STEADY -> "到达后按站内换乘标识前往候车区，建议提前 ${transferTime - 30} 分钟开始候车。"
-            TransferRisk.TIGHT -> "建议到达后直接前往下一程检票口，预留安检与步行时间。"
-            TransferRisk.NOT_RECOMMENDED -> "换乘时间低于 45 分钟，存在较高误车风险，建议优先选择其他方案。"
-        }
-    
     // 获取两段车次的详细信息
     val legDetails: String
         get() = "${firstLeg.number} ${firstLeg.departureStation}→${firstLeg.arrivalStation} " +

@@ -17,25 +17,55 @@
         android:paddingHorizontal="16dp"
         android:layout_marginTop="0dp">
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnDirect"
-            android:layout_width="0dp"
-            android:layout_height="36dp"
-            android:layout_weight="1"
-            android:text="直达"
-            android:textSize="14sp"
-            android:layout_marginEnd="8dp"
-            style="@style/App.Button.Quiet" />
+        <!-- 直达 / 中转：一条圆角长条均分两半，选中半边填充蓝色 -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardBackgroundColor="@color/white"
+            app:cardCornerRadius="@dimen/corner_large"
+            app:cardElevation="0dp"
+            app:strokeColor="@color/divider"
+            app:strokeWidth="1dp">
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnTransfer"
-            android:layout_width="0dp"
-            android:layout_height="36dp"
-            android:layout_weight="1"
-            android:text="中转"
-            android:textSize="14sp"
-            android:layout_marginStart="8dp"
-            style="@style/App.Button.Quiet" />
+            <com.google.android.material.button.MaterialButtonToggleGroup
+                android:id="@+id/routeTypeToggle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:checkedButton="@id/btnDirect"
+                app:selectionRequired="true"
+                app:singleSelection="true">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnDirect"
+                    android:layout_width="0dp"
+                    android:layout_height="42dp"
+                    android:layout_weight="1"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
+                    android:text="直达"
+                    android:textColor="@color/route_type_toggle_text"
+                    android:textSize="15sp"
+                    app:backgroundTint="@color/route_type_toggle_bg"
+                    app:cornerRadius="0dp"
+                    app:strokeWidth="0dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnTransfer"
+                    android:layout_width="0dp"
+                    android:layout_height="42dp"
+                    android:layout_weight="1"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
+                    android:text="中转"
+                    android:textColor="@color/route_type_toggle_text"
+                    android:textSize="15sp"
+                    app:backgroundTint="@color/route_type_toggle_bg"
+                    app:cornerRadius="0dp"
+                    app:strokeWidth="0dp" />
+
+            </com.google.android.material.button.MaterialButtonToggleGroup>
+
+        </com.google.android.material.card.MaterialCardView>
 
     </LinearLayout>
 
@@ -49,6 +79,39 @@
         android:layout_marginTop="0dp"
         android:clipToPadding="false"
         android:paddingBottom="72dp" />
+
+    <!-- 空状态：查不到车时替代列表常驻显示。用 Toast 的话这段引导文案
+         会在读完之后才消失，而其中"可改用中转换乘"是要引导用户去操作的。 -->
+    <LinearLayout
+        android:id="@+id/llEmptyState"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:paddingHorizontal="36dp"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/tvEmptyMessage"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:lineSpacingExtra="5dp"
+            android:textColor="@color/text_secondary"
+            android:textSize="14sp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnEmptySwitchTransfer"
+            style="@style/App.Button.Quiet"
+            android:layout_width="wrap_content"
+            android:layout_height="44dp"
+            android:layout_marginTop="18dp"
+            android:paddingHorizontal="22dp"
+            android:text="试试中转换乘"
+            android:textColor="@color/railway_blue"
+            android:textSize="14sp" />
+    </LinearLayout>
 
     <!-- 底部排序栏：耗时最短 / 发时最早 / 价格最低 -->
     <LinearLayout

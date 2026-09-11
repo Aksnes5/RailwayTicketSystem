@@ -51,7 +51,6 @@ class TransferTrainAdapter(
         private val tvSecondLeg: TextView = itemView.findViewById(R.id.tvSecondLeg)
 
         private val tvTransferRisk: TextView = itemView.findViewById(R.id.tvTransferRisk)
-        private val tvTransferGuide: TextView = itemView.findViewById(R.id.tvTransferGuide)
         private val tvTransferInventory: TextView = itemView.findViewById(R.id.tvTransferInventory)
         fun bind(transferTrain: TransferTrain) {
             tvRoute.text = "${transferTrain.departureStation} → ${transferTrain.arrivalStation}"
@@ -80,9 +79,6 @@ class TransferTrainAdapter(
                 TransferRisk.NOT_RECOMMENDED -> R.color.railway_red
             }
             tvTransferRisk.setTextColor(itemView.context.getColor(riskColor))
-            tvTransferGuide.text = if (canBookSecondClass) transferTrain.stationGuide else {
-                "至少有一程二等座暂无余票；选择其他席别时仍会重新核验两程库存。"
-            }
             tvFirstLeg.text = "① ${transferTrain.firstLeg.number} ${transferTrain.firstLeg.departureStation}→${transferTrain.firstLeg.arrivalStation} " +
                              "${transferTrain.firstLeg.departureTime}→${transferTrain.firstLeg.arrivalTime} (${transferTrain.firstLeg.duration})"
             

@@ -68,13 +68,56 @@ object RailwayRouteManager {
 
     private fun graphFor(routeType: RouteType) = graphs.getOrPut(physicalNetwork(routeType)) { mutableMapOf() }
 
+    /**
+     * 最少站数路径的记忆化。
+     *
+     * 一条车次的生成会拿 120 个枢纽分别搜一次到终点的路径，而换乘搜索要对几十个候选中转站
+     * 各生成两段车次 —— 其中一半调用的终点是同一个站，那 120 次搜索结果完全一样却重复计算。
+     * 实测这些重复占了中转搜索 56 秒里的绝大部分。图在 addRoute() 时清空缓存保证一致性。
+     */
+    private val minStopsCache = mutableMapOf<String, List<String>>()
+
     // 可序列化的图快照
     data class GraphSnapshot(val adjacency: Map<String, List<Triple<String, Double, Int>>>) : Serializable
+
+    /**
+     * 查询耗时探针。中转搜索要在几十个候选中转站上各生成两段车次，每次生成又会做上百次
+     * 图搜索；只读代码判断不出时间花在哪一类搜索上（前几次归因都猜错了）。这里只做计数和
+     * 纳秒累加，开销可以忽略，跑完在日志里对照着看。
+     */
+    object Probe {
+        var minStopsCalls = 0L; var minStopsNanos = 0L; var minStopsCacheHits = 0L
+        var dijkstraCalls = 0L; var dijkstraNanos = 0L
+        var generations = 0L
+        var generateNanos = 0L
+        var throughSearches = 0L
+        var hubExtensions = 0L
+
+        fun reset() {
+            minStopsCalls = 0L; minStopsNanos = 0L; minStopsCacheHits = 0L
+            dijkstraCalls = 0L; dijkstraNanos = 0L
+            generations = 0L; generateNanos = 0L
+            throughSearches = 0L; hubExtensions = 0L
+        }
+
+        fun summary(): String =
+            "minStops=${minStopsCalls}次/${minStopsNanos / 1_000_000}ms(缓存命中$minStopsCacheHits) " +
+                "dijkstra=${dijkstraCalls}次/${dijkstraNanos / 1_000_000}ms " +
+                "生成=${generations}次/${generateNanos / 1_000_000}ms " +
+                "跨站检索=$throughSearches 枢纽延伸=$hubExtensions $graphStats"
+    }
+
+    /** 图的规模，用来判断一次 BFS 的量级。 */
+    val graphStats: String
+        get() = graphs.entries.joinToString(" ") { (type, g) ->
+            "$type=${g.size}站/${g.values.sumOf { it.size }}边"
+        }
     
     /**
      * 添加线路
      */
     fun addRoute(route: RailwayRoute) {
+        minStopsCache.clear()   // 图变了，已缓存的路径可能不再成立
         val passengerRoute = PassengerServiceStationPolicy.passengerRoute(route)
         if (passengerRoute.stations.size < 2 || !matchesServiceNetwork(passengerRoute)) return
         // A route declares one reasonable end-to-end second-class fare. Its
@@ -332,6 +375,21 @@ object RailwayRouteManager {
         routeType: RouteType,
         costSelector: (EdgeAttrs) -> Double
     ): Pair<List<String>, Double>? {
+        val startedAt = System.nanoTime()
+        Probe.dijkstraCalls++
+        try {
+            return dijkstra(start, target, routeType, costSelector)
+        } finally {
+            Probe.dijkstraNanos += System.nanoTime() - startedAt
+        }
+    }
+
+    private fun dijkstra(
+        start: String,
+        target: String,
+        routeType: RouteType,
+        costSelector: (EdgeAttrs) -> Double
+    ): Pair<List<String>, Double>? {
         val graph = graphFor(routeType)
         if (start == target) return listOf(start) to 0.0
         if (!graph.containsKey(start) || (!graph.containsKey(target) && start != target)) return null
@@ -401,6 +459,24 @@ object RailwayRouteManager {
         fromStation: String,
         toStation: String,
         routeType: RouteType = RouteType.HIGH_SPEED
+    ): List<String> {
+        val key = "${physicalNetwork(routeType)}|$fromStation|$toStation"
+        minStopsCache[key]?.let {
+            Probe.minStopsCalls++; Probe.minStopsCacheHits++
+            return it
+        }
+        val startedAt = System.nanoTime()
+        val path = computeMinStops(fromStation, toStation, routeType)
+        Probe.minStopsCalls++
+        Probe.minStopsNanos += System.nanoTime() - startedAt
+        minStopsCache[key] = path
+        return path
+    }
+
+    private fun computeMinStops(
+        fromStation: String,
+        toStation: String,
+        routeType: RouteType
     ): List<String> {
         val graph = graphFor(routeType)
         if (fromStation == toStation) return listOf(fromStation)

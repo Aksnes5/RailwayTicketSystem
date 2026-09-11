@@ -476,6 +476,7 @@ object TrainGenerator {
         routeType: RouteType
     ): List<List<String>> {
         if (queryRoute.size < 2) return emptyList()
+        RailwayRouteManager.Probe.throughSearches++
 
         val candidates = LinkedHashSet<List<String>>()
         // The list begins with regional hubs (宜昌北、襄阳东等) and then provincial
@@ -595,6 +596,7 @@ object TrainGenerator {
         routeType: RouteType
     ): List<String> {
         if (LatestRailwayNetwork.isMajorHubStation(to)) return route
+        RailwayRouteManager.Probe.hubExtensions++
 
         val origin = route.firstOrNull() ?: return route
         val extensions = LatestRailwayNetwork.preferredServiceOriginHubs

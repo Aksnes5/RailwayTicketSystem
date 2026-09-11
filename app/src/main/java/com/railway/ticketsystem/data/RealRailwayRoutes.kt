@@ -12,10 +12,26 @@ import com.railway.ticketsystem.model.RailwayRouteManager
  */
 object RealRailwayRoutes {
     
+    @Volatile
+    private var installed = false
+
     /**
-     * 初始化所有真实铁路线路
+     * 初始化所有真实铁路线路。可以重复调用，线路只装一次。
+     *
+     * 原来没有这层保护：重复调用会把同一批线路再 addRoute 一遍，图上的边数直接翻倍，
+     * 所有 BFS 跟着变慢——实测边数从 1270 涨到 3560。RailwayData.preloadData 和
+     * RailwayGraphManager 都会调到这里，所以必须幂等。
      */
     fun initializeRoutes() {
+        if (installed) return
+        synchronized(this) {
+            if (installed) return
+            installAll()
+            installed = true
+        }
+    }
+
+    private fun installAll() {
         // 宁蓉铁路（南京南-成都东）
         val ningrongRoute = RailwayRoute(
             routeId = "NINGRONG001",

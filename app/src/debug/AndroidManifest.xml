@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!--
+      仅 debug 构建。SearchResultsActivity 没有导出，adb 起不来它，所以留一个广播入口，
+      用来从命令行触发一次真实的中转搜索并读耗时日志：
+      adb shell am broadcast -a com.railway.ticketsystem.PERF_PROBE [from=北京西 to=上海虹桥]
+      （extra 用 am 的 es 选项传，这里不写出来是因为连字符在 XML 注释里非法。）
+    -->
+    <application>
+        <receiver
+            android:name=".debug.TransferPerfProbe"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.railway.ticketsystem.PERF_PROBE" />
+            </intent-filter>
+        </receiver>
+    </application>
+</manifest>
