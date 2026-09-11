@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    
+    <!-- 蓝色背景圆形 -->
+    <path
+        android:fillColor="#1E88E5"
+        android:pathData="M54,54m-54,0a54,54 0,1 1,108 0a54,54 0,1 1,-108 0" />
+    
+    <!-- 红色C形标志 -->
+    <path
+        android:fillColor="#E53935"
+        android:pathData="M30,25 C30,20 34,16 39,16 L69,16 C74,16 78,20 78,25 L78,35 C78,40 74,44 69,44 L39,44 C34,44 30,40 30,35 Z" />
+    
+    <!-- 红色T形标志 -->
+    <path
+        android:fillColor="#E53935"
+        android:pathData="M45,25 L45,35 L50,35 L50,30 L55,30 L55,35 L60,35 L60,25 L45,25 Z" />
+    
+    <!-- 中国铁路文字背景 -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M25,75 L83,75 L83,85 L25,85 Z" />
+        
+</vector>

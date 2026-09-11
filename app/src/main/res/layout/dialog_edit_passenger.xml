@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="24dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="编辑乘车人"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="@color/black"
+        android:gravity="center"
+        android:layout_marginBottom="24dp" />
+
+    <!-- 乘客姓名 -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:hint="乘客姓名"
+        style="@style/App.TextInput.Rounded">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/etPassengerName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textPersonName" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- 身份证号 -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:hint="身份证号"
+        style="@style/App.TextInput.Rounded">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/etPassengerIdCard"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textCapCharacters"
+            android:maxLength="18" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- 手机号 -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="24dp"
+        android:hint="手机号"
+        style="@style/App.TextInput.Rounded">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/etPassengerPhone"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="phone"
+            android:maxLength="11" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- 按钮 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="end">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnCancel"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:text="取消"
+            android:textSize="14sp"
+            android:layout_marginEnd="12dp"
+            app:cornerRadius="@dimen/corner_large"
+            style="@style/App.Button.Quiet" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnSave"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:text="保存"
+            android:textSize="14sp"
+            app:cornerRadius="@dimen/corner_large" />
+
+    </LinearLayout>
+
+</LinearLayout>
+
+

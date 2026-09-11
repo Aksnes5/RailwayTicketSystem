@@ -1,0 +1,32 @@
+# --- Build output ---
+build/
+app/build/
+*.apk
+*.aab
+
+# --- Gradle ---
+.gradle/
+.gradle-user/
+gradle-app.setting
+.gradletasknamecache
+
+# --- Local toolchain: a JDK17 and an Android SDK, ~1.9 GB between them ---
+.tools/
+
+# --- Machine-specific ---
+local.properties
+captures/
+.externalNativeBuild/
+.cxx/
+
+# --- IDE ---
+.idea/
+*.iml
+.claude/settings.local.json
+
+# --- Build input for the journey map, re-fetchable with
+#     tools/fetch_overpass_corridors.py (Overpass) so it need not be versioned ---
+.geodata/
+
+# --- Scratch ---
+temp.txt

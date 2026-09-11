@@ -1,0 +1,363 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/surface"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        android:background="@color/railway_blue"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="18dp">
+
+        <ImageView
+            android:id="@+id/btnStationServiceBack"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:contentDescription="返回"
+            android:src="@drawable/ic_arrow_back"
+            android:tint="@color/white" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="18dp"
+            android:layout_weight="1"
+            android:text="车站服务"
+            android:textColor="@color/white"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardBackgroundColor="@color/white"
+                app:cardCornerRadius="@dimen/corner_large"
+                app:cardElevation="0dp"
+                app:strokeColor="@color/divider"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="从进站到抵达，一站式安排"
+                        android:textColor="@color/text_primary"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:text="接送站、停车、重点旅客、贵宾候车等服务可提前预约。"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="13sp" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnServiceOrders"
+                        style="@style/App.Button.Quiet"
+                        android:layout_width="wrap_content"
+                        android:layout_height="42dp"
+                        android:layout_marginTop="12dp"
+                        android:text="我的服务预约"
+                        android:textColor="@color/railway_blue"
+                        android:textSize="13sp"
+                        app:cornerRadius="@dimen/corner_large" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="22dp"
+                android:text="选择服务"
+                android:textColor="@color/text_primary"
+                android:textSize="17sp"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="96dp"
+                android:layout_marginTop="10dp"
+                android:orientation="horizontal">
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardPickupDropoff"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginEnd="6dp"
+                    android:layout_weight="1"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackground"
+                    app:cardBackgroundColor="@color/white"
+                    app:cardCornerRadius="@dimen/corner_large"
+                    app:cardElevation="0dp"
+                    app:strokeColor="@color/divider"
+                    app:strokeWidth="1dp">
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent" android:gravity="center_vertical" android:orientation="vertical" android:padding="13dp">
+                        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="接送站" android:textColor="@color/text_primary" android:textSize="16sp" android:textStyle="bold" />
+                        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="5dp" android:text="预约用车与司机联系" android:textColor="@color/text_secondary" android:textSize="12sp" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardParking"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginStart="6dp"
+                    android:layout_weight="1"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackground"
+                    app:cardBackgroundColor="@color/white"
+                    app:cardCornerRadius="@dimen/corner_large"
+                    app:cardElevation="0dp"
+                    app:strokeColor="@color/divider"
+                    app:strokeWidth="1dp">
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent" android:gravity="center_vertical" android:orientation="vertical" android:padding="13dp">
+                        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="停车预约" android:textColor="@color/text_primary" android:textSize="16sp" android:textStyle="bold" />
+                        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="5dp" android:text="车位查询与车辆登记" android:textColor="@color/text_secondary" android:textSize="12sp" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="96dp"
+                android:layout_marginTop="12dp"
+                android:orientation="horizontal">
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardIndoorNavigation"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginEnd="6dp"
+                    android:layout_weight="1"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackground"
+                    app:cardBackgroundColor="@color/white"
+                    app:cardCornerRadius="@dimen/corner_large"
+                    app:cardElevation="0dp"
+                    app:strokeColor="@color/divider"
+                    app:strokeWidth="1dp">
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent" android:gravity="center_vertical" android:orientation="vertical" android:padding="13dp">
+                        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="站内导航" android:textColor="@color/text_primary" android:textSize="16sp" android:textStyle="bold" />
+                        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="5dp" android:text="进站、安检、检票路线" android:textColor="@color/text_secondary" android:textSize="12sp" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardPriorityPassenger"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginStart="6dp"
+                    android:layout_weight="1"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackground"
+                    app:cardBackgroundColor="@color/white"
+                    app:cardCornerRadius="@dimen/corner_large"
+                    app:cardElevation="0dp"
+                    app:strokeColor="@color/divider"
+                    app:strokeWidth="1dp">
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent" android:gravity="center_vertical" android:orientation="vertical" android:padding="13dp">
+                        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="重点旅客" android:textColor="@color/text_primary" android:textSize="16sp" android:textStyle="bold" />
+                        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="5dp" android:text="无障碍与人工协助" android:textColor="@color/text_secondary" android:textSize="12sp" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="96dp"
+                android:layout_marginTop="12dp"
+                android:orientation="horizontal">
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardLostFound"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginEnd="6dp"
+                    android:layout_weight="1"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackground"
+                    app:cardBackgroundColor="@color/white"
+                    app:cardCornerRadius="@dimen/corner_large"
+                    app:cardElevation="0dp"
+                    app:strokeColor="@color/divider"
+                    app:strokeWidth="1dp">
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent" android:gravity="center_vertical" android:orientation="vertical" android:padding="13dp">
+                        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="遗失物登记" android:textColor="@color/text_primary" android:textSize="16sp" android:textStyle="bold" />
+                        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="5dp" android:text="提交物品与遗失地点" android:textColor="@color/text_secondary" android:textSize="12sp" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardLounge"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginStart="6dp"
+                    android:layout_weight="1"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackground"
+                    app:cardBackgroundColor="@color/white"
+                    app:cardCornerRadius="@dimen/corner_large"
+                    app:cardElevation="0dp"
+                    app:strokeColor="@color/divider"
+                    app:strokeWidth="1dp">
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent" android:gravity="center_vertical" android:orientation="vertical" android:padding="13dp">
+                        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="贵宾厅预约" android:textColor="@color/text_primary" android:textSize="16sp" android:textStyle="bold" />
+                        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="5dp" android:text="候车、餐饮与专属引导" android:textColor="@color/text_secondary" android:textSize="12sp" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+            </LinearLayout>
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="22dp"
+                app:cardBackgroundColor="@color/white"
+                app:cardCornerRadius="@dimen/corner_large"
+                app:cardElevation="0dp"
+                app:strokeColor="@color/divider"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:id="@+id/tvServiceFormTitle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="请选择上方服务项目"
+                        android:textColor="@color/text_primary"
+                        android:textSize="17sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvServiceFormDescription"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="5dp"
+                        android:text="选择后填写服务信息，即可提交预约。"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="13sp" />
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/App.TextInput.Rounded"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:hint="服务车站">
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/actServiceStation"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:clickable="true"
+                            android:focusable="false"
+                            android:inputType="none" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/tilServiceSchedule"
+                        style="@style/App.TextInput.Rounded"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:hint="服务时间或事项">
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etServiceSchedule"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="text" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/App.TextInput.Rounded"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:hint="联系人及联系方式">
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etServiceContact"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="text" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/App.TextInput.Rounded"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:hint="补充说明">
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etServiceDetails"
+                            android:layout_width="match_parent"
+                            android:layout_height="92dp"
+                            android:gravity="top|start"
+                            android:inputType="textMultiLine"
+                            android:maxLines="4" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <TextView
+                        android:id="@+id/tvServiceNotice"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="12sp" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnSubmitStationService"
+                        android:layout_width="match_parent"
+                        android:layout_height="52dp"
+                        android:layout_marginTop="14dp"
+                        android:enabled="false"
+                        android:text="请选择服务"
+                        android:textSize="16sp"
+                        app:cornerRadius="@dimen/corner_large" />
+
+                    <TextView
+                        android:id="@+id/tvServiceResult"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:textColor="@color/success"
+                        android:textSize="13sp"
+                        android:visibility="gone" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

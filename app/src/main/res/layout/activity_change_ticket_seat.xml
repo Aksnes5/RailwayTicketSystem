@@ -1,0 +1,308 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/gray_light">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- 原订单信息 -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            app:cardCornerRadius="@dimen/corner_large"
+            app:cardElevation="4dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="原订单信息"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/gray_dark"
+                    android:layout_marginBottom="12dp" />
+
+                <TextView
+                    android:id="@+id/tvOriginalOrderInfo"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="G1 北京南 → 上海虹桥"
+                    android:textSize="16sp"
+                    android:textColor="@color/railway_blue"
+                    android:layout_marginBottom="8dp" />
+
+                <TextView
+                    android:id="@+id/tvOriginalSeatInfo"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="二等座 1车 1A号"
+                    android:textSize="14sp"
+                    android:textColor="@color/gray_medium" />
+
+            </LinearLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- 新车次信息 -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            app:cardCornerRadius="@dimen/corner_large"
+            app:cardElevation="4dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="新车次信息"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/gray_dark"
+                    android:layout_marginBottom="12dp" />
+
+                <TextView
+                    android:id="@+id/tvNewTrainInfo"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="G1 北京南 → 上海虹桥"
+                    android:textSize="16sp"
+                    android:textColor="@color/railway_blue"
+                    android:layout_marginBottom="8dp" />
+
+                <TextView
+                    android:id="@+id/tvNewTimeInfo"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="06:00 - 11:30 | 5小时30分"
+                    android:textSize="14sp"
+                    android:textColor="@color/gray_medium" />
+
+            </LinearLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- 座位类型选择 -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            app:cardCornerRadius="@dimen/corner_large"
+            app:cardElevation="4dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="选择座位类型"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/gray_dark"
+                    android:layout_marginBottom="16dp" />
+
+                <LinearLayout
+                    android:id="@+id/llSeatTypeButtons"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center"
+                    android:padding="8dp">
+
+                    <!-- 座位类型按钮将通过代码动态添加 -->
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- 座位选择 -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            app:cardCornerRadius="@dimen/corner_large"
+            app:cardElevation="4dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="选择座位"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/gray_dark"
+                    android:layout_marginBottom="16dp" />
+
+                <LinearLayout
+                    android:id="@+id/llSeatButtons"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center"
+                    android:padding="8dp"
+                    android:layout_marginBottom="16dp">
+
+                    <!-- 座位按钮将通过代码动态添加 -->
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- 价格对比 -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            app:cardCornerRadius="@dimen/corner_large"
+            app:cardElevation="4dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="价格对比"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/gray_dark"
+                    android:layout_marginBottom="12dp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="8dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="原订单价格："
+                        android:textSize="14sp"
+                        android:textColor="@color/gray_medium" />
+
+                    <TextView
+                        android:id="@+id/tvOriginalPrice"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="¥553"
+                        android:textSize="14sp"
+                        android:textColor="@color/gray_dark" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="8dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="新车次价格："
+                        android:textSize="14sp"
+                        android:textColor="@color/gray_medium" />
+
+                    <TextView
+                        android:id="@+id/tvNewPrice"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="¥553"
+                        android:textSize="14sp"
+                        android:textColor="@color/gray_dark" />
+
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/gray_medium"
+                    android:layout_marginVertical="8dp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="差价："
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/gray_dark" />
+
+                    <TextView
+                        android:id="@+id/tvPriceDifference"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="¥0"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/railway_red" />
+
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tvPriceDifferenceNote"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="差价将以积分形式处理"
+                    android:textSize="12sp"
+                    android:textColor="@color/gray_medium"
+                    android:layout_marginTop="8dp" />
+
+            </LinearLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- 提交按钮 -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnConfirmChange"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:text="确认改签"
+            android:textSize="18sp"
+            app:cornerRadius="@dimen/corner_large"
+            android:layout_marginBottom="32dp" />
+
+    </LinearLayout>
+
+</ScrollView>

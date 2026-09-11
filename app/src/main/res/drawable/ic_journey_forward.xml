@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- A fine, single-direction journey mark: only the upper arrow wing is drawn. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="80dp"
+    android:height="10dp"
+    android:viewportWidth="80"
+    android:viewportHeight="10">
+
+    <path
+        android:fillColor="@android:color/transparent"
+        android:pathData="M3,7 L75,7 M75,7 L69,2"
+        android:strokeColor="@color/railway_blue"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:strokeWidth="1.25" />
+</vector>

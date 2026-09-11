@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- Route maps use OpenStreetMap tiles; no location permission is requested. -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <!-- Android 12+ treats this as a special user-granted permission; the scheduler
+         falls back to an inexact alarm when it has not been granted. -->
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+
+    <application
+        android:allowBackup="false"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@drawable/ic_railway_train_icon"
+        android:label="@string/app_name"
+        android:roundIcon="@drawable/ic_railway_train_icon"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.RailwayTicketSystem"
+        tools:targetApi="31">
+        <activity
+            android:name=".activity.LoadingActivity"
+            android:exported="true"
+            android:theme="@style/Theme.RailwayTicketSystem.Loading">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        
+        <activity
+            android:name=".MainActivity"
+            android:exported="false"
+            android:theme="@style/Theme.RailwayTicketSystem" />
+        
+        <activity
+            android:name=".activity.LoginActivity"
+            android:exported="false"
+            android:theme="@style/Theme.RailwayTicketSystem" />
+        
+        <activity
+            android:name=".activity.PassengerManageActivity"
+            android:exported="false"
+            android:theme="@style/Theme.RailwayTicketSystem" />
+        <activity
+            android:name=".activity.SeatSelectionActivity"
+            android:exported="false"
+            android:theme="@style/Theme.RailwayTicketSystem" />
+        <activity
+            android:name=".activity.OrderConfirmActivity"
+            android:exported="false"
+            android:theme="@style/Theme.RailwayTicketSystem" />
+        <activity
+            android:name=".activity.PaymentSuccessActivity"
+            android:exported="false"
+            android:theme="@style/Theme.RailwayTicketSystem" />
+        <activity
+            android:name=".activity.PaymentActivity"
+            android:exported="false"
+            android:theme="@style/Theme.RailwayTicketSystem" />
+        <activity
+            android:name=".activity.MembershipCenterActivity"
+            android:exported="false"
+            android:theme="@style/Theme.RailwayTicketSystem" />
+        <activity
+            android:name=".activity.MessageCenterActivity"
+            android:exported="false"
+            android:theme="@style/Theme.RailwayTicketSystem" />
+        <activity
+            android:name=".activity.NotificationSettingsActivity"
+            android:exported="false"
+            android:theme="@style/Theme.RailwayTicketSystem" />
+        <activity
+            android:name=".activity.SearchResultsActivity"
+            android:exported="false"
+            android:theme="@style/Theme.RailwayTicketSystem" />
+        <activity
+            android:name=".activity.StationSelectionActivity"
+            android:exported="false"
+            android:theme="@style/Theme.RailwayTicketSystem" />
+        <activity
+            android:name=".activity.AdvancedSearchResultsActivity"
+            android:exported="false"
+            android:theme="@style/Theme.RailwayTicketSystem" />
+        <activity
+            android:name=".activity.TripDetailActivity"
+            android:exported="false"
+            android:theme="@style/Theme.RailwayTicketSystem" />
+        <activity
+            android:name=".activity.TestRoutesActivity"
+            android:exported="false"
+            android:theme="@style/Theme.RailwayTicketSystem" />
+        <activity
+            android:name=".activity.TrainDetailActivity"
+            android:exported="false"
+            android:theme="@style/Theme.RailwayTicketSystem" />
+        <activity
+            android:name=".activity.RailwayMapActivity"
+            android:exported="false"
+            android:theme="@style/Theme.RailwayTicketSystem" />
+        <activity
+            android:name=".activity.EditProfileActivity"
+            android:exported="false"
+            android:theme="@style/Theme.RailwayTicketSystem" />
+        <activity
+            android:name=".activity.ChangeTicketActivity"
+            android:exported="false"
+            android:theme="@style/Theme.RailwayTicketSystem" />
+        <activity
+            android:name=".activity.ChangeTicketSeatActivity"
+            android:exported="false"
+            android:theme="@style/Theme.RailwayTicketSystem" />
+        <activity
+            android:name=".activity.WaitlistManageActivity"
+            android:exported="false"
+            android:theme="@style/Theme.RailwayTicketSystem" />
+        <activity
+            android:name=".activity.MealOrderActivity"
+            android:exported="false"
+            android:theme="@style/Theme.RailwayTicketSystem" />
+        <activity
+            android:name=".activity.StationBoardActivity"
+            android:exported="false"
+            android:theme="@style/Theme.RailwayTicketSystem" />
+        <activity
+            android:name=".activity.MultiRidePassActivity"
+            android:exported="false"
+            android:theme="@style/Theme.RailwayTicketSystem" />
+        <activity
+            android:name=".activity.ElectronicInvoiceActivity"
+            android:exported="false"
+            android:theme="@style/Theme.RailwayTicketSystem" />
+        <activity
+            android:name=".activity.HotelBookingActivity"
+            android:exported="false"
+            android:theme="@style/Theme.RailwayTicketSystem" />
+        <activity
+            android:name=".activity.HotelDetailActivity"
+            android:exported="false"
+            android:theme="@style/Theme.RailwayTicketSystem" />
+        <activity
+            android:name=".activity.HotelReservationConfirmActivity"
+            android:exported="false"
+            android:theme="@style/Theme.RailwayTicketSystem" />
+        <activity
+            android:name=".activity.HotelBookingSuccessActivity"
+            android:exported="false"
+            android:theme="@style/Theme.RailwayTicketSystem" />
+        <activity
+            android:name=".activity.HotelOrdersActivity"
+            android:exported="false"
+            android:theme="@style/Theme.RailwayTicketSystem" />
+        <activity
+            android:name=".activity.StationServiceActivity"
+            android:exported="false"
+            android:theme="@style/Theme.RailwayTicketSystem" />
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+        <receiver
+            android:name=".receiver.WaitlistEvaluationReceiver"
+            android:exported="false" />
+        <receiver
+            android:name=".receiver.PaymentTimeoutReceiver"
+            android:exported="false" />
+        <receiver
+            android:name=".receiver.TravelReminderReceiver"
+            android:exported="false" />
+        <receiver
+            android:name=".receiver.NotificationRecoveryReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+                <action android:name="android.intent.action.TIME_SET" />
+                <action android:name="android.intent.action.TIMEZONE_CHANGED" />
+            </intent-filter>
+        </receiver>
+    </application>
+
+</manifest>

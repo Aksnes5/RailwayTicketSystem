@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="120dp"
+    android:height="120dp"
+    android:viewportWidth="120"
+    android:viewportHeight="120">
+    
+    <!-- 浅蓝色背景圆形 -->
+    <path
+        android:fillColor="#E3F2FD"
+        android:pathData="M60,60m-55,0a55,55 0,1 1,110 0a55,55 0,1 1,-110 0" />
+    
+    <!-- 深蓝色外圈 -->
+    <path
+        android:fillColor="#1976D2"
+        android:pathData="M60,60m-52,0a52,52 0,1 1,104 0a52,52 0,1 1,-104 0" />
+    
+    <!-- 浅蓝色内圈 -->
+    <path
+        android:fillColor="#E3F2FD"
+        android:pathData="M60,60m-48,0a48,48 0,1 1,96 0a48,48 0,1 1,-96 0" />
+    
+    <!-- 铁路轨道主体 -->
+    <path
+        android:fillColor="#1976D2"
+        android:pathData="M20,60 L100,60 L100,64 L20,64 Z" />
+    
+    <!-- 轨道枕木1 -->
+    <path
+        android:fillColor="#1976D2"
+        android:pathData="M25,56 L25,68 L27,68 L27,56 Z" />
+    
+    <!-- 轨道枕木2 -->
+    <path
+        android:fillColor="#1976D2"
+        android:pathData="M35,56 L35,68 L37,68 L37,56 Z" />
+    
+    <!-- 轨道枕木3 -->
+    <path
+        android:fillColor="#1976D2"
+        android:pathData="M45,56 L45,68 L47,68 L47,56 Z" />
+    
+    <!-- 轨道枕木4 -->
+    <path
+        android:fillColor="#1976D2"
+        android:pathData="M55,56 L55,68 L57,68 L57,56 Z" />
+    
+    <!-- 轨道枕木5 -->
+    <path
+        android:fillColor="#1976D2"
+        android:pathData="M65,56 L65,68 L67,68 L67,56 Z" />
+    
+    <!-- 轨道枕木6 -->
+    <path
+        android:fillColor="#1976D2"
+        android:pathData="M75,56 L75,68 L77,68 L77,56 Z" />
+    
+    <!-- 轨道枕木7 -->
+    <path
+        android:fillColor="#1976D2"
+        android:pathData="M85,56 L85,68 L87,68 L87,56 Z" />
+    
+    <!-- 轨道枕木8 -->
+    <path
+        android:fillColor="#1976D2"
+        android:pathData="M95,56 L95,68 L97,68 L97,56 Z" />
+    
+    <!-- 高铁列车主体 -->
+    <path
+        android:fillColor="#FF5722"
+        android:pathData="M30,46 L90,46 L90,56 L30,56 Z" />
+    
+    <!-- 列车窗户1 -->
+    <path
+        android:fillColor="#E3F2FD"
+        android:pathData="M35,48 L42,48 L42,54 L35,54 Z" />
+    
+    <!-- 列车窗户2 -->
+    <path
+        android:fillColor="#E3F2FD"
+        android:pathData="M47,48 L54,48 L54,54 L47,54 Z" />
+    
+    <!-- 列车窗户3 -->
+    <path
+        android:fillColor="#E3F2FD"
+        android:pathData="M59,48 L66,48 L66,54 L59,54 Z" />
+    
+    <!-- 列车窗户4 -->
+    <path
+        android:fillColor="#E3F2FD"
+        android:pathData="M71,48 L78,48 L78,54 L71,54 Z" />
+    
+    <!-- 列车窗户5 -->
+    <path
+        android:fillColor="#E3F2FD"
+        android:pathData="M83,48 L87,48 L87,54 L83,54 Z" />
+    
+    <!-- 列车车头 -->
+    <path
+        android:fillColor="#FF5722"
+        android:pathData="M90,46 L100,40 L100,62 L90,56 Z" />
+    
+    <!-- 车头窗户 -->
+    <path
+        android:fillColor="#E3F2FD"
+        android:pathData="M92,48 L97,44 L97,52 L92,54 Z" />
+    
+    <!-- 速度线条 -->
+    <path
+        android:fillColor="#1976D2"
+        android:strokeWidth="3"
+        android:pathData="M105,30 L112,30 M105,35 L115,35 M105,40 L112,40 M105,45 L115,45 M105,50 L112,50 M105,55 L115,55 M105,60 L112,60 M105,65 L115,65 M105,70 L112,70 M105,75 L115,75 M105,80 L112,80 M105,85 L115,85 M105,90 L112,90" />
+    
+    <!-- 装饰性星星1 -->
+    <path
+        android:fillColor="#FFC107"
+        android:pathData="M15,30 L18,36 L24,36 L19,40 L21,46 L15,43 L9,46 L11,40 L6,36 L12,36 Z" />
+    
+    <!-- 装饰性星星2 -->
+    <path
+        android:fillColor="#FFC107"
+        android:pathData="M30,20 L32,24 L36,24 L33,27 L35,31 L30,29 L25,31 L27,27 L24,24 L28,24 Z" />
+    
+    <!-- 装饰性星星3 -->
+    <path
+        android:fillColor="#FFC107"
+        android:pathData="M90,20 L92,24 L96,24 L93,27 L95,31 L90,29 L85,31 L87,27 L84,24 L88,24 Z" />
+    
+    <!-- 装饰性星星4 -->
+    <path
+        android:fillColor="#FFC107"
+        android:pathData="M105,30 L107,34 L111,34 L108,37 L110,41 L105,39 L100,41 L102,37 L99,34 L103,34 Z" />
+    
+    <!-- 装饰性星星5 -->
+    <path
+        android:fillColor="#FFC107"
+        android:pathData="M15,80 L17,84 L21,84 L18,87 L20,91 L15,89 L10,91 L12,87 L9,84 L13,84 Z" />
+    
+    <!-- 装饰性星星6 -->
+    <path
+        android:fillColor="#FFC107"
+        android:pathData="M105,80 L107,84 L111,84 L108,87 L110,91 L105,89 L100,91 L102,87 L99,84 L103,84 Z" />
+    
+</vector>
+
+

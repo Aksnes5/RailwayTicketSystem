@@ -1,0 +1,79 @@
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.5/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+Warning: SDK processing. This version only understands SDK XML versions up to 3 but an SDK XML file of version 4 was encountered. This can happen if you use versions of Android Studio and the command-line tools that were released at different times.
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preDebugBuild UP-TO-DATE
+> Task :app:mergeDebugNativeDebugMetadata NO-SOURCE
+> Task :app:dataBindingMergeDependencyArtifactsDebug UP-TO-DATE
+> Task :app:generateDebugResValues UP-TO-DATE
+> Task :app:generateDebugResources UP-TO-DATE
+> Task :app:mergeDebugResources UP-TO-DATE
+> Task :app:packageDebugResources UP-TO-DATE
+> Task :app:parseDebugLocalResources UP-TO-DATE
+> Task :app:dataBindingGenBaseClassesDebug UP-TO-DATE
+> Task :app:checkDebugAarMetadata UP-TO-DATE
+> Task :app:mapDebugSourceSetPaths UP-TO-DATE
+> Task :app:createDebugCompatibleScreenManifests UP-TO-DATE
+> Task :app:extractDeepLinksDebug UP-TO-DATE
+> Task :app:processDebugMainManifest UP-TO-DATE
+> Task :app:processDebugManifest UP-TO-DATE
+> Task :app:processDebugManifestForPackage UP-TO-DATE
+> Task :app:processDebugResources UP-TO-DATE
+> Task :app:javaPreCompileDebug UP-TO-DATE
+> Task :app:mergeDebugShaders UP-TO-DATE
+> Task :app:compileDebugShaders NO-SOURCE
+> Task :app:generateDebugAssets UP-TO-DATE
+> Task :app:mergeDebugAssets
+> Task :app:compressDebugAssets
+> Task :app:checkDebugDuplicateClasses UP-TO-DATE
+> Task :app:desugarDebugFileDependencies UP-TO-DATE
+> Task :app:mergeExtDexDebug UP-TO-DATE
+> Task :app:mergeLibDexDebug UP-TO-DATE
+> Task :app:mergeDebugJniLibFolders UP-TO-DATE
+> Task :app:mergeDebugNativeLibs NO-SOURCE
+> Task :app:stripDebugDebugSymbols NO-SOURCE
+> Task :app:validateSigningDebug UP-TO-DATE
+> Task :app:writeDebugAppMetadata UP-TO-DATE
+> Task :app:writeDebugSigningConfigVersions UP-TO-DATE
+> Task :app:compileDebugKotlin
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/activity/ChangeTicketSeatActivity.kt:52:32 'getSerializableExtra(String!): Serializable?' is deprecated. Deprecated in Java
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/activity/ChangeTicketSeatActivity.kt:53:27 'getSerializableExtra(String!): Serializable?' is deprecated. Deprecated in Java
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/activity/ChangeTicketSeatActivity.kt:109:53 'getColor(Int): Int' is deprecated. Deprecated in Java
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/activity/ChangeTicketSeatActivity.kt:110:47 'getColor(Int): Int' is deprecated. Deprecated in Java
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/activity/ChangeTicketSeatActivity.kt:112:53 'getColor(Int): Int' is deprecated. Deprecated in Java
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/activity/ChangeTicketSeatActivity.kt:113:91 'getColor(Int): Int' is deprecated. Deprecated in Java
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/activity/ChangeTicketSeatActivity.kt:115:47 'getColor(Int): Int' is deprecated. Deprecated in Java
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/activity/ChangeTicketSeatActivity.kt:139:53 'getColor(Int): Int' is deprecated. Deprecated in Java
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/activity/ChangeTicketSeatActivity.kt:140:47 'getColor(Int): Int' is deprecated. Deprecated in Java
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/activity/ChangeTicketSeatActivity.kt:142:53 'getColor(Int): Int' is deprecated. Deprecated in Java
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/activity/ChangeTicketSeatActivity.kt:143:91 'getColor(Int): Int' is deprecated. Deprecated in Java
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/activity/ChangeTicketSeatActivity.kt:145:47 'getColor(Int): Int' is deprecated. Deprecated in Java
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/activity/ChangeTicketSeatActivity.kt:160:13 Variable 'seatCount' is never used
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/activity/ChangeTicketSeatActivity.kt:208:53 'getColor(Int): Int' is deprecated. Deprecated in Java
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/activity/ChangeTicketSeatActivity.kt:209:47 'getColor(Int): Int' is deprecated. Deprecated in Java
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/activity/ChangeTicketSeatActivity.kt:233:62 'getColor(Int): Int' is deprecated. Deprecated in Java
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/activity/ChangeTicketSeatActivity.kt:242:62 'getColor(Int): Int' is deprecated. Deprecated in Java
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/activity/ChangeTicketSeatActivity.kt:245:62 'getColor(Int): Int' is deprecated. Deprecated in Java
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/activity/ChangeTicketSeatActivity.kt:331:13 The value 'true' assigned to 'var reservedNewInventory: Boolean defined in com.railway.ticketsystem.activity.ChangeTicketSeatActivity.processChangeTicket' is never used
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/activity/OrderConfirmActivity.kt:89:31 'getSerializableExtra(String!): Serializable?' is deprecated. Deprecated in Java
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/activity/OrderConfirmActivity.kt:90:32 'getSerializableExtra(String!): Serializable?' is deprecated. Deprecated in Java
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/activity/OrderConfirmActivity.kt:114:28 'getSerializableExtra(String!): Serializable?' is deprecated. Deprecated in Java
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/activity/TripDetailActivity.kt:883:50 Parameter 'which' is never used, could be renamed to _
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/data/LatestRailwayNetwork.kt:262:48 Name shadowed: name
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/activity/ChangeTicketActivity.kt:35:32 'getSerializableExtra(String!): Serializable?' is deprecated. Deprecated in Java
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/activity/PaymentSuccessActivity.kt:41:79 Unnecessary non-null assertion (!!) on a non-null receiver of type String
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/activity/PaymentSuccessActivity.kt:43:73 Unnecessary non-null assertion (!!) on a non-null receiver of type String
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/activity/TrainDetailActivity.kt:38:32 'getSerializableExtra(String!): Serializable?' is deprecated. Deprecated in Java
+
+> Task :app:compileDebugJavaWithJavac UP-TO-DATE
+> Task :app:processDebugJavaRes UP-TO-DATE
+> Task :app:mergeDebugJavaResource UP-TO-DATE
+> Task :app:dexBuilderDebug
+> Task :app:mergeProjectDexDebug
+> Task :app:packageDebug
+> Task :app:assembleDebug
+> Task :app:copyDebugApk
+> Task :app:createDebugApkListingFileRedirect UP-TO-DATE
+
+BUILD SUCCESSFUL in 1m 28s
+35 actionable tasks: 7 executed, 28 up-to-date

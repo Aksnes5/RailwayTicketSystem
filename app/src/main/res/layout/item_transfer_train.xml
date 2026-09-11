@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginHorizontal="16dp"
+    android:layout_marginVertical="8dp"
+    app:cardCornerRadius="@dimen/corner_large"
+    app:cardElevation="4dp"
+    app:strokeColor="@color/gray_light"
+    app:strokeWidth="1dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- 车次号和路线 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="12dp">
+
+            <TextView
+                android:id="@+id/tvRoute"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="汉口 → 宜昌东"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:textColor="@color/black" />
+
+            <TextView
+                android:id="@+id/tvTransferRisk"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_price_pill"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="4dp"
+                android:text="稳妥换乘"
+                android:textColor="@color/green"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+
+        </LinearLayout>
+
+        <!-- 时间信息 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="8dp">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center">
+
+                <TextView
+                    android:id="@+id/tvDepartureTime"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="08:30"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/railway_blue" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="出发"
+                    android:textSize="12sp"
+                    android:textColor="@color/gray_dark" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="→"
+                    android:textSize="16sp"
+                    android:textColor="@color/gray_dark" />
+
+                <TextView
+                    android:id="@+id/tvDuration"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="3小时15分"
+                    android:textSize="12sp"
+                    android:textColor="@color/gray_dark" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center">
+
+                <TextView
+                    android:id="@+id/tvArrivalTime"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="11:45"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/railway_blue" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="到达"
+                    android:textSize="12sp"
+                    android:textColor="@color/gray_dark" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <!-- 中转信息 -->
+        <TextView
+            android:id="@+id/tvTransferInfo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="在宜昌东中转45分钟"
+            android:textSize="14sp"
+            android:textColor="@color/black"
+            android:layout_marginBottom="8dp" />
+
+        <TextView
+            android:id="@+id/tvTransferGuide"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:background="@drawable/bg_price_pill"
+            android:padding="8dp"
+            android:textColor="@color/text_secondary"
+            android:textSize="12sp" />
+
+        <!-- 两段车次详情 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="8dp">
+
+            <TextView
+                android:id="@+id/tvFirstLeg"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="G1234 汉口→宜昌东 08:30→10:15 (1小时45分)"
+                android:textSize="11sp"
+                android:textColor="@color/gray_dark"
+                android:layout_marginBottom="4dp" />
+
+            <TextView
+                android:id="@+id/tvSecondLeg"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="G5678 宜昌东→宜昌东 11:00→11:45 (45分)"
+                android:textSize="11sp"
+                android:textColor="@color/gray_dark" />
+
+        </LinearLayout>
+
+        <!-- 价格和座位 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/tvPrice"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="¥145"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="@color/railway_blue" />
+
+            <TextView
+                android:id="@+id/tvTransferInventory"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="余票充足"
+                android:textSize="12sp"
+                android:textColor="@color/green" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>

@@ -1,0 +1,378 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/surface">
+
+    <!-- 顶部标题栏 -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:background="@color/railway_blue">
+
+        <ImageView
+            android:id="@+id/btnBack"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_gravity="start|center_vertical"
+            android:padding="12dp"
+            android:src="@drawable/ic_arrow_back"
+            android:tint="@color/white" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:text="车次详情"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="@color/white" />
+
+    </FrameLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <!-- 车次信息卡片 -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="@dimen/corner_large"
+                app:cardElevation="0dp"
+                app:strokeColor="@color/divider"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <!-- 车次号和路线 -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="12dp">
+
+                        <TextView
+                            android:id="@+id/tvTrainNumber"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="G1234"
+                            android:textSize="20sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/railway_blue" />
+
+                        <View
+                            android:layout_width="0dp"
+                            android:layout_height="1dp"
+                            android:layout_weight="1" />
+
+                        <TextView
+                            android:id="@+id/tvRoute"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="汉口 → 天门南"
+                            android:textSize="16sp"
+                            android:textColor="@color/gray_dark" />
+
+                    </LinearLayout>
+
+                    <!-- 时间信息 -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="12dp">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="出发时间"
+                                android:textSize="12sp"
+                                android:textColor="@color/gray_dark" />
+
+                            <TextView
+                                android:id="@+id/tvDepartureTime"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="07:02"
+                                android:textSize="18sp"
+                                android:textStyle="bold"
+                                android:textColor="@color/black"
+                                android:layout_marginTop="4dp" />
+
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:gravity="center_horizontal">
+
+                            <TextView
+                                android:id="@+id/tvJourneyDate"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="9月13日"
+                                android:textSize="12sp"
+                                android:textColor="@color/gray_dark"
+                                android:layout_marginBottom="2dp" />
+
+                            <ImageView
+                                android:layout_width="68dp"
+                                android:layout_height="10dp"
+                                android:contentDescription="从出发站前往到达站"
+                                android:scaleType="fitXY"
+                                android:src="@drawable/ic_journey_forward" />
+
+                            <TextView
+                                android:id="@+id/tvDuration"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:text="历时15分钟"
+                                android:textColor="@color/railway_blue"
+                                android:textSize="12sp" />
+
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:gravity="end">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="到达时间"
+                                android:textSize="12sp"
+                                android:textColor="@color/gray_dark" />
+
+                            <TextView
+                                android:id="@+id/tvArrivalTime"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="07:17"
+                                android:textSize="18sp"
+                                android:textStyle="bold"
+                                android:textColor="@color/black"
+                                android:layout_marginTop="4dp" />
+
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+                    <!-- 价格信息 -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="票价"
+                            android:textSize="14sp"
+                            android:textColor="@color/gray_dark" />
+
+                        <View
+                            android:layout_width="0dp"
+                            android:layout_height="1dp"
+                            android:layout_weight="1" />
+
+                        <TextView
+                            android:id="@+id/tvPrice"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="¥20"
+                            android:textSize="18sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/railway_red" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- 途经站点信息 -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="@dimen/corner_large"
+                app:cardElevation="0dp"
+                app:strokeColor="@color/divider"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="经停时刻"
+                        android:textSize="20sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/railway_blue"
+                        android:layout_marginBottom="8dp" />
+
+                    <TextView
+                        android:id="@+id/tvStationCount"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="共 3 个经停站"
+                        android:textSize="12sp"
+                        android:textColor="@color/gray_dark"
+                        android:layout_marginBottom="10dp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="40dp"
+                        android:background="@drawable/bg_table_header"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingHorizontal="12dp">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1.30"
+                            android:text="停靠站"
+                            android:textColor="@color/white"
+                            android:textSize="13sp" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="0.85"
+                            android:gravity="center"
+                            android:text="到点"
+                            android:textColor="@color/white"
+                            android:textSize="13sp" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="0.85"
+                            android:gravity="center"
+                            android:text="开点"
+                            android:textColor="@color/white"
+                            android:textSize="13sp" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="0.75"
+                            android:gravity="end"
+                            android:text="停留"
+                            android:textColor="@color/white"
+                            android:textSize="13sp" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="0.95"
+                            android:gravity="end"
+                            android:text="状态"
+                            android:textColor="@color/white"
+                            android:textSize="13sp" />
+                    </LinearLayout>
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rvStations"
+                        android:layout_width="match_parent"
+                        android:layout_height="340dp"
+                        android:nestedScrollingEnabled="true"
+                        android:scrollbars="vertical"
+                        android:fadeScrollbars="false" />
+
+                    <LinearLayout
+                        android:id="@+id/layoutTrainSet"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:background="@drawable/bg_surface_card"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:padding="14dp"
+                        android:visibility="gone">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="担当车型"
+                            android:textColor="@color/text_secondary"
+                            android:textSize="13sp" />
+
+                        <TextView
+                            android:id="@+id/tvTrainSet"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="12dp"
+                            android:layout_weight="1"
+                            android:textColor="@color/text_primary"
+                            android:textSize="15sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnRouteMap"
+                style="@style/App.Button.Quiet"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginBottom="10dp"
+                android:text="查看线路地图"
+                android:textColor="@color/railway_blue"
+                android:textSize="15sp"
+                app:cornerRadius="@dimen/corner_large" />
+
+            <!-- 订票按钮 -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnBookTicket"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:text="立即订票"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:backgroundTint="@color/railway_blue"
+                android:textColor="@color/white" />
+
+        </LinearLayout>
+
+    </ScrollView>
+
+</LinearLayout>

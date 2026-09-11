@@ -1,0 +1,464 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/gray_light">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- 用户头像区域 -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            app:cardCornerRadius="@dimen/corner_large"
+            app:cardElevation="0dp"
+            app:strokeColor="@color/divider"
+            app:strokeWidth="1dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp"
+                android:gravity="center_horizontal">
+
+                <!-- 圆形头像 -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardAvatar"
+                    android:layout_width="76dp"
+                    android:layout_height="76dp"
+                    android:layout_marginBottom="2dp"
+                    app:cardCornerRadius="38dp"
+                    app:cardElevation="0dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?android:attr/selectableItemBackground"
+                    app:cardBackgroundColor="@color/white">
+
+                    <com.google.android.material.imageview.ShapeableImageView
+                        android:id="@+id/ivAvatar"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:src="@drawable/ic_default_avatar"
+                        android:scaleType="centerCrop"
+                        android:background="@null"
+                        app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.RailwayTicketSystem.Avatar"
+                        app:strokeColor="@color/button_stroke"
+                        app:strokeWidth="1dp" />
+
+                </com.google.android.material.card.MaterialCardView>
+                
+                <!-- 头像提示文字 -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="点击更换头像"
+                    android:textSize="12sp"
+                    android:textColor="@color/gray_medium"
+                    android:layout_marginBottom="1dp" />
+
+                <TextView
+                    android:id="@+id/tvUsername"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="用户名"
+                    android:textSize="22sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/black"
+                    android:layout_marginBottom="1dp" />
+
+                <TextView
+                    android:id="@+id/tvUserEmail"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="user@example.com"
+                    android:textSize="16sp"
+                    android:textColor="@color/gray_medium"
+                    android:layout_marginBottom="0dp" />
+
+                <!-- insetTop 去掉 MaterialButton 默认的 6dp 顶部留白，让按钮贴近上方文字 -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnEditProfile"
+                    android:layout_width="wrap_content"
+                    android:layout_height="36dp"
+                    android:insetTop="0dp"
+                    android:text="编辑资料"
+                    android:textSize="14sp"
+                    app:cornerRadius="@dimen/corner_large"
+                    style="@style/App.Button.Quiet" />
+
+            </LinearLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- 用户信息卡片 -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            app:cardCornerRadius="@dimen/corner_large"
+            app:cardElevation="0dp"
+            app:strokeColor="@color/divider"
+            app:strokeWidth="1dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="个人信息"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/gray_dark"
+                    android:layout_marginBottom="16dp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="12dp">
+
+                    <TextView
+                        android:layout_width="80dp"
+                        android:layout_height="wrap_content"
+                        android:text="用户名："
+                        android:textSize="14sp"
+                        android:textColor="@color/gray_medium" />
+
+                    <TextView
+                        android:id="@+id/tvUserInfo"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="张三"
+                        android:textSize="14sp"
+                        android:textColor="@color/black" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="12dp">
+
+                    <TextView
+                        android:layout_width="80dp"
+                        android:layout_height="wrap_content"
+                        android:text="手机号："
+                        android:textSize="14sp"
+                        android:textColor="@color/gray_medium" />
+
+                    <TextView
+                        android:id="@+id/tvUserPhone"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="138****8888"
+                        android:textSize="14sp"
+                        android:textColor="@color/black" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="12dp">
+
+                    <TextView
+                        android:layout_width="80dp"
+                        android:layout_height="wrap_content"
+                        android:text="注册时间："
+                        android:textSize="14sp"
+                        android:textColor="@color/gray_medium" />
+
+                    <TextView
+                        android:id="@+id/tvRegisterTime"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="2024-01-01"
+                        android:textSize="14sp"
+                        android:textColor="@color/black" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="12dp">
+
+                    <TextView
+                        android:layout_width="80dp"
+                        android:layout_height="wrap_content"
+                        android:text="乘车积分："
+                        android:textSize="14sp"
+                        android:textColor="@color/gray_medium" />
+
+                    <TextView
+                        android:id="@+id/tvUserPoints"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="0"
+                        android:textSize="14sp"
+                        android:textColor="@color/railway_blue"
+                        android:textStyle="bold" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="16dp">
+
+                    <TextView
+                        android:layout_width="80dp"
+                        android:layout_height="wrap_content"
+                        android:text="会员等级："
+                        android:textSize="14sp"
+                        android:textColor="@color/gray_medium" />
+
+                    <TextView
+                        android:id="@+id/tvMemberLevel"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="一星会员"
+                        android:textSize="14sp"
+                        android:textColor="@color/railway_blue"
+                        android:textStyle="bold" />
+
+                </LinearLayout>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnLogout"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:text="退出登录"
+                    android:textSize="16sp"
+                    app:cornerRadius="@dimen/corner_large"
+                    style="@style/App.Button.Quiet" />
+
+            </LinearLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- 乘客管理 -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            app:cardCornerRadius="@dimen/corner_large"
+            app:cardElevation="0dp"
+            app:strokeColor="@color/divider"
+            app:strokeWidth="1dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="12dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="乘客管理"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/gray_dark" />
+
+                    <TextView
+                        android:id="@+id/tvPassengerCount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="0位乘客"
+                        android:textSize="14sp"
+                        android:textColor="@color/railway_blue"
+                        android:background="@drawable/bg_passenger_count"
+                        android:padding="6dp"
+                        android:paddingStart="12dp"
+                        android:paddingEnd="12dp" />
+
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="管理您的常用乘车人信息，买票时快速选择"
+                    android:textSize="14sp"
+                    android:textColor="@color/gray_medium"
+                    android:layout_marginBottom="16dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnManagePassengers"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:text="管理乘客信息"
+                    android:textSize="16sp"
+                    android:drawableStart="@drawable/ic_passenger"
+                    android:drawablePadding="8dp"
+                    app:cornerRadius="@dimen/corner_large" />
+
+            </LinearLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- 消息与提醒 -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            app:cardCornerRadius="@dimen/corner_large"
+            app:cardElevation="0dp"
+            app:strokeColor="@color/divider"
+            app:strokeWidth="1dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="消息与提醒"
+                        android:textColor="@color/gray_dark"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvMessageSummary"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_passenger_count"
+                        android:paddingStart="12dp"
+                        android:paddingTop="6dp"
+                        android:paddingEnd="12dp"
+                        android:paddingBottom="6dp"
+                        android:text="全部已读"
+                        android:textColor="@color/railway_blue"
+                        android:textSize="14sp" />
+
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    android:text="集中查看支付、候补、发车和退改签动态，并管理系统提醒。"
+                    android:textColor="@color/gray_medium"
+                    android:textSize="14sp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnMessageCenter"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:text="进入消息中心"
+                    android:textSize="16sp"
+                    app:cornerRadius="@dimen/corner_large" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnNotificationSettings"
+                    style="@style/App.Button.Quiet"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:layout_marginTop="8dp"
+                    android:text="提醒设置"
+                    android:textSize="16sp"
+                    app:cornerRadius="@dimen/corner_large" />
+
+            </LinearLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- 会员中心已作为底部独立栏目提供。 -->
+
+        <!-- 应用信息 -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="@dimen/corner_large"
+            app:cardElevation="0dp"
+            app:strokeColor="@color/divider"
+            app:strokeWidth="1dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="应用信息"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/gray_dark"
+                    android:layout_marginBottom="16dp" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="12306购票系统 v2.0"
+                    android:textSize="14sp"
+                    android:textColor="@color/gray_medium"
+                    android:layout_marginBottom="8dp" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="12306铁路购票系统"
+                    android:textSize="14sp"
+                    android:textColor="@color/gray_medium"
+                    android:layout_marginBottom="8dp" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="制作By Aksnes"
+                    android:textSize="14sp"
+                    android:textColor="@color/railway_blue"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="16dp" />
+
+            </LinearLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
+    </LinearLayout>
+
+</ScrollView>
+
+
+

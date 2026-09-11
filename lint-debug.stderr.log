@@ -1,0 +1,40 @@
+Warning: SDK processing. This version only understands SDK XML versions up to 3 but an SDK XML file of version 4 was encountered. This can happen if you use versions of Android Studio and the command-line tools that were released at different times.
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':app:lintDebug'.
+> Lint found errors in the project; aborting build.
+  
+  Fix the issues identified by lint, or create a baseline to see only new errors.
+  To create a baseline, run `gradlew updateLintBaseline` after adding the following to the module's build.gradle file:
+  ```
+  android {
+      lint {
+          baseline = file("lint-baseline.xml")
+      }
+  }
+  ```
+  For more details, see https://developer.android.com/studio/write/lint#snapshot
+  
+  Lint found 8 errors, 421 warnings. First failure:
+  
+  D:\12306\app\src\main\java\com\railway\ticketsystem\activity\LoadingActivity.kt:134: Error: Overriding method should call super.onBackPressed [MissingSuperCall]
+      override fun onBackPressed() {
+                   ~~~~~~~~~~~~~
+  
+     Explanation for issues of type "MissingSuperCall":
+     Some methods, such as View#onDetachedFromWindow, require that you also call
+     the super implementation as part of your method.
+  
+  
+  The full lint text report is located at:
+    D:\12306\app\build\intermediates\lint_intermediate_text_report\debug\lint-results-debug.txt
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights.
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 5m 38s

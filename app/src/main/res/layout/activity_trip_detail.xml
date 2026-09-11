@@ -1,0 +1,685 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/gray_light">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- 乘车日期（年月日 + 星期几） -->
+        <TextView
+            android:id="@+id/tvTravelDate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
+            android:layout_marginBottom="6dp"
+            android:gravity="start"
+            android:textAlignment="viewStart"
+            android:textColor="@color/text_primary"
+            android:textSize="22sp"
+            android:textStyle="bold" />
+
+        <!-- 行程状态：计划X后出发 / 旅途进行中 / 已到达 -->
+        <TextView
+            android:id="@+id/tvJourneyCountdown"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
+            android:layout_marginBottom="6dp"
+            android:gravity="start"
+            android:textAlignment="viewStart"
+            android:textColor="@color/railway_blue"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:visibility="gone" />
+
+        <!-- 中转换乘 / 待支付提示 -->
+        <TextView
+            android:id="@+id/tvItineraryInfo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            android:textColor="@color/railway_blue"
+            android:textSize="13sp"
+            android:visibility="gone" />
+
+        <!-- 车票卡片 -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            app:cardCornerRadius="@dimen/corner_large"
+            app:cardElevation="0dp"
+            app:cardBackgroundColor="@color/white"
+            app:strokeColor="@color/divider"
+            app:strokeWidth="1dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <TextView
+                    android:id="@+id/tvOrderNumber"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="start"
+                    android:textAlignment="viewStart"
+                    android:text="订单号：E123456789"
+                    android:textColor="@color/gray_dark"
+                    android:textSize="14sp" />
+
+                <!-- 订单号与车票信息之间的分隔长横线 -->
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="12dp"
+                    android:layout_marginBottom="16dp"
+                    android:background="@color/divider" />
+
+                <!-- 车次信息 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="16dp">
+
+                    <TextView
+                        android:id="@+id/tvTrainNumber"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="start"
+                        android:text="G1234"
+                        android:textAlignment="viewStart"
+                        android:textSize="24sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/railway_blue" />
+
+                    <TextView
+                        android:id="@+id/tvRoute"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="2"
+                        android:gravity="end"
+                        android:text="北京南 → 上海虹桥"
+                        android:textAlignment="viewEnd"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/black" />
+
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tvDepartureDate"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    android:gravity="start"
+                    android:text="2024-01-01"
+                    android:textAlignment="viewStart"
+                    android:textColor="@color/gray_dark"
+                    android:textSize="24sp"
+                    android:visibility="gone" />
+
+                <!-- 时间信息 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="16dp">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:gravity="start">
+
+                        <TextView
+                            android:id="@+id/tvDepartureTime"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="06:00"
+                            android:textSize="22sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/black"
+                            android:textAlignment="viewStart" />
+
+                        <TextView
+                            android:id="@+id/tvDepartureLabel"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="出发"
+                            android:textColor="@color/gray_dark"
+                            android:textSize="12sp"
+                            android:textAlignment="viewStart" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:gravity="center">
+
+                        <TextView
+                            android:id="@+id/tvJourneyDate"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="9月13日"
+                            android:textSize="14sp"
+                            android:textColor="@color/gray_dark" />
+
+                        <ImageView
+                            android:layout_width="68dp"
+                            android:layout_height="10dp"
+                            android:contentDescription="从出发站前往到达站"
+                            android:scaleType="fitXY"
+                            android:src="@drawable/ic_journey_forward"
+                            android:layout_marginTop="2dp"
+                            android:layout_marginBottom="2dp" />
+
+                        <TextView
+                            android:id="@+id/tvDuration"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="历时5小时30分"
+                            android:textColor="@color/railway_blue"
+                            android:textSize="13sp" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:gravity="end">
+
+                        <TextView
+                            android:id="@+id/tvArrivalTime"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="11:30"
+                            android:textSize="22sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/black"
+                            android:textAlignment="viewEnd" />
+
+                        <TextView
+                            android:text="到达"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textSize="12sp"
+                            android:textColor="@color/gray_dark"
+                            android:textAlignment="viewEnd" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+                <!-- 座位信息 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="16dp">
+
+                    <TextView
+                        android:text="座位："
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="14sp"
+                        android:textColor="@color/gray_dark" />
+
+                    <TextView
+                        android:id="@+id/tvSeatType"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="商务座 16车 03A号"
+                        android:textSize="14sp"
+                        android:textColor="@color/black" />
+
+                    <!-- 保留这些TextView但设为不可见，避免布局错误 -->
+                    <TextView
+                        android:id="@+id/tvSeatNumber"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:visibility="gone" />
+
+                    <TextView
+                        android:id="@+id/tvCarNumber"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:visibility="gone" />
+
+                </LinearLayout>
+
+                <!-- 乘客信息 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="16dp">
+
+                    <TextView
+                        android:text="乘客："
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="14sp"
+                        android:textColor="@color/gray_dark" />
+
+                    <TextView
+                        android:id="@+id/tvPassengerName"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="张三"
+                        android:textSize="14sp"
+                        android:textColor="@color/black" />
+
+                    <TextView
+                        android:text=" "
+                        android:layout_width="8dp"
+                        android:layout_height="wrap_content" />
+
+                    <TextView
+                        android:id="@+id/tvPassengerIdCard"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="123456789012345678"
+                        android:textSize="14sp"
+                        android:textColor="@color/gray_dark" />
+
+                </LinearLayout>
+
+                <!-- 价格信息 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="16dp">
+
+                    <TextView
+                        android:text="票价："
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="14sp"
+                        android:textColor="@color/gray_dark" />
+
+                    <TextView
+                        android:id="@+id/tvTicketPrice"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="¥553"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/railway_blue" />
+
+                    <TextView
+                        android:text=" "
+                        android:layout_width="8dp"
+                        android:layout_height="wrap_content" />
+
+                    <TextView
+                    android:id="@+id/tvOrderStatus"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="已支付"
+                        android:textSize="14sp"
+                        android:textColor="@color/green"
+                    android:background="@drawable/status_background"
+                    android:paddingStart="12dp"
+                    android:paddingTop="7dp"
+                    android:paddingEnd="12dp"
+                    android:paddingBottom="7dp" />
+
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tvGateInfo"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp"
+                    android:background="@drawable/bg_surface_card"
+                    android:padding="12dp"
+                    android:textColor="@color/railway_blue"
+                    android:textSize="13sp"
+                    android:visibility="gone" />
+
+                <!-- 改签 / 退票 / 变更到站 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="10dp"
+                    android:gravity="center"
+                    android:orientation="horizontal">
+
+                    <!-- 宽度按文案自适应：等宽布局下「变更到站」四个汉字会被截断 -->
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnChangeTicket"
+                        style="@style/App.Button.Quiet"
+                        android:layout_width="wrap_content"
+                        android:layout_height="48dp"
+                        android:layout_marginHorizontal="4dp"
+                        android:insetLeft="0dp"
+                        android:insetRight="0dp"
+                        android:paddingHorizontal="12dp"
+                        android:text="改签"
+                        android:textColor="@color/railway_blue"
+                        android:textSize="14sp" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnRefundTicket"
+                        style="@style/App.Button.Quiet"
+                        android:layout_width="wrap_content"
+                        android:layout_height="48dp"
+                        android:layout_marginHorizontal="4dp"
+                        android:insetLeft="0dp"
+                        android:insetRight="0dp"
+                        android:paddingHorizontal="12dp"
+                        android:text="退票"
+                        android:textColor="@color/railway_blue"
+                        android:textSize="14sp" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnChangeStation"
+                        style="@style/App.Button.Quiet"
+                        android:layout_width="wrap_content"
+                        android:layout_height="48dp"
+                        android:layout_marginHorizontal="4dp"
+                        android:insetLeft="0dp"
+                        android:insetRight="0dp"
+                        android:paddingHorizontal="12dp"
+                        android:text="变更到站"
+                        android:textColor="@color/railway_blue"
+                        android:textSize="14sp" />
+
+                </LinearLayout>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnRefundItinerary"
+                    style="@style/App.Button.Quiet"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:layout_marginBottom="10dp"
+                    android:text="整组退票（中转换乘）"
+                    android:textColor="@color/railway_blue"
+                    android:textSize="14sp"
+                    app:cornerRadius="@dimen/corner_large"
+                    android:visibility="gone" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnOrderMeal"
+                    style="@style/App.Button.Quiet"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:layout_marginBottom="14dp"
+                    android:text="高铁订餐"
+                    android:textColor="@color/railway_blue"
+                    android:textSize="14sp"
+                    app:cornerRadius="@dimen/corner_large" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnRouteMap"
+                    style="@style/App.Button.Quiet"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:layout_marginBottom="14dp"
+                    android:text="查看线路地图"
+                    android:textColor="@color/railway_blue"
+                    android:textSize="14sp"
+                    app:cornerRadius="@dimen/corner_large" />
+
+                <!-- 二维码区域 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:background="@drawable/qr_code_background"
+                    android:padding="16dp">
+
+                    <ImageView
+                        android:id="@+id/ivQrCode"
+                        android:layout_width="160dp"
+                        android:layout_height="160dp"
+                        android:adjustViewBounds="true"
+                        android:contentDescription="@string/qr_code_content_desc"
+                        android:scaleType="fitXY" />
+
+                    <TextView
+                        android:id="@+id/tvQrCodeInfo"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:gravity="center"
+                        android:text="检票码示例"
+                        android:textColor="@color/gray_dark"
+                        android:textSize="12sp" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardTravelConcierge"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:visibility="gone"
+            app:cardCornerRadius="@dimen/corner_large"
+            app:cardElevation="0dp"
+            app:cardBackgroundColor="@color/white"
+            app:strokeColor="@color/divider"
+            app:strokeWidth="1dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="出行管家"
+                    android:textColor="@color/railway_blue"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvJourneyStage"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:textColor="@color/text_primary"
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvJourneyTimeline"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:lineSpacingExtra="4dp"
+                    android:textColor="@color/gray_dark"
+                    android:textSize="13sp" />
+
+                <TextView
+                    android:id="@+id/tvLoungeBenefit"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:textColor="@color/railway_blue"
+                    android:textSize="13sp"
+                    android:visibility="gone" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    android:orientation="horizontal">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnJourneyAction"
+                        android:layout_width="0dp"
+                        android:layout_height="46dp"
+                        android:layout_weight="1"
+                        android:text="更新出行状态"
+                        android:textSize="13sp" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnUseLoungeCoupon"
+                        style="@style/App.Button.Quiet"
+                        android:layout_width="0dp"
+                        android:layout_height="46dp"
+                        android:layout_marginStart="8dp"
+                        android:layout_weight="1"
+                        android:text="贵宾厅券"
+                        android:textSize="13sp"
+                        android:visibility="gone" />
+                </LinearLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardStopTimetable"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:visibility="gone"
+            app:cardCornerRadius="@dimen/corner_large"
+            app:cardElevation="0dp"
+            app:strokeColor="@color/divider"
+            app:strokeWidth="1dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:text="经停时刻"
+                    android:textColor="@color/railway_blue"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvStopTimetableCount"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="10dp"
+                    android:textColor="@color/gray_dark"
+                    android:textSize="12sp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp"
+                    android:background="@drawable/bg_table_header"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="12dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1.30"
+                        android:text="停靠站"
+                        android:textColor="@color/white"
+                        android:textSize="13sp" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="0.85"
+                        android:gravity="center"
+                        android:text="到点"
+                        android:textColor="@color/white"
+                        android:textSize="13sp" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="0.85"
+                        android:gravity="center"
+                        android:text="开点"
+                        android:textColor="@color/white"
+                        android:textSize="13sp" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="0.75"
+                        android:gravity="end"
+                        android:text="停留"
+                        android:textColor="@color/white"
+                        android:textSize="13sp" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="0.95"
+                        android:gravity="end"
+                        android:text="状态"
+                        android:textColor="@color/white"
+                        android:textSize="13sp" />
+                </LinearLayout>
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rvStopTimetable"
+                    android:layout_width="match_parent"
+                    android:layout_height="340dp"
+                    android:fadeScrollbars="false"
+                    android:nestedScrollingEnabled="true"
+                    android:scrollbars="vertical" />
+
+                <LinearLayout
+                    android:id="@+id/layoutStopTrainSet"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:background="@drawable/bg_surface_card"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:padding="14dp"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="担当车型"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="13sp" />
+
+                    <TextView
+                        android:id="@+id/tvStopTrainSet"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="12dp"
+                        android:layout_weight="1"
+                        android:textColor="@color/text_primary"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+    </LinearLayout>
+
+</ScrollView>

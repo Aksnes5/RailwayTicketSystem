@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp"
+    app:cardBackgroundColor="@color/surface_container"
+    app:cardCornerRadius="@dimen/corner_large"
+    app:cardElevation="0dp"
+    app:strokeColor="@color/divider"
+    app:strokeWidth="1dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- 车次和状态 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="12dp">
+
+            <TextView
+                android:id="@+id/tvTripTrainNumber"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="G1"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="@color/railway_blue"
+                android:letterSpacing="0.02" />
+
+            <TextView
+                android:id="@+id/tvTripStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="已预订"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textColor="@color/railway_blue"
+                android:padding="0dp" />
+
+        </LinearLayout>
+
+        <!-- 路线 -->
+        <TextView
+            android:id="@+id/tvTripRoute"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="北京南 → 上海虹桥"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="@color/text_primary"
+            android:layout_marginBottom="8dp" />
+
+        <!-- 时间 -->
+        <TextView
+            android:id="@+id/tvTripTime"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="06:00 - 11:30"
+            android:textSize="14sp"
+            android:textColor="@color/text_secondary"
+            android:layout_marginBottom="8dp" />
+
+        <TextView
+            android:id="@+id/tvTripReminder"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:background="@drawable/bg_price_pill"
+            android:paddingStart="10dp"
+            android:paddingTop="5dp"
+            android:paddingEnd="10dp"
+            android:paddingBottom="5dp"
+            android:textColor="@color/railway_blue"
+            android:textSize="12sp"
+            android:visibility="gone" />
+
+        <!-- 乘客和座位信息 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="8dp">
+
+            <TextView
+                android:id="@+id/tvTripPassenger"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="张三"
+                android:textSize="14sp"
+                android:textColor="@color/gray_dark" />
+
+            <TextView
+                android:id="@+id/tvTripSeat"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="01车01A"
+                android:textSize="14sp"
+                android:textColor="@color/railway_blue" />
+
+        </LinearLayout>
+
+        <!-- 价格 -->
+        <TextView
+            android:id="@+id/tvTripPrice"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="¥553"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="@color/railway_orange"
+            android:gravity="end" />
+
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>
+
+
+
+
+
+

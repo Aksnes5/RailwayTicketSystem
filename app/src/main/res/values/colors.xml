@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 12306-inspired light-blue service palette: bright, clear and low contrast. -->
+    <color name="railway_blue">#3B99FC</color>
+    <color name="railway_blue_light">#EAF5FF</color>
+    <color name="railway_blue_dark">#267BCC</color>
+    <color name="railway_blue_deep">#1F68B0</color>
+    <color name="hero_sky">#A7D9F6</color>
+    <color name="railway_red">#E64A19</color>
+    <color name="railway_red_dark">#BF360C</color>
+    <color name="railway_orange">#F56A00</color>
+    <color name="surface">#EEF7FF</color>
+    <color name="surface_container">#FFFFFF</color>
+    <color name="surface_tint">#FFFFFF</color>
+    <color name="divider">#E7ECF3</color>
+    <color name="button_stroke">#8C98A8</color>
+    <color name="text_primary">#182230</color>
+    <color name="text_secondary">#667085</color>
+    <color name="success">#16A06A</color>
+    <color name="success_container">#E9F8F0</color>
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+    <color name="gray_light">#EEF7FF</color>
+    <color name="gray_medium">#98A2B3</color>
+    <color name="gray_dark">#344054</color>
+    <color name="green">#4CAF50</color>
+    <color name="green_light">#E9F8F0</color>
+    <color name="green_soft">#81C784</color>
+    <color name="orange">#FF9800</color>
+    <color name="orange_light">#FFF3E0</color>
+    
+    <!-- Material Design colors -->
+    <color name="colorPrimary">#3B99FC</color>
+    <color name="colorPrimaryDark">#267BCC</color>
+    <color name="colorAccent">#F56A00</color>
+</resources>

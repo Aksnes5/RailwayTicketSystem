@@ -1,0 +1,28 @@
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.5/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+Warning: SDK processing. This version only understands SDK XML versions up to 3 but an SDK XML file of version 4 was encountered. This can happen if you use versions of Android Studio and the command-line tools that were released at different times.
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preDebugBuild UP-TO-DATE
+> Task :app:dataBindingMergeDependencyArtifactsDebug UP-TO-DATE
+> Task :app:generateDebugResValues UP-TO-DATE
+> Task :app:generateDebugResources UP-TO-DATE
+> Task :app:packageDebugResources
+> Task :app:checkDebugAarMetadata UP-TO-DATE
+> Task :app:mergeDebugResources
+> Task :app:mapDebugSourceSetPaths
+> Task :app:createDebugCompatibleScreenManifests UP-TO-DATE
+> Task :app:extractDeepLinksDebug UP-TO-DATE
+> Task :app:parseDebugLocalResources
+> Task :app:processDebugMainManifest UP-TO-DATE
+> Task :app:dataBindingGenBaseClassesDebug UP-TO-DATE
+> Task :app:processDebugManifest UP-TO-DATE
+> Task :app:processDebugManifestForPackage UP-TO-DATE
+> Task :app:processDebugResources
+
+> Task :app:compileDebugKotlin
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/activity/OrderConfirmActivity.kt:88:31 'getSerializableExtra(String!): Serializable?' is deprecated. Deprecated in Java
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/activity/OrderConfirmActivity.kt:89:32 'getSerializableExtra(String!): Serializable?' is deprecated. Deprecated in Java
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/activity/OrderConfirmActivity.kt:113:28 'getSerializableExtra(String!): Serializable?' is deprecated. Deprecated in Java
+
+BUILD SUCCESSFUL in 25s
+15 actionable tasks: 6 executed, 9 up-to-date

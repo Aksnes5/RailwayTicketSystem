@@ -1,0 +1,44 @@
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.5/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+Warning: SDK processing. This version only understands SDK XML versions up to 3 but an SDK XML file of version 4 was encountered. This can happen if you use versions of Android Studio and the command-line tools that were released at different times.
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preDebugBuild UP-TO-DATE
+> Task :app:dataBindingMergeDependencyArtifactsDebug UP-TO-DATE
+> Task :app:generateDebugResValues UP-TO-DATE
+> Task :app:generateDebugResources UP-TO-DATE
+> Task :app:mergeDebugResources UP-TO-DATE
+> Task :app:packageDebugResources UP-TO-DATE
+> Task :app:parseDebugLocalResources UP-TO-DATE
+> Task :app:dataBindingGenBaseClassesDebug UP-TO-DATE
+> Task :app:checkDebugAarMetadata UP-TO-DATE
+> Task :app:mapDebugSourceSetPaths UP-TO-DATE
+> Task :app:createDebugCompatibleScreenManifests UP-TO-DATE
+> Task :app:extractDeepLinksDebug UP-TO-DATE
+> Task :app:processDebugMainManifest UP-TO-DATE
+> Task :app:processDebugManifest UP-TO-DATE
+> Task :app:processDebugManifestForPackage UP-TO-DATE
+> Task :app:processDebugResources UP-TO-DATE
+
+> Task :app:compileDebugKotlin
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/activity/ChangeTicketSeatActivity.kt:51:32 'getSerializableExtra(String!): Serializable?' is deprecated. Deprecated in Java
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/activity/ChangeTicketSeatActivity.kt:52:27 'getSerializableExtra(String!): Serializable?' is deprecated. Deprecated in Java
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/activity/ChangeTicketSeatActivity.kt:112:53 'getColor(Int): Int' is deprecated. Deprecated in Java
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/activity/ChangeTicketSeatActivity.kt:113:47 'getColor(Int): Int' is deprecated. Deprecated in Java
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/activity/ChangeTicketSeatActivity.kt:115:53 'getColor(Int): Int' is deprecated. Deprecated in Java
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/activity/ChangeTicketSeatActivity.kt:116:91 'getColor(Int): Int' is deprecated. Deprecated in Java
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/activity/ChangeTicketSeatActivity.kt:118:47 'getColor(Int): Int' is deprecated. Deprecated in Java
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/activity/ChangeTicketSeatActivity.kt:142:53 'getColor(Int): Int' is deprecated. Deprecated in Java
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/activity/ChangeTicketSeatActivity.kt:143:47 'getColor(Int): Int' is deprecated. Deprecated in Java
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/activity/ChangeTicketSeatActivity.kt:145:53 'getColor(Int): Int' is deprecated. Deprecated in Java
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/activity/ChangeTicketSeatActivity.kt:146:91 'getColor(Int): Int' is deprecated. Deprecated in Java
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/activity/ChangeTicketSeatActivity.kt:148:47 'getColor(Int): Int' is deprecated. Deprecated in Java
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/activity/ChangeTicketSeatActivity.kt:163:13 Variable 'seatCount' is never used
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/activity/ChangeTicketSeatActivity.kt:211:53 'getColor(Int): Int' is deprecated. Deprecated in Java
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/activity/ChangeTicketSeatActivity.kt:212:47 'getColor(Int): Int' is deprecated. Deprecated in Java
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/activity/ChangeTicketSeatActivity.kt:236:62 'getColor(Int): Int' is deprecated. Deprecated in Java
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/activity/ChangeTicketSeatActivity.kt:245:62 'getColor(Int): Int' is deprecated. Deprecated in Java
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/activity/ChangeTicketSeatActivity.kt:248:62 'getColor(Int): Int' is deprecated. Deprecated in Java
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/activity/ChangeTicketSeatActivity.kt:334:13 The value 'true' assigned to 'var reservedNewInventory: Boolean defined in com.railway.ticketsystem.activity.ChangeTicketSeatActivity.processChangeTicket' is never used
+
+BUILD SUCCESSFUL in 19s
+15 actionable tasks: 1 executed, 14 up-to-date

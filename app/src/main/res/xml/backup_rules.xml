@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<full-backup-content>
+    <exclude domain="sharedpref" path="user_data.xml" />
+    <exclude domain="sharedpref" path="passenger_data.xml" />
+    <exclude domain="sharedpref" path="order_data.xml" />
+    <exclude domain="sharedpref" path="secure_user_data.xml" />
+    <exclude domain="sharedpref" path="secure_passenger_data.xml" />
+    <exclude domain="sharedpref" path="secure_order_data.xml" />
+</full-backup-content>

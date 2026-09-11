@@ -1,0 +1,71 @@
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.5/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+Warning: SDK processing. This version only understands SDK XML versions up to 3 but an SDK XML file of version 4 was encountered. This can happen if you use versions of Android Studio and the command-line tools that were released at different times.
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preDebugBuild UP-TO-DATE
+> Task :app:mergeDebugNativeDebugMetadata NO-SOURCE
+> Task :app:dataBindingMergeDependencyArtifactsDebug UP-TO-DATE
+> Task :app:generateDebugResValues UP-TO-DATE
+> Task :app:generateDebugResources UP-TO-DATE
+> Task :app:packageDebugResources
+> Task :app:checkDebugAarMetadata UP-TO-DATE
+> Task :app:mergeDebugResources
+> Task :app:mapDebugSourceSetPaths
+> Task :app:createDebugCompatibleScreenManifests UP-TO-DATE
+> Task :app:extractDeepLinksDebug UP-TO-DATE
+> Task :app:parseDebugLocalResources
+> Task :app:processDebugMainManifest UP-TO-DATE
+> Task :app:dataBindingGenBaseClassesDebug
+> Task :app:processDebugManifest UP-TO-DATE
+> Task :app:processDebugManifestForPackage UP-TO-DATE
+> Task :app:javaPreCompileDebug UP-TO-DATE
+> Task :app:mergeDebugShaders UP-TO-DATE
+> Task :app:compileDebugShaders NO-SOURCE
+> Task :app:generateDebugAssets UP-TO-DATE
+> Task :app:mergeDebugAssets UP-TO-DATE
+> Task :app:compressDebugAssets UP-TO-DATE
+> Task :app:checkDebugDuplicateClasses UP-TO-DATE
+> Task :app:desugarDebugFileDependencies UP-TO-DATE
+> Task :app:mergeExtDexDebug UP-TO-DATE
+> Task :app:mergeLibDexDebug UP-TO-DATE
+> Task :app:mergeDebugJniLibFolders UP-TO-DATE
+> Task :app:mergeDebugNativeLibs NO-SOURCE
+> Task :app:stripDebugDebugSymbols NO-SOURCE
+> Task :app:validateSigningDebug UP-TO-DATE
+> Task :app:writeDebugAppMetadata UP-TO-DATE
+> Task :app:writeDebugSigningConfigVersions UP-TO-DATE
+> Task :app:processDebugResources
+
+> Task :app:compileDebugKotlin
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/MainActivity.kt:222:36 Parameter 'fragment' is never used
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/activity/SearchResultsActivity.kt:145:31 Parameter 'mode' is never used
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/activity/SearchResultsActivity.kt:164:24 Parameter 'view' is never used
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/activity/SearchResultsActivity.kt:172:24 Parameter 'view' is never used
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/activity/SearchResultsActivity.kt:180:24 Parameter 'view' is never used
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/activity/SearchResultsActivity.kt:207:57 Type mismatch: inferred type is Date? but Date was expected
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/adapter/StationAdapter.kt:173:15 Variable 'letter' is never used
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/adapter/StationAdapter.kt:232:15 Variable 'letter' is never used
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/fragment/ProfileFragmentWithAvatar.kt:51:36 Parameter 'inflater' is never used
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/fragment/ProfileFragmentWithAvatar.kt:51:62 Parameter 'container' is never used
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/fragment/ProfileFragmentWithSafeSave.kt:57:36 Parameter 'inflater' is never used
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/fragment/ProfileFragmentWithSafeSave.kt:57:62 Parameter 'container' is never used
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/fragment/SafeProfileFragment.kt:40:36 Parameter 'inflater' is never used
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/fragment/SafeProfileFragment.kt:40:62 Parameter 'container' is never used
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/fragment/TestProfileFragment.kt:49:36 Parameter 'inflater' is never used
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/fragment/TestProfileFragment.kt:49:62 Parameter 'container' is never used
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/fragment/TicketsFragment.kt:118:9 'startActivityForResult(Intent, Int): Unit' is deprecated. Deprecated in Java
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/fragment/TicketsFragment.kt:122:15 'onActivityResult(Int, Int, Intent?): Unit' is deprecated. Deprecated in Java
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/fragment/TicketsFragment.kt:125:40 'getSerializableExtra(String!): Serializable?' is deprecated. Deprecated in Java
+
+> Task :app:compileDebugJavaWithJavac
+> Task :app:processDebugJavaRes UP-TO-DATE
+> Task :app:mergeDebugJavaResource UP-TO-DATE
+> Task :app:dexBuilderDebug
+> Task :app:mergeProjectDexDebug
+> Task :app:packageDebug
+> Task :app:assembleDebug
+> Task :app:copyDebugApk
+> Task :app:createDebugApkListingFileRedirect UP-TO-DATE
+
+BUILD SUCCESSFUL in 48s
+35 actionable tasks: 12 executed, 23 up-to-date

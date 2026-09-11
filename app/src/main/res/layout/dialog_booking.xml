@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="24dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/ticket_info"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="@color/gray_dark"
+        android:gravity="center"
+        android:layout_marginBottom="24dp" />
+
+    <!-- 车次信息 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="16dp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="车次："
+            android:textSize="16sp"
+            android:textColor="@color/gray_dark" />
+
+        <TextView
+            android:id="@+id/tvDialogTrainNumber"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="G1"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="@color/railway_blue" />
+
+    </LinearLayout>
+
+    <!-- 出发站和到达站 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="16dp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="路线："
+            android:textSize="16sp"
+            android:textColor="@color/gray_dark" />
+
+        <TextView
+            android:id="@+id/tvDialogRoute"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="北京南 → 上海虹桥"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="@color/gray_dark" />
+
+    </LinearLayout>
+
+    <!-- 出发时间 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="16dp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/departure_time"
+            android:textSize="16sp"
+            android:textColor="@color/gray_dark" />
+
+        <TextView
+            android:id="@+id/tvDialogDepartureTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="06:00"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="@color/gray_dark" />
+
+    </LinearLayout>
+
+    <!-- 到达时间 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="16dp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/arrival_time"
+            android:textSize="16sp"
+            android:textColor="@color/gray_dark" />
+
+        <TextView
+            android:id="@+id/tvDialogArrivalTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="11:30"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="@color/gray_dark" />
+
+    </LinearLayout>
+
+    <!-- 票价 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="16dp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/price"
+            android:textSize="16sp"
+            android:textColor="@color/gray_dark" />
+
+        <TextView
+            android:id="@+id/tvDialogPrice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="¥553"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="@color/railway_red" />
+
+    </LinearLayout>
+
+    <!-- 座位号 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="16dp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/seat_number"
+            android:textSize="16sp"
+            android:textColor="@color/gray_dark" />
+
+        <TextView
+            android:id="@+id/tvDialogSeatNumber"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="01车01A"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="@color/railway_blue" />
+
+    </LinearLayout>
+
+    <!-- 乘客姓名输入 -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="24dp"
+        android:hint="@string/enter_passenger_name"
+        style="@style/App.TextInput.Rounded">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/etPassengerName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textPersonName" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- 按钮区域 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnCancel"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:text="@string/cancel"
+            android:textSize="16sp"
+            app:cornerRadius="@dimen/corner_large"
+            style="@style/App.Button.Quiet"
+            android:layout_marginEnd="8dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnConfirmBooking"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:text="@string/confirm_booking"
+            android:textSize="16sp"
+            app:cornerRadius="@dimen/corner_large"
+            android:layout_marginStart="8dp" />
+
+    </LinearLayout>
+
+</LinearLayout>

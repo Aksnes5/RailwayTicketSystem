@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/surface"
+    android:gravity="center_horizontal"
+    android:orientation="vertical"
+    android:padding="28dp">
+
+    <ImageView
+        android:layout_width="76dp"
+        android:layout_height="76dp"
+        android:background="@drawable/bg_price_pill"
+        android:contentDescription="预订成功"
+        android:padding="18dp"
+        android:src="@drawable/ic_service_hotel" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:text="酒店预订成功"
+        android:textColor="@color/text_primary"
+        android:textSize="24sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/tvHotelSuccessSummary"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="14dp"
+        android:gravity="center"
+        android:textAlignment="center"
+        android:textColor="@color/text_secondary"
+        android:textSize="15sp" />
+
+    <TextView
+        android:id="@+id/tvHotelSuccessNumber"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:background="@drawable/bg_surface_card"
+        android:gravity="center"
+        android:padding="16dp"
+        android:textColor="@color/railway_blue"
+        android:textSize="16sp"
+        android:textStyle="bold" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnHotelSuccessOrders"
+        style="@style/App.Button.Quiet"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginTop="30dp"
+        android:text="查看我的酒店订单"
+        android:textColor="@color/railway_blue"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:cornerRadius="@dimen/corner_large" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnHotelSuccessDone"
+        android:layout_width="match_parent"
+        android:layout_height="54dp"
+        android:layout_marginTop="12dp"
+        android:text="完成"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:cornerRadius="@dimen/corner_large" />
+</LinearLayout>

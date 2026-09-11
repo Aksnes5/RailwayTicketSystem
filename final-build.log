@@ -1,0 +1,118 @@
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.5/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+Warning: SDK processing. This version only understands SDK XML versions up to 3 but an SDK XML file of version 4 was encountered. This can happen if you use versions of Android Studio and the command-line tools that were released at different times.
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preDebugBuild UP-TO-DATE
+> Task :app:dataBindingMergeDependencyArtifactsDebug UP-TO-DATE
+> Task :app:generateDebugResValues UP-TO-DATE
+> Task :app:generateDebugResources UP-TO-DATE
+> Task :app:mergeDebugResources UP-TO-DATE
+> Task :app:packageDebugResources UP-TO-DATE
+> Task :app:parseDebugLocalResources UP-TO-DATE
+> Task :app:dataBindingGenBaseClassesDebug UP-TO-DATE
+> Task :app:checkDebugAarMetadata UP-TO-DATE
+> Task :app:mapDebugSourceSetPaths UP-TO-DATE
+> Task :app:createDebugCompatibleScreenManifests UP-TO-DATE
+> Task :app:extractDeepLinksDebug UP-TO-DATE
+> Task :app:processDebugMainManifest UP-TO-DATE
+> Task :app:processDebugManifest UP-TO-DATE
+> Task :app:processDebugManifestForPackage UP-TO-DATE
+> Task :app:processDebugResources UP-TO-DATE
+> Task :app:compileDebugKotlin UP-TO-DATE
+> Task :app:javaPreCompileDebug UP-TO-DATE
+> Task :app:compileDebugJavaWithJavac UP-TO-DATE
+> Task :app:bundleDebugClassesToRuntimeJar UP-TO-DATE
+> Task :app:bundleDebugClassesToCompileJar UP-TO-DATE
+> Task :app:compileDebugUnitTestKotlin UP-TO-DATE
+> Task :app:preDebugUnitTestBuild UP-TO-DATE
+> Task :app:javaPreCompileDebugUnitTest UP-TO-DATE
+> Task :app:compileDebugUnitTestJavaWithJavac NO-SOURCE
+> Task :app:processDebugJavaRes UP-TO-DATE
+> Task :app:processDebugUnitTestJavaRes UP-TO-DATE
+> Task :app:testDebugUnitTest UP-TO-DATE
+> Task :app:mergeDebugNativeDebugMetadata NO-SOURCE
+> Task :app:mergeDebugShaders UP-TO-DATE
+> Task :app:compileDebugShaders NO-SOURCE
+> Task :app:generateDebugAssets UP-TO-DATE
+> Task :app:mergeDebugAssets UP-TO-DATE
+> Task :app:compressDebugAssets UP-TO-DATE
+> Task :app:mergeDebugJavaResource UP-TO-DATE
+> Task :app:checkDebugDuplicateClasses UP-TO-DATE
+> Task :app:desugarDebugFileDependencies UP-TO-DATE
+> Task :app:mergeExtDexDebug UP-TO-DATE
+> Task :app:mergeLibDexDebug UP-TO-DATE
+> Task :app:dexBuilderDebug
+> Task :app:mergeDebugJniLibFolders UP-TO-DATE
+> Task :app:mergeDebugNativeLibs NO-SOURCE
+> Task :app:stripDebugDebugSymbols NO-SOURCE
+> Task :app:validateSigningDebug UP-TO-DATE
+> Task :app:writeDebugAppMetadata UP-TO-DATE
+> Task :app:writeDebugSigningConfigVersions UP-TO-DATE
+> Task :app:mergeProjectDexDebug
+> Task :app:packageDebug
+> Task :app:assembleDebug
+> Task :app:copyDebugApk FAILED
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Some problems were found with the configuration of task ':app:copyDebugApk' (type 'Copy').
+  - Gradle detected a problem with the following location: 'D:\12306'.
+    
+    Reason: Task ':app:testDebugUnitTest' uses this output of task ':app:copyDebugApk' without declaring an explicit or implicit dependency. This can lead to incorrect results being produced, depending on what order the tasks are executed.
+    
+    Possible solutions:
+      1. Declare task ':app:copyDebugApk' as an input of ':app:testDebugUnitTest'.
+      2. Declare an explicit dependency on ':app:copyDebugApk' from ':app:testDebugUnitTest' using Task#dependsOn.
+      3. Declare an explicit dependency on ':app:copyDebugApk' from ':app:testDebugUnitTest' using Task#mustRunAfter.
+    
+    For more information, please refer to https://docs.gradle.org/8.5/userguide/validation_problems.html#implicit_dependency in the Gradle documentation.
+  - Gradle detected a problem with the following location: 'D:\12306'.
+    
+    Reason: Task ':app:compileDebugUnitTestKotlin' uses this output of task ':app:copyDebugApk' without declaring an explicit or implicit dependency. This can lead to incorrect results being produced, depending on what order the tasks are executed.
+    
+    Possible solutions:
+      1. Declare task ':app:copyDebugApk' as an input of ':app:compileDebugUnitTestKotlin'.
+      2. Declare an explicit dependency on ':app:copyDebugApk' from ':app:compileDebugUnitTestKotlin' using Task#dependsOn.
+      3. Declare an explicit dependency on ':app:copyDebugApk' from ':app:compileDebugUnitTestKotlin' using Task#mustRunAfter.
+    
+    For more information, please refer to https://docs.gradle.org/8.5/userguide/validation_problems.html#implicit_dependency in the Gradle documentation.
+  - Gradle detected a problem with the following location: 'D:\12306'.
+    
+    Reason: Task ':app:bundleDebugClassesToCompileJar' uses this output of task ':app:copyDebugApk' without declaring an explicit or implicit dependency. This can lead to incorrect results being produced, depending on what order the tasks are executed.
+    
+    Possible solutions:
+      1. Declare task ':app:copyDebugApk' as an input of ':app:bundleDebugClassesToCompileJar'.
+      2. Declare an explicit dependency on ':app:copyDebugApk' from ':app:bundleDebugClassesToCompileJar' using Task#dependsOn.
+      3. Declare an explicit dependency on ':app:copyDebugApk' from ':app:bundleDebugClassesToCompileJar' using Task#mustRunAfter.
+    
+    For more information, please refer to https://docs.gradle.org/8.5/userguide/validation_problems.html#implicit_dependency in the Gradle documentation.
+  - Gradle detected a problem with the following location: 'D:\12306'.
+    
+    Reason: Task ':app:bundleDebugClassesToRuntimeJar' uses this output of task ':app:copyDebugApk' without declaring an explicit or implicit dependency. This can lead to incorrect results being produced, depending on what order the tasks are executed.
+    
+    Possible solutions:
+      1. Declare task ':app:copyDebugApk' as an input of ':app:bundleDebugClassesToRuntimeJar'.
+      2. Declare an explicit dependency on ':app:copyDebugApk' from ':app:bundleDebugClassesToRuntimeJar' using Task#dependsOn.
+      3. Declare an explicit dependency on ':app:copyDebugApk' from ':app:bundleDebugClassesToRuntimeJar' using Task#mustRunAfter.
+    
+    For more information, please refer to https://docs.gradle.org/8.5/userguide/validation_problems.html#implicit_dependency in the Gradle documentation.
+  - Gradle detected a problem with the following location: 'D:\12306'.
+    
+    Reason: Task ':app:processDebugUnitTestJavaRes' uses this output of task ':app:copyDebugApk' without declaring an explicit or implicit dependency. This can lead to incorrect results being produced, depending on what order the tasks are executed.
+    
+    Possible solutions:
+      1. Declare task ':app:copyDebugApk' as an input of ':app:processDebugUnitTestJavaRes'.
+      2. Declare an explicit dependency on ':app:copyDebugApk' from ':app:processDebugUnitTestJavaRes' using Task#dependsOn.
+      3. Declare an explicit dependency on ':app:copyDebugApk' from ':app:processDebugUnitTestJavaRes' using Task#mustRunAfter.
+    
+    For more information, please refer to https://docs.gradle.org/8.5/userguide/validation_problems.html#implicit_dependency in the Gradle documentation.
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights.
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 17s
+40 actionable tasks: 4 executed, 36 up-to-date

@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginHorizontal="16dp"
+    android:layout_marginTop="0dp"
+    android:layout_marginBottom="4dp"
+    app:cardBackgroundColor="@color/surface_container"
+    app:cardElevation="0dp"
+    app:cardCornerRadius="@dimen/corner_large"
+    app:strokeColor="@color/divider"
+    app:strokeWidth="1dp"
+    android:clickable="true"
+    android:focusable="true"
+    android:foreground="?android:attr/selectableItemBackground">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+            <!-- 时间信息 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="8dp">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/tvDepartureTime"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="07:02"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/text_primary" />
+
+                    <TextView
+                        android:id="@+id/tvDepartureStation"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="南昌西"
+                        android:textSize="14sp"
+                        android:textColor="@color/text_secondary"
+                        android:layout_marginTop="2dp" />
+
+                </LinearLayout>
+
+                <!-- 中间的车次号和耗时 -->
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:gravity="center_horizontal"
+                    android:layout_marginHorizontal="20dp">
+
+                    <TextView
+                        android:id="@+id/tvTrainNumber"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="G1759"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/railway_blue" />
+
+                    <View
+                        android:layout_width="80dp"
+                        android:layout_height="2dp"
+                        android:background="@drawable/bg_route_line"
+                        android:layout_marginVertical="4dp" />
+
+                    <TextView
+                        android:id="@+id/tvDuration"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="15分"
+                        android:textSize="12sp"
+                        android:textColor="@color/railway_blue" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="end">
+
+                    <TextView
+                        android:id="@+id/tvArrivalTime"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="07:17"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/text_primary" />
+
+                    <TextView
+                        android:id="@+id/tvArrivalStation"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="高安"
+                        android:textSize="14sp"
+                        android:textColor="@color/gray_dark"
+                        android:layout_marginTop="2dp" />
+
+                </LinearLayout>
+
+                <!-- 价格信息 - 放在最右边，与时间同一水平线 -->
+                <TextView
+                    android:id="@+id/tvPrice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="¥22起"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/railway_red"
+                    android:layout_marginStart="16dp" />
+
+            </LinearLayout>
+
+        <!-- 分隔线 -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+                        android:background="@color/divider"
+            android:layout_marginVertical="8dp" />
+
+        <!-- 座位余票信息 -->
+        <LinearLayout
+            android:id="@+id/llSeatInfo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:layout_marginTop="4dp"
+            android:orientation="horizontal" />
+
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>
+

@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:background="@color/surface">
+
+    <!-- 标题 -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/app_name"
+        android:textSize="32sp"
+        android:textStyle="bold"
+        android:textColor="@color/railway_blue"
+        android:gravity="center"
+        android:layout_marginTop="60dp"
+        android:layout_marginBottom="40dp" />
+
+    <!-- 登录卡片 -->
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="24dp"
+        app:cardBackgroundColor="@color/surface_container"
+        app:cardCornerRadius="@dimen/corner_large"
+        app:cardElevation="0dp"
+        app:strokeColor="@color/divider"
+        app:strokeWidth="1dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="24dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="用户登录"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:textColor="@color/text_primary"
+                android:gravity="center"
+                android:layout_marginBottom="32dp" />
+
+            <!-- 用户名 -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:hint="用户名"
+                style="@style/App.TextInput.Rounded">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etUsername"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="text" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- 密码 -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                android:hint="密码"
+                style="@style/App.TextInput.Rounded">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etPassword"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textPassword" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- 登录按钮 -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnLogin"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:text="登录"
+                android:textSize="18sp"
+                app:cornerRadius="@dimen/corner_large"
+                android:layout_marginBottom="16dp" />
+
+            <!-- 注册按钮 -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnRegister"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="注册新账号"
+                android:textSize="16sp"
+                app:cornerRadius="@dimen/corner_large"
+                style="@style/App.Button.Quiet" />
+
+        </LinearLayout>
+
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- 底部提示 -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="请先登录或注册账号以使用购票功能"
+        android:textSize="14sp"
+        android:textColor="@color/text_secondary"
+        android:gravity="center"
+        android:layout_marginTop="24dp" />
+
+</LinearLayout>
+
+
+
+
+
+
+

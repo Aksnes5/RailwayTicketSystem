@@ -1,0 +1,23 @@
+<resources>
+    <string name="app_name">铁路12306</string>
+    <string name="departure_station">出发站</string>
+    <string name="arrival_station">到达站</string>
+    <string name="search_tickets">查询车票</string>
+    <string name="book_ticket">预订车票</string>
+    <string name="ticket_info">车票信息</string>
+    <string name="departure_time">出发时间</string>
+    <string name="arrival_time">到达时间</string>
+    <string name="price">票价</string>
+    <string name="seat_number">座位号</string>
+    <string name="passenger_name">乘客姓名</string>
+    <string name="train_number">车次</string>
+    <string name="duration">运行时间</string>
+    <string name="no_tickets_found">未找到符合条件的车票</string>
+    <string name="please_select_stations">请选择出发站和到达站</string>
+    <string name="booking_success">预订成功</string>
+    <string name="booking_failed">预订失败</string>
+    <string name="enter_passenger_name">请输入乘客姓名</string>
+    <string name="confirm_booking">确认预订</string>
+    <string name="cancel">取消</string>
+    <string name="qr_code_content_desc">行程二维码</string>
+</resources>

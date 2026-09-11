@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/surface">
+
+    <!-- 顶部搜索框 -->
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        app:cardBackgroundColor="@color/white"
+        app:cardCornerRadius="@dimen/corner_large"
+        app:cardElevation="4dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="16dp">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnBackStation"
+                    style="@style/App.Button.Quiet"
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
+                    android:contentDescription="返回"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
+                    android:text=""
+                    app:cornerRadius="@dimen/corner_large"
+                    app:icon="@drawable/ic_arrow_back_blue"
+                    app:iconGravity="textStart"
+                    app:iconPadding="0dp"
+                    app:iconTint="@color/railway_blue" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="选择车站"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/railway_blue"
+                    android:gravity="center" />
+
+                <!-- 与左侧返回按钮等宽的占位块：抵消左侧按钮的宽度，
+                     使标题居中于屏幕正中而非剩余空间正中 -->
+                <View
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
+                    android:importantForAccessibility="no" />
+
+            </LinearLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="搜索车站中文名"
+                style="@style/App.TextInput.Rounded">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etSearchStation"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="text"
+                    android:imeOptions="actionSearch" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+        </LinearLayout>
+
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- 搜索结果或车站列表 -->
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginBottom="16dp"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- 搜索结果 -->
+            <LinearLayout
+                android:id="@+id/llSearchResults"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="搜索结果"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/gray_dark"
+                    android:layout_marginBottom="12dp" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rvSearchResults"
+                    android:layout_width="match_parent"
+                    android:layout_height="280dp"
+                    android:nestedScrollingEnabled="true" />
+
+            </LinearLayout>
+
+            <!-- 热门车站 -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardBackgroundColor="@color/white"
+                app:cardCornerRadius="@dimen/corner_large"
+                app:cardElevation="4dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="热门车站"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/black"
+                        android:layout_marginBottom="16dp" />
+
+                    <GridLayout
+                        android:id="@+id/gridHotStations"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:columnCount="3"
+                        android:rowCount="5">
+
+                        <!-- 热门车站按钮将通过代码动态添加 -->
+
+                    </GridLayout>
+
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- 全部车站 -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardBackgroundColor="@color/white"
+                app:cardCornerRadius="@dimen/corner_large"
+                app:cardElevation="4dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="全部车站"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/gray_dark"
+                        android:layout_marginBottom="8dp" />
+
+                    <TextView
+                        android:id="@+id/tvAlphabetPreview"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
+                        android:background="@drawable/bg_price_pill"
+                        android:paddingHorizontal="12dp"
+                        android:paddingVertical="4dp"
+                        android:textColor="@color/railway_blue"
+                        android:textSize="13sp"
+                        android:textStyle="bold"
+                        android:visibility="gone" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="460dp"
+                        android:orientation="horizontal">
+
+                        <androidx.recyclerview.widget.RecyclerView
+                            android:id="@+id/rvAllStations"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:nestedScrollingEnabled="true"
+                            android:clipToPadding="false"
+                            android:paddingBottom="12dp" />
+
+                        <TextView
+                            android:id="@+id/tvAlphabetIndex"
+                            android:layout_width="34dp"
+                            android:layout_height="match_parent"
+                            android:layout_marginStart="6dp"
+                            android:background="@drawable/bg_price_pill"
+                            android:contentDescription="按住并上下拖动可快速定位车站首字母"
+                            android:gravity="center"
+                            android:includeFontPadding="false"
+                            android:paddingVertical="4dp"
+                            android:textColor="@color/railway_blue"
+                            android:textSize="10sp" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+        </LinearLayout>
+
+    </androidx.core.widget.NestedScrollView>
+
+</LinearLayout>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:paddingVertical="16dp"
+    android:paddingHorizontal="16dp"
+    android:background="?android:attr/selectableItemBackground">
+
+    <!-- 站点名称 -->
+    <TextView
+        android:id="@+id/tvStationName"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="汉口"
+        android:textSize="16sp"
+        android:textColor="@color/black"
+        android:textStyle="bold" />
+
+    <!-- 连接线 -->
+    <View
+        android:layout_width="2dp"
+        android:layout_height="24dp"
+        android:background="@color/railway_blue"
+        android:layout_marginStart="12dp"
+        android:alpha="0.3" />
+
+</LinearLayout>

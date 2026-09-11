@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    
+    <!-- 蓝色背景 -->
+    <path
+        android:fillColor="#1976D2"
+        android:pathData="M0,0h108v108h-108z" />
+    
+    <!-- 红色外圈 -->
+    <path
+        android:fillColor="#E53935"
+        android:pathData="M54,20
+            A34,34 0 0,1 88,54
+            A34,34 0 0,1 54,88
+            A34,34 0 0,1 20,54
+            A34,34 0 0,1 54,20
+            M54,25
+            A29,29 0 0,0 25,54
+            A29,29 0 0,0 54,83
+            A29,29 0 0,0 83,54
+            A29,29 0 0,0 54,25
+            Z" />
+    
+    <!-- 红色T形轨道 -->
+    <path
+        android:fillColor="#E53935"
+        android:pathData="M54,30
+            L54,70
+            L48,70
+            L48,30
+            L54,30
+            Z
+            M42,40
+            L66,40
+            L66,46
+            L42,46
+            Z" />
+    
+    <!-- 顶部小矩形 -->
+    <path
+        android:fillColor="#E53935"
+        android:pathData="M50,20
+            L58,20
+            L58,25
+            L50,25
+            Z" />
+    
+    <!-- 中国铁路文字 -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M30,75
+            L30,85
+            L35,85
+            L35,80
+            L40,80
+            L40,85
+            L45,85
+            L45,75
+            L40,75
+            L40,78
+            L35,78
+            L35,75
+            Z" />
+    
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M50,75
+            L50,85
+            L55,85
+            L55,80
+            L60,80
+            L60,85
+            L65,85
+            L65,75
+            L60,75
+            L60,78
+            L55,78
+            L55,75
+            Z" />
+    
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M70,75
+            L70,85
+            L75,85
+            L75,80
+            L80,80
+            L80,85
+            L85,85
+            L85,75
+            L80,75
+            L80,78
+            L75,78
+            L75,75
+            Z" />
+    
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M90,75
+            L90,85
+            L95,85
+            L95,80
+            L100,80
+            L100,85
+            L105,85
+            L105,75
+            L100,75
+            L100,78
+            L95,78
+            L95,75
+            Z" />
+</vector>
+
+
+
+

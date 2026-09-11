@@ -1,0 +1,366 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/surface"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="144dp"
+        android:background="@color/hero_sky"
+        android:contentDescription="高铁出行插画"
+        android:scaleType="centerCrop"
+        android:src="@drawable/hero_railway_journey" />
+
+    <!-- 车站选择区域 -->
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="0dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        app:cardBackgroundColor="@color/surface_container"
+        app:cardCornerRadius="@dimen/corner_large"
+        app:cardElevation="0dp"
+        app:strokeColor="@color/divider"
+        app:strokeWidth="1dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="20dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="查询车票"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:textColor="@color/text_primary"
+                android:layout_marginBottom="3dp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="14dp"
+                android:text="选择出发地、目的地和日期"
+                android:textColor="@color/text_secondary"
+                android:textSize="12sp" />
+
+            <!-- 出发与到达站：以一枚图形切换按钮连接。 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/App.TextInput.Rounded"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:layout_weight="1"
+                    android:hint="@string/departure_station">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etDepartureStation"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:clickable="true"
+                        android:focusable="false"
+                        android:inputType="none" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <ImageButton
+                    android:id="@+id/btnSwapStations"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:background="@drawable/bg_round_blue_action"
+                    android:contentDescription="互换出发站与到达站"
+                    android:foreground="?android:attr/selectableItemBackgroundBorderless"
+                    android:padding="12dp"
+                    android:src="@drawable/ic_swap_stations" />
+
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/App.TextInput.Rounded"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_weight="1"
+                    android:hint="@string/arrival_station">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etArrivalStation"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:clickable="true"
+                        android:focusable="false"
+                        android:inputType="none" />
+                </com.google.android.material.textfield.TextInputLayout>
+            </LinearLayout>
+
+            <!-- 出发日期 -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:hint="出发日期"
+                style="@style/App.TextInput.Rounded">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etDepartureDate"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="none"
+                    android:focusable="false"
+                    android:clickable="true" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- 查询按钮 -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnSearchTickets"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:text="@string/search_tickets"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                app:cornerRadius="@dimen/corner_large" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="82dp"
+                android:layout_marginTop="10dp"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:id="@+id/btnRailMeal"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginEnd="4dp"
+                    android:layout_weight="1"
+                    android:clickable="true"
+                    android:contentDescription="高铁订餐"
+                    android:focusable="true"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <ImageView
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:contentDescription="@null"
+                        android:src="@drawable/ic_service_meal" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:gravity="center"
+                        android:includeFontPadding="false"
+                        android:text="高铁订餐"
+                        android:textColor="@color/railway_blue"
+                        android:textSize="13sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/btnStationBoard"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginEnd="4dp"
+                    android:layout_weight="1"
+                    android:clickable="true"
+                    android:contentDescription="车站大屏"
+                    android:focusable="true"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <ImageView
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:contentDescription="@null"
+                        android:src="@drawable/ic_service_station_board" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:gravity="center"
+                        android:includeFontPadding="false"
+                        android:text="车站大屏"
+                        android:textColor="@color/railway_blue"
+                        android:textSize="13sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/btnMultiRidePass"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:clickable="true"
+                    android:contentDescription="计次票"
+                    android:focusable="true"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <ImageView
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:contentDescription="@null"
+                        android:src="@drawable/ic_service_multi_pass" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:gravity="center"
+                        android:includeFontPadding="false"
+                        android:text="计次票"
+                        android:textColor="@color/railway_blue"
+                        android:textSize="13sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="82dp"
+                android:layout_marginTop="4dp"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:id="@+id/btnElectronicInvoice"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginEnd="4dp"
+                    android:layout_weight="1"
+                    android:clickable="true"
+                    android:contentDescription="电子发票"
+                    android:focusable="true"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <ImageView
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:contentDescription="@null"
+                        android:src="@drawable/ic_service_invoice" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:gravity="center"
+                        android:includeFontPadding="false"
+                        android:text="电子发票"
+                        android:textColor="@color/railway_blue"
+                        android:textSize="13sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/btnHotelBooking"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginEnd="4dp"
+                    android:layout_weight="1"
+                    android:clickable="true"
+                    android:contentDescription="酒店住宿"
+                    android:focusable="true"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <ImageView
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:contentDescription="@null"
+                        android:src="@drawable/ic_service_hotel" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:gravity="center"
+                        android:includeFontPadding="false"
+                        android:text="酒店住宿"
+                        android:textColor="@color/railway_blue"
+                        android:textSize="13sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/btnStationService"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:clickable="true"
+                    android:contentDescription="车站服务"
+                    android:focusable="true"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <ImageView
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:contentDescription="@null"
+                        android:src="@drawable/ic_service_station_service" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:gravity="center"
+                        android:includeFontPadding="false"
+                        android:text="车站服务"
+                        android:textColor="@color/railway_blue"
+                        android:textSize="13sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tvRecentRoutes"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="18dp"
+                android:layout_marginBottom="8dp"
+                android:text="最近查询"
+                android:textColor="@color/text_secondary"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:visibility="gone" />
+
+            <HorizontalScrollView
+                android:id="@+id/svRecentRoutes"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:scrollbars="none"
+                android:visibility="gone">
+
+                <LinearLayout
+                    android:id="@+id/llRecentRoutes"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal" />
+            </HorizontalScrollView>
+
+        </LinearLayout>
+
+    </com.google.android.material.card.MaterialCardView>
+
+
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

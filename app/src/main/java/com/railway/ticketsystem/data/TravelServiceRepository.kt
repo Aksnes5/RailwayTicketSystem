@@ -1,0 +1,269 @@
+package com.railway.ticketsystem.data
+
+import android.content.Context
+import android.content.SharedPreferences
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
+import com.railway.ticketsystem.model.Order
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Date
+import java.util.Locale
+import java.util.UUID
+import kotlin.math.abs
+import kotlin.math.roundToLong
+import kotlin.random.Random
+
+data class MealProduct(
+    val id: String,
+    val category: String,
+    val name: String,
+    val description: String,
+    val priceCents: Long
+)
+
+data class MealLine(val productId: String, val name: String, val quantity: Int, val unitPriceCents: Long)
+
+data class MealOrder(
+    val id: String,
+    val userId: String,
+    val ticketOrderId: String,
+    val trainNumber: String,
+    val departureDate: String,
+    val pickupStation: String,
+    val lines: List<MealLine>,
+    val totalCents: Long,
+    val status: String,
+    val createdAt: String
+)
+
+/** Fixed onboard menu: the menu itself is local, orders and receipts are durable. */
+object OnboardMealCatalog {
+    val products = listOf(
+        MealProduct("meal_15", "盒饭", "香菇鸡肉饭", "热餐 · 米饭、时蔬和卤蛋", 1500),
+        MealProduct("meal_30", "盒饭", "宫保鸡丁套餐", "热餐 · 宫保鸡丁、米饭和时蔬", 3000),
+        MealProduct("meal_45", "盒饭", "红烧牛肉双拼便当", "热餐 · 红烧牛肉、香肠、米饭和时蔬", 4500),
+        MealProduct("meal_55", "盒饭", "广式烧腊双拼套餐", "热餐 · 烧鸭、叉烧、米饭和例汤", 5500),
+        MealProduct("drink_nongfu", "饮品", "农夫山泉天然水", "550ml", 400),
+        MealProduct("drink_baisui", "饮品", "百岁山天然矿泉水", "570ml", 650),
+        MealProduct("drink_tea", "饮品", "康师傅冰红茶", "500ml", 650),
+        MealProduct("drink_yuanqi", "饮品", "元气森林白桃苏打气泡水", "480ml", 850),
+        MealProduct("drink_cola", "饮品", "可口可乐", "500ml", 700),
+        MealProduct("snack_lays", "零食", "乐事经典原味薯片", "70g", 900),
+        MealProduct("snack_oreo", "零食", "奥利奥夹心饼干", "95g", 850),
+        MealProduct("snack_zhouheiya", "零食", "周黑鸭卤鸭脖", "真空小包装", 1500),
+        MealProduct("snack_nuts", "零食", "三只松鼠每日坚果", "25g", 1200)
+    )
+}
+
+class MealOrderRepository(context: Context) {
+    private val prefs: SharedPreferences = SecurePreferences.open(context, "secure_meal_orders", "meal_orders")
+    private val gson = Gson()
+
+    companion object {
+        private val lock = Any()
+        private const val KEY = "meal_orders"
+    }
+
+    fun getByTicket(userId: String, ticketOrderId: String): List<MealOrder> = synchronized(lock) {
+        read().filter { it.userId == userId && it.ticketOrderId == ticketOrderId }.sortedByDescending { it.createdAt }
+    }
+
+    fun save(order: MealOrder): Boolean = synchronized(lock) {
+        val current = read()
+        if (current.any { it.id == order.id } || order.lines.isEmpty() || order.totalCents <= 0) return@synchronized false
+        prefs.edit().putString(KEY, gson.toJson((current + order).takeLast(160))).commit()
+    }
+
+    private fun read(): List<MealOrder> {
+        val json = prefs.getString(KEY, null) ?: return emptyList()
+        val type = object : TypeToken<List<MealOrder>>() {}.type
+        return runCatching { gson.fromJson<List<MealOrder>>(json, type) ?: emptyList() }.getOrDefault(emptyList())
+    }
+}
+
+data class StationBoardEntry(
+    val trainNumber: String,
+    val direction: String,
+    val terminal: String,
+    val arrivalTime: String,
+    val departureTime: String,
+    val platform: String,
+    val status: String
+)
+
+/** A stable same-day board, regenerated from the station and date rather than a network request. */
+object StationBoardGenerator {
+    fun forStation(station: String, date: String, allStations: List<String>): List<StationBoardEntry> {
+        val candidates = allStations.filter { it != station }.ifEmpty { listOf("北京南", "上海虹桥", "广州南") }
+        val random = Random((station + date).hashCode())
+        val prefixes = listOf("G", "G", "D", "D", "C")
+        val statusLabels = listOf("正点", "候车", "开始检票", "即将到站", "正点")
+        var minutes = 5 * 60 + random.nextInt(0, 35)
+        return List(18) { index ->
+            minutes += random.nextInt(24, 62)
+            val arrival = formatTime(minutes % (24 * 60))
+            val departure = formatTime((minutes + random.nextInt(2, 8)) % (24 * 60))
+            val number = prefixes[random.nextInt(prefixes.size)] + (100 + random.nextInt(8800))
+            StationBoardEntry(
+                trainNumber = number,
+                direction = if (index % 2 == 0) "出发" else "到达",
+                terminal = candidates[random.nextInt(candidates.size)],
+                arrivalTime = arrival,
+                departureTime = departure,
+                platform = "${random.nextInt(1, 19)}${listOf("A", "B", "C")[random.nextInt(3)]}",
+                status = statusLabels[random.nextInt(statusLabels.size)]
+            )
+        }
+    }
+
+    private fun formatTime(value: Int) = String.format(Locale.CHINA, "%02d:%02d", value / 60, value % 60)
+}
+
+data class MultiRidePass(
+    val id: String,
+    val userId: String,
+    val departureStation: String,
+    val arrivalStation: String,
+    val validityDays: Int,
+    val totalRides: Int,
+    val usedRides: Int,
+    val referencePriceCents: Long,
+    val paidCents: Long,
+    val validFrom: String,
+    val validUntil: String,
+    val status: String = "有效"
+)
+
+data class MultiRideQuote(
+    val referencePriceCents: Long,
+    val validityDays: Int,
+    val rides: Int,
+    val totalCents: Long
+) {
+    val perRideCents: Long get() = totalCents / rides.coerceAtLeast(1)
+    val savingCents: Long get() = (referencePriceCents * rides - totalCents).coerceAtLeast(0)
+}
+
+object MultiRidePassPricing {
+    fun quote(referencePriceCents: Long, days: Int, rides: Int): MultiRideQuote {
+        val dayFactor = if (days <= 30) 0.88 else 0.95
+        val rideFactor = when {
+            rides >= 30 -> 0.84
+            rides >= 20 -> 0.91
+            else -> 1.0
+        }
+        val total = (referencePriceCents.coerceAtLeast(1000) * rides * dayFactor * rideFactor).roundToLong()
+        return MultiRideQuote(referencePriceCents.coerceAtLeast(1000), days, rides, total)
+    }
+
+    fun fallbackPriceCents(from: String, to: String): Long =
+        (abs((from + "→" + to).hashCode()) % 360 + 80L) * 100L
+}
+
+class MultiRidePassRepository(context: Context) {
+    private val prefs: SharedPreferences = SecurePreferences.open(context, "secure_multi_ride_passes", "multi_ride_passes")
+    private val gson = Gson()
+
+    companion object {
+        private val lock = Any()
+        private const val KEY = "multi_ride_passes"
+    }
+
+    fun getByUser(userId: String): List<MultiRidePass> = synchronized(lock) {
+        read().filter { it.userId == userId }.sortedByDescending { it.validUntil }
+    }
+
+    fun save(pass: MultiRidePass): Boolean = synchronized(lock) {
+        val values = read()
+        if (values.any { it.id == pass.id } || pass.totalRides <= 0 || pass.paidCents <= 0) return@synchronized false
+        prefs.edit().putString(KEY, gson.toJson((values + pass).takeLast(80))).commit()
+    }
+
+    private fun read(): List<MultiRidePass> {
+        val json = prefs.getString(KEY, null) ?: return emptyList()
+        val type = object : TypeToken<List<MultiRidePass>>() {}.type
+        return runCatching { gson.fromJson<List<MultiRidePass>>(json, type) ?: emptyList() }.getOrDefault(emptyList())
+    }
+}
+
+data class ElectronicInvoice(
+    val id: String,
+    val userId: String,
+    val ticketOrderId: String,
+    val invoiceCode: String,
+    val invoiceNumber: String,
+    val buyerTitle: String,
+    val serviceName: String,
+    val amountCents: Long,
+    val taxCents: Long,
+    val totalCents: Long,
+    val issueDate: String,
+    val verificationCode: String,
+    /** A durable MediaStore or app-file Uri for the generated PDF.
+     * Nullable because previously saved invoices have no such Gson field. */
+    val pdfUri: String? = null
+)
+
+class InvoiceRepository(context: Context) {
+    private val prefs: SharedPreferences = SecurePreferences.open(context, "secure_electronic_invoices", "electronic_invoices")
+    private val gson = Gson()
+
+    companion object {
+        private val lock = Any()
+        private const val KEY = "electronic_invoices"
+    }
+
+    fun getByTicket(userId: String, orderId: String): ElectronicInvoice? = synchronized(lock) {
+        read().firstOrNull { it.userId == userId && it.ticketOrderId == orderId }
+    }
+
+    fun getByUser(userId: String): List<ElectronicInvoice> = synchronized(lock) {
+        read().filter { it.userId == userId }.sortedByDescending { it.issueDate }
+    }
+
+    fun issue(userId: String, order: Order, buyerTitle: String): ElectronicInvoice? = synchronized(lock) {
+        if (order.userId != userId || order.status != "已完成") return@synchronized null
+        val current = read()
+        current.firstOrNull { it.userId == userId && it.ticketOrderId == order.id }?.let { return@synchronized it }
+        val total = (order.finalPrice * 100).roundToLong().coerceAtLeast(0)
+        val net = (total / 1.09).roundToLong()
+        val invoice = ElectronicInvoice(
+            id = "INV_${UUID.randomUUID()}",
+            userId = userId,
+            ticketOrderId = order.id,
+            invoiceCode = "${100000000000L + abs((order.id + "code").hashCode()).toLong().rem(899999999999L)}",
+            invoiceNumber = String.format(Locale.CHINA, "%08d", abs(order.id.hashCode()).rem(100000000)),
+            buyerTitle = buyerTitle.trim().ifBlank { order.passengerName },
+            serviceName = "铁路客运服务",
+            amountCents = net,
+            taxCents = (total - net).coerceAtLeast(0),
+            totalCents = total,
+            issueDate = SimpleDateFormat("yyyy年MM月dd日 HH:mm", Locale.CHINA).format(Date()),
+            verificationCode = UUID.randomUUID().toString().replace("-", "").take(20).uppercase(Locale.CHINA)
+        )
+        if (prefs.edit().putString(KEY, gson.toJson((current + invoice).takeLast(120))).commit()) invoice else null
+    }
+
+    /** Records where the customer-readable invoice PDF was saved. */
+    fun attachPdf(userId: String, invoiceId: String, pdfUri: String): ElectronicInvoice? = synchronized(lock) {
+        if (userId.isBlank() || invoiceId.isBlank() || pdfUri.isBlank()) return@synchronized null
+        val current = read()
+        val source = current.firstOrNull { it.userId == userId && it.id == invoiceId } ?: return@synchronized null
+        val updated = source.copy(pdfUri = pdfUri)
+        val replacement = current.map { if (it.id == invoiceId && it.userId == userId) updated else it }
+        if (prefs.edit().putString(KEY, gson.toJson(replacement)).commit()) updated else null
+    }
+
+    private fun read(): List<ElectronicInvoice> {
+        val json = prefs.getString(KEY, null) ?: return emptyList()
+        val type = object : TypeToken<List<ElectronicInvoice>>() {}.type
+        return runCatching { gson.fromJson<List<ElectronicInvoice>>(json, type) ?: emptyList() }
+            .getOrDefault(emptyList())
+    }
+}
+
+fun todayDate(): String = SimpleDateFormat("yyyy-MM-dd", Locale.CHINA).format(Date())
+
+fun plusDaysDate(days: Int): String = Calendar.getInstance().apply { add(Calendar.DAY_OF_YEAR, days) }
+    .let { SimpleDateFormat("yyyy-MM-dd", Locale.CHINA).format(it.time) }

@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/surface"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        android:background="@color/railway_blue"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="18dp">
+
+        <ImageView
+            android:id="@+id/btnBack"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:contentDescription="返回"
+            android:src="@drawable/ic_arrow_back"
+            android:tint="@color/white" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="18dp"
+            android:layout_weight="1"
+            android:text="计次票"
+            android:textColor="@color/white"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_glass_tint"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/App.TextInput.Rounded"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="出发站">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/actPassDeparture"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:clickable="true"
+                        android:focusable="false"
+                        android:inputType="none" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/App.TextInput.Rounded"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:hint="到达站">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/actPassArrival"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:clickable="true"
+                        android:focusable="false"
+                        android:inputType="none" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnPassCalculate"
+                    style="@style/App.Button.Quiet"
+                    android:layout_width="match_parent"
+                    android:layout_height="46dp"
+                    android:layout_marginTop="12dp"
+                    android:text="查询区间票价"
+                    android:textColor="@color/railway_blue"
+                    app:cornerRadius="@dimen/corner_large" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tvPassReference"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="请先选择区间，计次票以该区间二等座参考票价计算。"
+                android:textColor="@color/text_secondary"
+                android:textSize="13sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:text="有效期"
+                android:textColor="@color/text_primary"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:orientation="horizontal">
+                <com.google.android.material.button.MaterialButton android:id="@+id/btnPass30Days" style="@style/App.Button.Quiet" android:layout_width="0dp" android:layout_height="46dp" android:layout_marginEnd="8dp" android:layout_weight="1" android:text="30天" app:cornerRadius="@dimen/corner_large" />
+                <com.google.android.material.button.MaterialButton android:id="@+id/btnPass90Days" style="@style/App.Button.Quiet" android:layout_width="0dp" android:layout_height="46dp" android:layout_weight="1" android:text="90天" app:cornerRadius="@dimen/corner_large" />
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="18dp"
+                android:text="使用次数"
+                android:textColor="@color/text_primary"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:orientation="horizontal">
+                <com.google.android.material.button.MaterialButton android:id="@+id/btnPass10Rides" style="@style/App.Button.Quiet" android:layout_width="0dp" android:layout_height="46dp" android:layout_marginEnd="6dp" android:layout_weight="1" android:text="10次" app:cornerRadius="@dimen/corner_large" />
+                <com.google.android.material.button.MaterialButton android:id="@+id/btnPass20Rides" style="@style/App.Button.Quiet" android:layout_width="0dp" android:layout_height="46dp" android:layout_marginHorizontal="3dp" android:layout_weight="1" android:text="20次" app:cornerRadius="@dimen/corner_large" />
+                <com.google.android.material.button.MaterialButton android:id="@+id/btnPass30Rides" style="@style/App.Button.Quiet" android:layout_width="0dp" android:layout_height="46dp" android:layout_marginStart="6dp" android:layout_weight="1" android:text="30次" app:cornerRadius="@dimen/corner_large" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/bg_glass_card"
+                android:orientation="vertical"
+                android:padding="18dp">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="优惠测算" android:textColor="@color/railway_blue" android:textSize="13sp" android:textStyle="bold" />
+                <TextView android:id="@+id/tvPassQuote" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:textColor="@color/text_primary" android:textSize="17sp" android:textStyle="bold" />
+            </LinearLayout>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnBuyPass"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:layout_marginTop="14dp"
+                android:text="购买计次票"
+                app:cornerRadius="@dimen/corner_large" />
+
+            <TextView
+                android:id="@+id/tvPassRecords"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="24dp"
+                android:textColor="@color/text_secondary"
+                android:textSize="13sp" />
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

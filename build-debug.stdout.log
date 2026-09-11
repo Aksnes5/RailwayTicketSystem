@@ -1,0 +1,133 @@
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.5/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preDebugBuild UP-TO-DATE
+> Task :app:mergeDebugNativeDebugMetadata NO-SOURCE
+> Task :app:dataBindingMergeDependencyArtifactsDebug UP-TO-DATE
+> Task :app:generateDebugResValues UP-TO-DATE
+> Task :app:generateDebugResources UP-TO-DATE
+> Task :app:mergeDebugResources UP-TO-DATE
+> Task :app:packageDebugResources UP-TO-DATE
+> Task :app:parseDebugLocalResources UP-TO-DATE
+> Task :app:dataBindingGenBaseClassesDebug UP-TO-DATE
+> Task :app:checkDebugAarMetadata UP-TO-DATE
+> Task :app:mapDebugSourceSetPaths UP-TO-DATE
+> Task :app:createDebugCompatibleScreenManifests UP-TO-DATE
+> Task :app:extractDeepLinksDebug UP-TO-DATE
+> Task :app:processDebugMainManifest UP-TO-DATE
+> Task :app:processDebugManifest UP-TO-DATE
+> Task :app:processDebugManifestForPackage UP-TO-DATE
+> Task :app:javaPreCompileDebug UP-TO-DATE
+> Task :app:mergeDebugShaders UP-TO-DATE
+> Task :app:compileDebugShaders NO-SOURCE
+> Task :app:generateDebugAssets UP-TO-DATE
+> Task :app:mergeDebugAssets UP-TO-DATE
+> Task :app:compressDebugAssets UP-TO-DATE
+> Task :app:processDebugResources
+> Task :app:checkDebugDuplicateClasses UP-TO-DATE
+> Task :app:desugarDebugFileDependencies UP-TO-DATE
+> Task :app:compileDebugKotlin
+> Task :app:mergeExtDexDebug UP-TO-DATE
+> Task :app:mergeLibDexDebug UP-TO-DATE
+> Task :app:mergeDebugJniLibFolders UP-TO-DATE
+> Task :app:mergeDebugNativeLibs NO-SOURCE
+> Task :app:stripDebugDebugSymbols NO-SOURCE
+> Task :app:validateSigningDebug
+> Task :app:writeDebugAppMetadata UP-TO-DATE
+> Task :app:writeDebugSigningConfigVersions UP-TO-DATE
+
+> Task :app:compileDebugKotlin
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/activity/AdvancedSearchResultsActivity.kt:97:31 Parameter 'mode' is never used
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/activity/AdvancedSearchResultsActivity.kt:380:24 Parameter 'view' is never used
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/activity/AdvancedSearchResultsActivity.kt:386:24 Parameter 'view' is never used
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/activity/AdvancedSearchResultsActivity.kt:392:24 Parameter 'view' is never used
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/activity/ChangeTicketActivity.kt:33:32 'getSerializableExtra(String!): Serializable?' is deprecated. Deprecated in Java
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/activity/ChangeTicketSeatActivity.kt:42:32 'getSerializableExtra(String!): Serializable?' is deprecated. Deprecated in Java
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/activity/ChangeTicketSeatActivity.kt:43:27 'getSerializableExtra(String!): Serializable?' is deprecated. Deprecated in Java
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/activity/ChangeTicketSeatActivity.kt:100:53 'getColor(Int): Int' is deprecated. Deprecated in Java
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/activity/ChangeTicketSeatActivity.kt:101:47 'getColor(Int): Int' is deprecated. Deprecated in Java
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/activity/ChangeTicketSeatActivity.kt:103:53 'getColor(Int): Int' is deprecated. Deprecated in Java
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/activity/ChangeTicketSeatActivity.kt:104:91 'getColor(Int): Int' is deprecated. Deprecated in Java
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/activity/ChangeTicketSeatActivity.kt:106:47 'getColor(Int): Int' is deprecated. Deprecated in Java
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/activity/ChangeTicketSeatActivity.kt:130:53 'getColor(Int): Int' is deprecated. Deprecated in Java
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/activity/ChangeTicketSeatActivity.kt:131:47 'getColor(Int): Int' is deprecated. Deprecated in Java
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/activity/ChangeTicketSeatActivity.kt:133:53 'getColor(Int): Int' is deprecated. Deprecated in Java
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/activity/ChangeTicketSeatActivity.kt:134:91 'getColor(Int): Int' is deprecated. Deprecated in Java
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/activity/ChangeTicketSeatActivity.kt:136:47 'getColor(Int): Int' is deprecated. Deprecated in Java
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/activity/ChangeTicketSeatActivity.kt:151:13 Variable 'seatCount' is never used
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/activity/ChangeTicketSeatActivity.kt:199:53 'getColor(Int): Int' is deprecated. Deprecated in Java
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/activity/ChangeTicketSeatActivity.kt:200:47 'getColor(Int): Int' is deprecated. Deprecated in Java
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/activity/ChangeTicketSeatActivity.kt:224:62 'getColor(Int): Int' is deprecated. Deprecated in Java
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/activity/ChangeTicketSeatActivity.kt:227:62 'getColor(Int): Int' is deprecated. Deprecated in Java
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/activity/ChangeTicketSeatActivity.kt:230:62 'getColor(Int): Int' is deprecated. Deprecated in Java
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/activity/EditProfileActivity.kt:49:9 'onBackPressed(): Unit' is deprecated. Deprecated in Java
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/activity/EditProfileActivity.kt:75:87 Unnecessary non-null assertion (!!) on a non-null receiver of type ByteArray
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/activity/EditProfileActivity.kt:97:9 'startActivityForResult(Intent, Int): Unit' is deprecated. Deprecated in Java
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/activity/EditProfileActivity.kt:102:9 'startActivityForResult(Intent, Int): Unit' is deprecated. Deprecated in Java
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/activity/EditProfileActivity.kt:110:47 'get(String!): Any?' is deprecated. Deprecated in Java
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/activity/EditProfileActivity.kt:112:34 'get(String!): Any?' is deprecated. Deprecated in Java
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/activity/OrderConfirmActivity.kt:67:31 'getSerializableExtra(String!): Serializable?' is deprecated. Deprecated in Java
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/activity/OrderConfirmActivity.kt:68:32 'getSerializableExtra(String!): Serializable?' is deprecated. Deprecated in Java
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/activity/OrderConfirmActivity.kt:92:28 'getSerializableExtra(String!): Serializable?' is deprecated. Deprecated in Java
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/activity/SearchResultsActivity.kt:142:31 Parameter 'mode' is never used
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/activity/SearchResultsActivity.kt:161:24 Parameter 'view' is never used
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/activity/SearchResultsActivity.kt:169:24 Parameter 'view' is never used
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/activity/SearchResultsActivity.kt:177:24 Parameter 'view' is never used
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/activity/SearchResultsActivity.kt:204:57 Type mismatch: inferred type is Date? but Date was expected
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/activity/SeatSelectionActivity.kt:61:31 'getSerializableExtra(String!): Serializable?' is deprecated. Deprecated in Java
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/activity/SeatSelectionActivity.kt:62:32 'getSerializableExtra(String!): Serializable?' is deprecated. Deprecated in Java
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/activity/SeatSelectionActivity.kt:84:28 'getSerializableExtra(String!): Serializable?' is deprecated. Deprecated in Java
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/activity/SeatSelectionActivity.kt:423:29 Parameter 'passenger' is never used, could be renamed to _
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/activity/SeatSelectionActivity.kt:426:31 Parameter 'passenger' is never used, could be renamed to _
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/activity/TrainDetailActivity.kt:27:32 'getSerializableExtra(String!): Serializable?' is deprecated. Deprecated in Java
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/activity/TripDetailActivity.kt:39:24 'getSerializableExtra(String!): Serializable?' is deprecated. Deprecated in Java
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/activity/TripDetailActivity.kt:225:50 Parameter 'which' is never used, could be renamed to _
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/activity/TripDetailActivity.kt:233:31 Parameter 'reason' is never used
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/adapter/StationAdapter.kt:173:15 Variable 'letter' is never used
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/adapter/StationAdapter.kt:232:15 Variable 'letter' is never used
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/data/AsyncDataLoader.kt:148:51 Parameter 'routes' is never used
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/data/AsyncDataLoader.kt:164:54 Parameter 'routes' is never used
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/data/AsyncDataLoader.kt:181:9 Parameter 'routes' is never used
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/data/AsyncDataLoader.kt:182:9 Parameter 'stations' is never used
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/data/AsyncDataLoader.kt:183:9 Parameter 'directTrains' is never used
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/data/AsyncDataLoader.kt:184:9 Parameter 'crossLineTrains' is never used
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/data/DataCacheManager.kt:94:51 Unchecked cast: Any! to List<RailwayRoute>
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/data/DataCacheManager.kt:144:51 Unchecked cast: Any! to List<Train>
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/data/DataCacheManager.kt:234:51 Unchecked cast: Any! to List<Train>
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/data/RailwayData.kt:238:90 Parameter 'index' is never used
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/data/RailwayGraph.kt:85:42 Unsafe use of a nullable receiver of type Pair<String, Double>?
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/data/RailwayGraphManager.kt:55:13 Variable 'stationMap' is never used
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/data/RailwayGraphManager.kt:316:13 Variable 'station' is never used
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/data/StationDataUpdater.kt:64:13 Variable 'allStations' is never used
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/data/TrainGenerator.kt:153:90 Parameter 'index' is never used
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/data/TrainGenerator.kt:682:85 Parameter 'connectionStation' is never used
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/fragment/ProfileFragmentWithAvatar.kt:51:36 Parameter 'inflater' is never used
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/fragment/ProfileFragmentWithAvatar.kt:51:62 Parameter 'container' is never used
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/fragment/ProfileFragmentWithSafeSave.kt:53:36 Parameter 'inflater' is never used
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/fragment/ProfileFragmentWithSafeSave.kt:53:62 Parameter 'container' is never used
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/fragment/SafeProfileFragment.kt:40:36 Parameter 'inflater' is never used
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/fragment/SafeProfileFragment.kt:40:62 Parameter 'container' is never used
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/fragment/SimpleProfileFragmentFixed.kt:40:36 Parameter 'inflater' is never used
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/fragment/SimpleProfileFragmentFixed.kt:40:62 Parameter 'container' is never used
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/fragment/TestProfileFragment.kt:49:36 Parameter 'inflater' is never used
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/fragment/TestProfileFragment.kt:49:62 Parameter 'container' is never used
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/fragment/TicketsFragment.kt:79:9 'startActivityForResult(Intent, Int): Unit' is deprecated. Deprecated in Java
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/fragment/TicketsFragment.kt:83:15 'onActivityResult(Int, Int, Intent?): Unit' is deprecated. Deprecated in Java
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/fragment/TicketsFragment.kt:86:40 'getSerializableExtra(String!): Serializable?' is deprecated. Deprecated in Java
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/model/RailwayRoute.kt:169:85 Parameter 'segmentIndex' is never used
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/model/RailwayRoute.kt:184:42 Parameter 'fromStation' is never used
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/model/RailwayRoute.kt:184:64 Parameter 'toStation' is never used
+w: file:///D:/12306/app/src/main/java/com/railway/ticketsystem/model/RailwayRoute.kt:260:32 Unsafe use of a nullable receiver of type State?
+
+> Task :app:compileDebugJavaWithJavac
+> Task :app:processDebugJavaRes
+> Task :app:dexBuilderDebug UP-TO-DATE
+> Task :app:mergeProjectDexDebug UP-TO-DATE
+> Task :app:mergeDebugJavaResource
+> Task :app:packageDebug
+> Task :app:assembleDebug
+> Task :app:copyDebugApk
+> Task :app:createDebugApkListingFileRedirect UP-TO-DATE
+
+BUILD SUCCESSFUL in 1m 39s
+35 actionable tasks: 8 executed, 27 up-to-date

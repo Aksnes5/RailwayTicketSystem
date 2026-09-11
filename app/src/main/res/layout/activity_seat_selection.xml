@@ -1,0 +1,448 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/gray_light">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- 车次信息卡片 -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            app:cardCornerRadius="@dimen/corner_large"
+            app:cardElevation="4dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="车次信息"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/gray_dark"
+                    android:layout_marginBottom="12dp" />
+
+                <TextView
+                    android:id="@+id/tvTrainInfo"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="G1 北京南 → 上海虹桥"
+                    android:textSize="16sp"
+                    android:textColor="@color/railway_blue"
+                    android:layout_marginBottom="8dp" />
+
+                <TextView
+                    android:id="@+id/tvTimeInfo"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="06:00 - 11:30 | 5小时30分"
+                    android:textSize="14sp"
+                    android:textColor="@color/gray_medium" />
+
+            </LinearLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- 座位类型选择 -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            app:cardCornerRadius="@dimen/corner_large"
+            app:cardElevation="4dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="选择座位类型"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/gray_dark"
+                    android:layout_marginBottom="16dp" />
+
+                <LinearLayout
+                    android:id="@+id/llSeatTypeButtons"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center"
+                    android:padding="8dp">
+
+                    <!-- 座位类型按钮将通过代码动态添加 -->
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- 座位选择 -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            app:cardCornerRadius="@dimen/corner_large"
+            app:cardElevation="4dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="选择座位"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/gray_dark"
+                    android:layout_marginBottom="16dp" />
+
+                <LinearLayout
+                    android:id="@+id/groupDirectSeatSelection"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <LinearLayout
+                        android:id="@+id/llSeatButtons"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center"
+                        android:padding="8dp"
+                        android:layout_marginBottom="16dp">
+
+                        <!-- 座位按钮将通过代码动态添加 -->
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/groupTransferSeatSelection"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:id="@+id/tvFirstLegLabel"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="第一程"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/gray_medium"
+                        android:layout_marginBottom="8dp" />
+
+                    <LinearLayout
+                        android:id="@+id/llFirstLegSeatButtons"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center"
+                        android:padding="8dp"
+                        android:layout_marginBottom="16dp">
+
+                        <!-- 第一程座位按钮将通过代码动态添加 -->
+
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/tvSecondLegLabel"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="第二程"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/gray_medium"
+                        android:layout_marginBottom="8dp" />
+
+                    <LinearLayout
+                        android:id="@+id/llSecondLegSeatButtons"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center"
+                        android:padding="8dp"
+                        android:layout_marginBottom="16dp">
+
+                        <!-- 第二程座位按钮将通过代码动态添加 -->
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- 价格信息 -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            app:cardCornerRadius="@dimen/corner_large"
+            app:cardElevation="4dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="价格信息"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/gray_dark"
+                    android:layout_marginBottom="12dp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="8dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="基础价格（二等座）："
+                        android:textSize="14sp"
+                        android:textColor="@color/gray_medium" />
+
+                    <TextView
+                        android:id="@+id/tvBasePrice"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="¥553"
+                        android:textSize="14sp"
+                        android:textColor="@color/gray_dark" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="8dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="座位类型："
+                        android:textSize="14sp"
+                        android:textColor="@color/gray_medium" />
+
+                    <TextView
+                        android:id="@+id/tvSeatTypePrice"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="二等座 × 1.0"
+                        android:textSize="14sp"
+                        android:textColor="@color/gray_dark" />
+
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/gray_medium"
+                    android:layout_marginVertical="8dp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="总价格："
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/gray_dark" />
+
+                    <TextView
+                        android:id="@+id/tvTotalPrice"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="¥553"
+                        android:textSize="20sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/railway_red" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- 乘客信息 -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            app:cardCornerRadius="@dimen/corner_large"
+            app:cardElevation="4dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="16dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="乘客信息"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/gray_dark" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnSelectPassenger"
+                        android:layout_width="wrap_content"
+                        android:layout_height="36dp"
+                        android:text="选择乘车人"
+                        android:textSize="14sp"
+                        app:cornerRadius="@dimen/corner_large"
+                        style="@style/App.Button.Quiet" />
+
+                </LinearLayout>
+
+                <!-- 已选择的乘车人信息 -->
+                <LinearLayout
+                    android:id="@+id/llSelectedPassenger"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:background="@drawable/bg_passenger_selected"
+                    android:padding="12dp"
+                    android:layout_marginBottom="16dp"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:id="@+id/tvSelectedPassengerName"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="张三"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/railway_blue"
+                        android:layout_marginBottom="4dp" />
+
+                    <TextView
+                        android:id="@+id/tvSelectedPassengerIdCard"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="身份证：110101199001011234"
+                        android:textSize="14sp"
+                        android:textColor="@color/gray_medium" />
+
+                </LinearLayout>
+
+                <!-- 手动输入乘车人信息 -->
+                <LinearLayout
+                    android:id="@+id/llManualInput"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="16dp"
+                        android:hint="乘客姓名"
+                        style="@style/App.TextInput.Rounded">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etPassengerName"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="textPersonName" />
+
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="16dp"
+                        android:hint="身份证号"
+                        style="@style/App.TextInput.Rounded">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etPassengerIdCard"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="text" />
+
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="手机号"
+                        style="@style/App.TextInput.Rounded">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etPassengerPhone"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="phone" />
+
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- 提交按钮 -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnSubmitOrder"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:text="提交订单"
+            android:textSize="18sp"
+            app:cornerRadius="@dimen/corner_large"
+            android:layout_marginBottom="32dp" />
+
+    </LinearLayout>
+
+</ScrollView>
+
+
