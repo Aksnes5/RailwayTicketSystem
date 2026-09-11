@@ -183,6 +183,7 @@ class TripsFragment : Fragment() {
         val calendar = Calendar.getInstance()
         val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.CHINA)
         val labelFormat = SimpleDateFormat("M/d", Locale.CHINA)
+        val weekdayFormat = SimpleDateFormat("EEE", Locale.CHINA)
         val tripCounts = allTrips
             .filter { !TravelAssistant.isHistory(it) }
             .groupingBy { it.departureDate }
@@ -190,15 +191,11 @@ class TripsFragment : Fragment() {
         repeat(7) { index ->
             val date = dateFormat.format(calendar.time)
             val count = tripCounts[date] ?: 0
-            val label = if (index == 0) "今天" else labelFormat.format(calendar.time)
-            val width = (80 * resources.displayMetrics.density).toInt()
+            val label = "${if (index == 0) "今天" else weekdayFormat.format(calendar.time)}\n${labelFormat.format(calendar.time)}"
             val dayContainer = LinearLayout(requireContext()).apply {
                 orientation = LinearLayout.VERTICAL
                 gravity = Gravity.CENTER_HORIZONTAL
-                val margin = (6 * resources.displayMetrics.density).toInt()
-                layoutParams = LinearLayout.LayoutParams(width, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
-                    marginEnd = margin
-                }
+                layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, 1f)
             }
             val button = MaterialButton(
                 requireContext(),
@@ -207,13 +204,19 @@ class TripsFragment : Fragment() {
             ).apply {
                 text = label
                 isAllCaps = false
-                textSize = 14f
+                textSize = 13f
                 minWidth = 0
-                isSingleLine = true
+                minHeight = 0
+                minimumHeight = 0
+                insetTop = 0
+                insetBottom = 0
+                isSingleLine = false
+                gravity = Gravity.CENTER
+                setLineSpacing(0f, 0.9f)
                 setPadding(0, 0, 0, 0)
                 layoutParams = LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT,
-                    (46 * resources.displayMetrics.density).toInt()
+                    (52 * resources.displayMetrics.density).toInt()
                 )
                 setOnClickListener {
                     selectDate(date)
@@ -222,15 +225,17 @@ class TripsFragment : Fragment() {
             }
             dayContainer.addView(button)
             dateButtons[date] = button
-            if (count > 0) {
-                dayContainer.addView(View(requireContext()).apply {
-                    setBackgroundResource(R.drawable.bg_trip_date_dot)
-                    layoutParams = LinearLayout.LayoutParams(
-                        (6 * resources.displayMetrics.density).toInt(),
-                        (6 * resources.displayMetrics.density).toInt()
-                    ).apply { topMargin = (4 * resources.displayMetrics.density).toInt() }
-                })
-            }
+            dayContainer.addView(View(requireContext()).apply {
+                setBackgroundResource(R.drawable.bg_trip_date_dot)
+                visibility = if (count > 0) View.VISIBLE else View.INVISIBLE
+                layoutParams = LinearLayout.LayoutParams(
+                    (5 * resources.displayMetrics.density).toInt(),
+                    (5 * resources.displayMetrics.density).toInt()
+                ).apply {
+                    gravity = Gravity.CENTER_HORIZONTAL
+                    topMargin = (1 * resources.displayMetrics.density).toInt()
+                }
+            })
             binding.llTripDateSelector.addView(dayContainer)
             calendar.add(Calendar.DAY_OF_MONTH, 1)
         }
@@ -289,11 +294,15 @@ class TripsFragment : Fragment() {
     }
 
     private fun styleDateButton(button: MaterialButton, isSelected: Boolean) {
-        val color = requireContext().getColor(if (isSelected) R.color.railway_blue else R.color.surface_container)
+        val color = requireContext().getColor(if (isSelected) R.color.white else android.R.color.transparent)
         button.backgroundTintList = ColorStateList.valueOf(color)
-        button.setTextColor(requireContext().getColor(if (isSelected) R.color.white else R.color.text_primary))
-        button.setStrokeColorResource(if (isSelected) R.color.railway_blue else R.color.button_stroke)
+        button.setTextColor(requireContext().getColor(if (isSelected) R.color.railway_blue_deep else R.color.text_secondary))
+        button.setStrokeColorResource(if (isSelected) R.color.button_stroke else android.R.color.transparent)
+        button.strokeWidth = if (isSelected) dp(1) else 0
+        button.cornerRadius = dp(20)
     }
+
+    private fun dp(value: Int): Int = (value * resources.displayMetrics.density).toInt()
     
     override fun onDestroyView() {
         super.onDestroyView()

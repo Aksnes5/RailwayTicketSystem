@@ -53,9 +53,9 @@ class ElectronicInvoiceActivity : AppCompatActivity() {
         val eligible = orderRepository.getOrdersByUserId(user.id).filter { it.status == "已完成" }
         binding.llInvoiceOrders.removeAllViews()
         binding.tvInvoiceHint.text = if (eligible.isEmpty()) {
-            "暂无可开具发票的已完成行程。行程到达后可在这里申请开票。"
+            "暂无可生成电子凭证的已完成行程。行程到达后可在这里保存行程凭证。"
         } else {
-            "以下已完成行程可申请电子普通发票。"
+            "以下已完成行程可生成并保存电子客运服务凭证。"
         }
         eligible.sortedByDescending { it.departureDate }.forEach { order ->
             binding.llInvoiceOrders.addView(invoiceCard(order, invoiceRepository.getByTicket(user.id, order.id)))
@@ -78,24 +78,24 @@ class ElectronicInvoiceActivity : AppCompatActivity() {
             setPadding(dp(16), dp(16), dp(16), dp(16))
         }
         content.addView(text("${order.trainNumber}  ${order.departureStation} → ${order.arrivalStation}", 16, R.color.text_primary, true))
-        content.addView(text("${order.departureDate} · 铁路客运服务 · 价税合计 ${money((order.finalPrice * 100).toLong())}", 13, R.color.text_secondary, false).apply {
+        content.addView(text("${order.departureDate} · 铁路客运服务 · 票面金额 ${money((order.finalPrice * 100).toLong())}", 13, R.color.text_secondary, false).apply {
             layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(6) }
         })
         if (invoice == null) {
             content.addView(MaterialButton(this, null, com.google.android.material.R.attr.materialButtonOutlinedStyle).apply {
-                text = "开具电子发票"
+                text = "生成电子凭证"
                 textSize = 13f
                 setTextColor(ContextCompat.getColor(this@ElectronicInvoiceActivity, R.color.railway_blue))
                 layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(46)).apply { topMargin = dp(12) }
                 setOnClickListener { issue(order) }
             })
         } else {
-            content.addView(text("已开具 · 发票代码 ${invoice.invoiceCode}\n发票号码 ${invoice.invoiceNumber} · 校验码 ${invoice.verificationCode}\n不含税 ${money(invoice.amountCents)}  税额 ${money(invoice.taxCents)}  税率 9%\n开具时间 ${invoice.issueDate}", 12, R.color.railway_blue, false).apply {
+            content.addView(text("已生成 · 凭证编号 ${invoice.invoiceNumber}\n校验标识 ${invoice.verificationCode}\n票面金额 ${money(invoice.totalCents)}\n生成时间 ${invoice.issueDate}", 12, R.color.railway_blue, false).apply {
                 setLineSpacing(dp(4).toFloat(), 1f)
                 layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(12) }
             })
             content.addView(MaterialButton(this, null, com.google.android.material.R.attr.materialButtonOutlinedStyle).apply {
-                text = if (invoice.pdfUri.isNullOrBlank()) "生成并保存 PDF" else "查看 PDF"
+                text = if (invoice.pdfUri.isNullOrBlank()) "生成并保存 PDF" else "查看电子凭证"
                 textSize = 13f
                 setTextColor(ContextCompat.getColor(this@ElectronicInvoiceActivity, R.color.railway_blue))
                 layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(46)).apply { topMargin = dp(12) }
@@ -105,7 +105,7 @@ class ElectronicInvoiceActivity : AppCompatActivity() {
                 }
             })
             if (!invoice.pdfUri.isNullOrBlank()) {
-                content.addView(text("PDF 已保存至：下载 / 铁路12306 / 电子发票", 12, R.color.text_secondary, false).apply {
+                content.addView(text("PDF 已保存至：下载 / 铁路12306 / 电子凭证", 12, R.color.text_secondary, false).apply {
                     layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(8) }
                 })
             }
@@ -118,24 +118,24 @@ class ElectronicInvoiceActivity : AppCompatActivity() {
         val user = userRepository.getCurrentUser() ?: return
         val invoice = invoiceRepository.issue(user.id, order, binding.etInvoiceTitle.text?.toString().orEmpty())
         if (invoice == null) {
-            Toast.makeText(this, "发票开具失败，请确认行程已完成", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "凭证生成失败，请确认行程已完成", Toast.LENGTH_SHORT).show()
             return
         }
         val savedInvoice = generatePdf(order, invoice, openAfter = false)
         if (savedInvoice == null) {
-            Toast.makeText(this, "发票已开具，但 PDF 生成失败，请点击重试", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, "凭证已生成，但 PDF 保存失败，请点击重试", Toast.LENGTH_LONG).show()
             render()
             return
         }
         messageRepository.add(
             user.id,
             MessageRepository.PAYMENT,
-            "电子发票已开具 · ${order.trainNumber}",
-            "发票号码${savedInvoice.invoiceNumber}，价税合计${money(savedInvoice.totalCents)}，PDF 已保存至下载目录。",
+            "电子凭证已生成 · ${order.trainNumber}",
+            "凭证编号${savedInvoice.invoiceNumber}，票面金额${money(savedInvoice.totalCents)}，PDF 已保存至下载目录。",
             order.id,
             eventKey = "invoice:${savedInvoice.id}"
         )
-        Toast.makeText(this, "电子发票 PDF 已生成并保存", Toast.LENGTH_LONG).show()
+        Toast.makeText(this, "电子凭证 PDF 已生成并保存", Toast.LENGTH_LONG).show()
         render()
         openPdf(savedInvoice.pdfUri.orEmpty())
     }
@@ -149,7 +149,7 @@ class ElectronicInvoiceActivity : AppCompatActivity() {
         }
         val saved = invoiceRepository.attachPdf(user.id, invoice.id, uri.toString())
         if (saved == null) {
-            Toast.makeText(this, "PDF 已生成，但发票记录保存失败", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "PDF 已生成，但凭证记录保存失败", Toast.LENGTH_SHORT).show()
             return null
         }
         render()

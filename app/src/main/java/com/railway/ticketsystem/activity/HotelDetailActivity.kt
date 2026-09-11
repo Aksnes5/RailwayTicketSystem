@@ -16,6 +16,7 @@ import com.google.android.material.card.MaterialCardView
 import com.railway.ticketsystem.R
 import com.railway.ticketsystem.data.HotelRoom
 import com.railway.ticketsystem.data.NearbyHotel
+import com.railway.ticketsystem.data.TravelVisualAssets
 import com.railway.ticketsystem.databinding.ActivityHotelDetailBinding
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -92,6 +93,14 @@ class HotelDetailActivity : AppCompatActivity() {
             orientation = LinearLayout.VERTICAL
             setPadding(dp(16), dp(16), dp(16), dp(14))
         }
+        content.addView(android.widget.ImageView(this).apply {
+            contentDescription = "${room.name}图片"
+            setImageResource(TravelVisualAssets.roomImage(room))
+            scaleType = android.widget.ImageView.ScaleType.CENTER_CROP
+            setBackgroundResource(R.drawable.bg_media_frame)
+            clipToOutline = true
+            layoutParams = LinearLayout.LayoutParams(-1, dp(166)).apply { bottomMargin = dp(14) }
+        })
         val heading = LinearLayout(this).apply { gravity = Gravity.CENTER_VERTICAL }
         heading.addView(text(room.name, 17, R.color.text_primary, true).apply {
             layoutParams = LinearLayout.LayoutParams(0, -2, 1f)

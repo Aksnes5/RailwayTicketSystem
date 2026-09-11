@@ -5,6 +5,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
+import android.graphics.DashPathEffect
 import android.graphics.Paint
 import android.graphics.RectF
 import android.graphics.Typeface
@@ -22,25 +23,27 @@ import java.io.FileOutputStream
 import java.util.Locale
 
 /**
- * Creates a customer-readable A4 invoice PDF and stores it in Downloads. The document
- * intentionally uses a service-voucher heading instead of reproducing an official tax form.
+ * Exports an attractive customer-readable travel voucher. It deliberately avoids tax authority
+ * seals, official invoice formats, official QR encodings and verification numbers.
  */
 object InvoicePdfExporter {
-    private const val PAGE_WIDTH = 1240
-    private const val PAGE_HEIGHT = 1754
-    private const val BLUE = 0xFF2D78D7.toInt()
-    private const val DARK = 0xFF1B2737.toInt()
-    private const val MUTED = 0xFF667085.toInt()
-    private const val LINE = 0xFFD9E2EE.toInt()
+    private const val PAGE_WIDTH = 1600
+    private const val PAGE_HEIGHT = 1020
+    private const val PAPER = 0xFFF5FBFF.toInt()
+    private const val PAPER_STRONG = 0xFFE8F5FC.toInt()
+    private const val BLUE = 0xFF2376C5.toInt()
+    private const val BLUE_DARK = 0xFF135DA5.toInt()
+    private const val DARK = 0xFF1B354E.toInt()
+    private const val MUTED = 0xFF668099.toInt()
+    private const val LINE = 0xFFBED6E7.toInt()
 
     fun export(context: Context, invoice: ElectronicInvoice, order: Order): Uri? = runCatching {
         val document = PdfDocument()
         try {
             val page = document.startPage(PdfDocument.PageInfo.Builder(PAGE_WIDTH, PAGE_HEIGHT, 1).create())
-            drawInvoice(page.canvas, invoice, order)
+            drawVoucher(page.canvas, invoice, order)
             document.finishPage(page)
-            val displayName = "铁路电子客票服务凭证_${invoice.invoiceNumber}.pdf"
-            writeToDownloads(context, document, displayName)
+            writeToDownloads(context, document, "铁路电子客票行程单_${invoice.invoiceNumber}.pdf")
         } finally {
             document.close()
         }
@@ -51,137 +54,139 @@ object InvoicePdfExporter {
             val values = ContentValues().apply {
                 put(MediaStore.Downloads.DISPLAY_NAME, displayName)
                 put(MediaStore.Downloads.MIME_TYPE, "application/pdf")
-                put(MediaStore.Downloads.RELATIVE_PATH, "${Environment.DIRECTORY_DOWNLOADS}/铁路12306/电子发票")
+                put(MediaStore.Downloads.RELATIVE_PATH, "${Environment.DIRECTORY_DOWNLOADS}/铁路12306/电子凭证")
                 put(MediaStore.Downloads.IS_PENDING, 1)
             }
             val uri = context.contentResolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values) ?: return null
             return try {
-                context.contentResolver.openOutputStream(uri)?.use { document.writeTo(it) }
+                context.contentResolver.openOutputStream(uri)?.use(document::writeTo)
                     ?: throw IllegalStateException("Unable to open PDF output")
                 values.clear()
                 values.put(MediaStore.Downloads.IS_PENDING, 0)
                 context.contentResolver.update(uri, values, null, null)
                 uri
-            } catch (error: Exception) {
+            } catch (_: Exception) {
                 context.contentResolver.delete(uri, null, null)
                 null
             }
         }
-
-        val folder = File(context.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS), "电子发票").apply { mkdirs() }
+        val folder = File(context.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS), "电子凭证").apply { mkdirs() }
         val file = File(folder, displayName)
-        FileOutputStream(file).use { document.writeTo(it) }
+        FileOutputStream(file).use(document::writeTo)
         return FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", file)
     }
 
-    private fun drawInvoice(canvas: Canvas, invoice: ElectronicInvoice, order: Order) {
-        canvas.drawColor(Color.WHITE)
-        val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply { typeface = Typeface.create("sans", Typeface.NORMAL) }
-        fun text(value: String, x: Float, y: Float, size: Float, color: Int = DARK, bold: Boolean = false) {
+    private fun drawVoucher(canvas: Canvas, invoice: ElectronicInvoice, order: Order) {
+        canvas.drawColor(PAPER)
+        val paint = Paint(Paint.ANTI_ALIAS_FLAG)
+        fun text(value: String, x: Float, y: Float, size: Float, color: Int = DARK, bold: Boolean = false, align: Paint.Align = Paint.Align.LEFT) {
+            paint.style = Paint.Style.FILL
+            paint.pathEffect = null
             paint.color = color
             paint.textSize = size
             paint.typeface = Typeface.create("sans", if (bold) Typeface.BOLD else Typeface.NORMAL)
+            paint.textAlign = align
             canvas.drawText(value, x, y, paint)
         }
-        fun line(y: Float) {
-            paint.color = LINE
-            paint.strokeWidth = 2f
-            canvas.drawLine(76f, y, PAGE_WIDTH - 76f, y, paint)
-        }
-        fun rounded(rect: RectF, color: Int, radius: Float = 22f) {
+        fun rounded(rect: RectF, color: Int, radius: Float = 26f, stroke: Int? = null) {
+            paint.style = Paint.Style.FILL
             paint.color = color
             canvas.drawRoundRect(rect, radius, radius, paint)
+            stroke?.let {
+                paint.style = Paint.Style.STROKE
+                paint.strokeWidth = 2f
+                paint.color = it
+                canvas.drawRoundRect(rect, radius, radius, paint)
+                paint.style = Paint.Style.FILL
+            }
+        }
+        fun divider(y: Float, x1: Float = 110f, x2: Float = PAGE_WIDTH - 110f) {
+            paint.color = LINE
+            paint.strokeWidth = 2f
+            paint.pathEffect = null
+            canvas.drawLine(x1, y, x2, y, paint)
+        }
+        fun detail(label: String, value: String, x: Float, y: Float) {
+            text(label, x, y, 18f, MUTED)
+            text(value, x, y + 34f, 25f, DARK, true)
         }
 
-        rounded(RectF(0f, 0f, PAGE_WIDTH.toFloat(), 230f), BLUE, 0f)
-        text("铁路电子客票", 78f, 98f, 35f, Color.WHITE, true)
-        text("服务凭证", 78f, 145f, 35f, Color.WHITE, true)
-        text("电子发票信息单", PAGE_WIDTH - 310f, 100f, 22f, 0xFFDCEBFF.toInt())
-        text("No. ${invoice.invoiceNumber}", PAGE_WIDTH - 310f, 140f, 21f, Color.WHITE, true)
+        rounded(RectF(52f, 42f, PAGE_WIDTH - 52f, PAGE_HEIGHT - 42f), Color.WHITE, 38f, LINE)
+        rounded(RectF(53f, 43f, PAGE_WIDTH - 53f, 178f), BLUE, 37f)
+        rounded(RectF(53f, 142f, PAGE_WIDTH - 53f, 179f), BLUE, 0f)
+        text("铁路电子客票行程单", 110f, 108f, 42f, Color.WHITE, true)
+        text("电子客运服务凭证", 112f, 143f, 19f, 0xFFD9EEFF.toInt())
+        text("凭证编号  ${invoice.invoiceNumber}", PAGE_WIDTH - 110f, 102f, 21f, Color.WHITE, true, Paint.Align.RIGHT)
+        text("生成日期  ${invoice.issueDate.substringBefore(" ")}", PAGE_WIDTH - 110f, 139f, 18f, 0xFFD9EEFF.toInt(), false, Paint.Align.RIGHT)
 
-        text("铁路客运服务电子凭证", 76f, 298f, 40f, DARK, true)
-        text("已完成行程 · 价税合计", 78f, 336f, 18f, MUTED)
-        rounded(RectF(PAGE_WIDTH - 296f, 270f, PAGE_WIDTH - 76f, 336f), 0xFFE7F1FF.toInt())
-        text("¥${money(invoice.totalCents)}", PAGE_WIDTH - 270f, 316f, 30f, BLUE, true)
-        line(374f)
+        text("出行信息", 110f, 234f, 25f, BLUE_DARK, true)
+        text("请以实际乘车记录为准", PAGE_WIDTH - 110f, 234f, 18f, MUTED, false, Paint.Align.RIGHT)
 
-        section(canvas, "购方信息", 414f)
-        infoRow(canvas, "抬头", invoice.buyerTitle, 460f)
-        infoRow(canvas, "服务名称", invoice.serviceName, 508f)
-        infoRow(canvas, "开具时间", invoice.issueDate, 556f)
-        line(584f)
+        val startX = 156f
+        val endX = PAGE_WIDTH - 424f
+        text(station(order.departureStation), startX, 316f, 40f, DARK, true)
+        text(order.trainNumber, PAGE_WIDTH / 2f, 290f, 24f, BLUE_DARK, true, Paint.Align.CENTER)
+        text("${order.departureDate}  ${order.departureTime}", PAGE_WIDTH / 2f, 323f, 18f, MUTED, false, Paint.Align.CENTER)
+        text(station(order.arrivalStation), endX, 316f, 40f, DARK, true, Paint.Align.RIGHT)
+        paint.color = BLUE
+        paint.style = Paint.Style.STROKE
+        paint.strokeWidth = 3f
+        canvas.drawLine(350f, 300f, PAGE_WIDTH - 620f, 300f, paint)
+        val arrowX = PAGE_WIDTH - 620f
+        canvas.drawLine(arrowX - 16f, 284f, arrowX, 300f, paint)
+        canvas.drawLine(arrowX - 16f, 316f, arrowX, 300f, paint)
+        paint.style = Paint.Style.FILL
+        text(order.departureTime, startX, 354f, 22f, MUTED)
+        text(order.arrivalTime, endX, 354f, 22f, MUTED, false, Paint.Align.RIGHT)
 
-        section(canvas, "行程信息", 628f)
-        infoRow(canvas, "车次", order.trainNumber, 674f)
-        infoRow(canvas, "行程", "${order.departureStation} - ${order.arrivalStation}", 722f)
-        infoRow(canvas, "乘车日期", order.departureDate, 770f)
-        infoRow(canvas, "乘车人", order.passengerName, 818f)
-        line(850f)
+        divider(392f)
+        detail("乘车日期", order.departureDate, 110f, 434f)
+        detail("车厢 / 席位", "${order.carNumber}车  ${order.seatNumber}", 410f, 434f)
+        detail("席别", order.seatType, 735f, 434f)
+        detail("乘车人", order.passengerName, 1010f, 434f)
 
-        section(canvas, "费用明细", 894f)
-        rounded(RectF(76f, 920f, PAGE_WIDTH - 76f, 1060f), 0xFFF6F9FD.toInt(), 18f)
-        text("项目", 104f, 961f, 18f, MUTED, true)
-        paint.textAlign = Paint.Align.RIGHT
-        text("金额", PAGE_WIDTH - 104f, 961f, 18f, MUTED, true)
-        paint.textAlign = Paint.Align.LEFT
-        text(invoice.serviceName, 104f, 1018f, 22f, DARK)
-        paint.textAlign = Paint.Align.RIGHT
-        text("¥${money(invoice.totalCents)}", PAGE_WIDTH - 104f, 1018f, 22f, DARK, true)
-        paint.textAlign = Paint.Align.LEFT
+        rounded(RectF(110f, 520f, 1115f, 716f), PAPER_STRONG, 28f)
+        text("费用信息", 150f, 574f, 23f, BLUE_DARK, true)
+        text("服务项目", 150f, 623f, 18f, MUTED)
+        text(invoice.serviceName, 330f, 623f, 22f, DARK, true)
+        text("票面金额", 150f, 670f, 18f, MUTED)
+        text("¥${money(invoice.totalCents)}", 330f, 672f, 30f, BLUE_DARK, true)
+        text("费用合计", 1055f, 623f, 19f, MUTED, false, Paint.Align.RIGHT)
+        text("¥${money(invoice.totalCents)}", 1055f, 675f, 39f, BLUE_DARK, true, Paint.Align.RIGHT)
 
-        infoRow(canvas, "不含税金额", "¥${money(invoice.amountCents)}", 1104f)
-        infoRow(canvas, "税率 / 税额", "9% / ¥${money(invoice.taxCents)}", 1152f)
-        rounded(RectF(76f, 1184f, PAGE_WIDTH - 76f, 1266f), 0xFFE7F1FF.toInt(), 18f)
-        text("价税合计", 104f, 1237f, 24f, DARK, true)
-        paint.textAlign = Paint.Align.RIGHT
-        text("¥${money(invoice.totalCents)}", PAGE_WIDTH - 104f, 1241f, 32f, BLUE, true)
-        paint.textAlign = Paint.Align.LEFT
-
-        line(1310f)
-        section(canvas, "验真信息", 1354f)
-        infoRow(canvas, "发票代码", invoice.invoiceCode, 1400f)
-        infoRow(canvas, "校验码", grouped(invoice.verificationCode), 1448f)
-        text("订单号", 76f, 1496f, 19f, MUTED)
-        text(order.id, 260f, 1496f, 19f, DARK)
-        qrBitmap(invoice.id + invoice.verificationCode)?.let { bitmap ->
-            canvas.drawBitmap(bitmap, null, RectF(PAGE_WIDTH - 256f, 1332f, PAGE_WIDTH - 96f, 1492f), paint)
+        rounded(RectF(1150f, 250f, PAGE_WIDTH - 110f, 716f), 0xFFF7FBFE.toInt(), 28f, LINE)
+        text("凭证校验", 1192f, 304f, 23f, BLUE_DARK, true)
+        qrBitmap("travel-voucher:${invoice.id}:${invoice.verificationCode}")?.let { bitmap ->
+            canvas.drawBitmap(bitmap, null, RectF(1220f, 334f, 1432f, 546f), paint)
         }
-        text("扫描查看电子凭证", PAGE_WIDTH - 288f, 1528f, 14f, MUTED)
+        text("应用内行程校验码", PAGE_WIDTH - 230f, 582f, 18f, DARK, true, Paint.Align.CENTER)
+        text("用于查看该笔行程信息", PAGE_WIDTH - 230f, 614f, 16f, MUTED, false, Paint.Align.CENTER)
+        text("校验标识  ${grouped(invoice.verificationCode)}", PAGE_WIDTH - 230f, 658f, 15f, MUTED, false, Paint.Align.CENTER)
 
-        line(1570f)
-        text("本电子凭证由铁路出行服务生成，请妥善保存。", 76f, 1616f, 16f, MUTED)
-        text("第 1 页 / 共 1 页", PAGE_WIDTH - 230f, 1660f, 16f, MUTED)
-    }
-
-    private fun section(canvas: Canvas, title: String, baseline: Float) {
-        val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = BLUE }
-        canvas.drawRoundRect(RectF(76f, baseline - 24f, 84f, baseline + 8f), 4f, 4f, paint)
-        paint.color = DARK
-        paint.textSize = 24f
-        paint.typeface = Typeface.create("sans", Typeface.BOLD)
-        canvas.drawText(title, 100f, baseline, paint)
-    }
-
-    private fun infoRow(canvas: Canvas, label: String, value: String, baseline: Float) {
-        val paint = Paint(Paint.ANTI_ALIAS_FLAG)
-        paint.textSize = 19f
-        paint.color = MUTED
-        paint.typeface = Typeface.create("sans", Typeface.NORMAL)
-        canvas.drawText(label, 76f, baseline, paint)
-        paint.color = DARK
-        paint.textSize = 21f
-        canvas.drawText(value, 260f, baseline, paint)
+        divider(760f)
+        text("行程信息", 110f, 814f, 23f, BLUE_DARK, true)
+        text("订单编号  ${order.id.takeLast(26)}", 110f, 852f, 18f, DARK)
+        text("凭证抬头  ${invoice.buyerTitle}", 650f, 852f, 18f, DARK)
+        text("本凭证仅用于应用内行程信息展示与保存，不作为税务发票或报销凭据。", 110f, 897f, 16f, MUTED)
+        paint.color = LINE
+        paint.strokeWidth = 2f
+        paint.pathEffect = DashPathEffect(floatArrayOf(12f, 10f), 0f)
+        canvas.drawLine(110f, 928f, PAGE_WIDTH - 110f, 928f, paint)
+        paint.pathEffect = null
+        text("铁路出行服务 · 第 1 页 / 共 1 页", 110f, 964f, 16f, MUTED)
+        text("请妥善保存此电子行程凭证", PAGE_WIDTH - 110f, 964f, 16f, MUTED, false, Paint.Align.RIGHT)
     }
 
     private fun qrBitmap(value: String): Bitmap? = runCatching {
-        val matrix = QRCodeWriter().encode(value, BarcodeFormat.QR_CODE, 160, 160)
-        Bitmap.createBitmap(160, 160, Bitmap.Config.ARGB_8888).also { bitmap ->
-            for (x in 0 until 160) for (y in 0 until 160) {
-                bitmap.setPixel(x, y, if (matrix[x, y]) Color.BLACK else Color.WHITE)
+        val matrix = QRCodeWriter().encode(value, BarcodeFormat.QR_CODE, 212, 212)
+        Bitmap.createBitmap(212, 212, Bitmap.Config.ARGB_8888).also { bitmap ->
+            for (x in 0 until 212) for (y in 0 until 212) {
+                bitmap.setPixel(x, y, if (matrix[x, y]) Color.rgb(27, 53, 78) else Color.WHITE)
             }
         }
     }.getOrNull()
 
+    private fun station(value: String): String = value.trim().let { if (it.endsWith("站")) it else "${it}站" }
     private fun grouped(value: String): String = value.chunked(4).joinToString(" ")
     private fun money(cents: Long): String = String.format(Locale.CHINA, "%.2f", cents / 100.0)
 }

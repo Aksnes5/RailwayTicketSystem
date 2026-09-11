@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -19,6 +20,7 @@ import com.railway.ticketsystem.data.MembershipRepository
 import com.railway.ticketsystem.data.MessageRepository
 import com.railway.ticketsystem.data.OnboardMealCatalog
 import com.railway.ticketsystem.data.OrderRepository
+import com.railway.ticketsystem.data.TravelVisualAssets
 import com.railway.ticketsystem.data.UserRepository
 import com.railway.ticketsystem.databinding.ActivityMealOrderBinding
 import com.railway.ticketsystem.model.Order
@@ -150,6 +152,14 @@ class MealOrderActivity : AppCompatActivity() {
             orientation = LinearLayout.VERTICAL
             layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
         }
+        content.addView(ImageView(this).apply {
+            contentDescription = "${product.name}图片"
+            setImageResource(TravelVisualAssets.mealImage(product.id))
+            scaleType = ImageView.ScaleType.CENTER_CROP
+            setBackgroundResource(R.drawable.bg_media_frame)
+            clipToOutline = true
+            layoutParams = LinearLayout.LayoutParams(dp(82), dp(82)).apply { marginEnd = dp(12) }
+        })
         textBlock.addView(smallText(product.name, 17, R.color.text_primary).apply {
             setTypeface(typeface, android.graphics.Typeface.BOLD)
         })

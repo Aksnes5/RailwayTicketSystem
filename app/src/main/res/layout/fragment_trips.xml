@@ -245,21 +245,22 @@
         android:textSize="13sp"
         android:textStyle="bold" />
 
-    <HorizontalScrollView
+    <LinearLayout
         android:id="@+id/svTripDateSelector"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="66dp"
+        android:layout_marginHorizontal="16dp"
         android:layout_marginBottom="8dp"
-        android:scrollbars="none">
+        android:background="@drawable/bg_date_selector_rail"
+        android:orientation="horizontal"
+        android:padding="4dp">
 
         <LinearLayout
             android:id="@+id/llTripDateSelector"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp" />
-    </HorizontalScrollView>
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal" />
+    </LinearLayout>
 
     <!-- 行程列表 -->
     <androidx.recyclerview.widget.RecyclerView
