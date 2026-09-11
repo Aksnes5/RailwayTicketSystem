@@ -95,16 +95,7 @@ class ProfileFragment : Fragment() {
             binding.tvUserInfo.text = currentUser.realName
             binding.tvUserPhone.text = maskPhone(currentUser.phone)
             binding.tvRegisterTime.text = currentUser.createTime.substring(0, 10) // 只显示日期部分
-            binding.tvUserPoints.text = currentUser.points.toString()
-            
-            // 设置会员等级
-            val memberLevel = calculateMemberLevel(currentUser.points)
-            binding.tvMemberLevel.text = memberLevel
-            
-            // 调试信息
-            android.util.Log.d("ProfileFragment", "加载用户信息，当前积分: ${currentUser.points}")
-            android.util.Log.d("ProfileFragment", "积分TextView内容: ${binding.tvUserPoints.text}")
-            android.util.Log.d("ProfileFragment", "会员等级: $memberLevel")
+            android.util.Log.d("ProfileFragment", "加载账户资料")
             android.util.Log.d("ProfileFragment", "用户ID: ${currentUser.id}, 用户名: ${currentUser.username}")
             
             // 加载头像
@@ -116,8 +107,6 @@ class ProfileFragment : Fragment() {
             binding.tvUserInfo.text = "未登录"
             binding.tvUserPhone.text = "未登录"
             binding.tvRegisterTime.text = "未登录"
-            binding.tvUserPoints.text = "0"
-            binding.tvMemberLevel.text = "一星会员"
             binding.ivAvatar.setImageResource(R.drawable.ic_default_avatar)
         }
     }
@@ -308,4 +297,3 @@ class ProfileFragment : Fragment() {
         }
     }
 }
-

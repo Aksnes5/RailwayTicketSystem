@@ -105,7 +105,7 @@ class MembershipCenterActivity : AppCompatActivity() {
                 showMembershipUnavailable()
                 return@onFailure
             }
-            binding.tvMemberName.text = user.username + " 的铁路会员"
+            binding.tvMemberName.text = "积分与权益账户"
             binding.tvMemberLevel.text = memberLevel(user.points)
             binding.tvMemberRights.text = "会员服务正在同步，请稍后刷新重试。"
             binding.tvGrowthSummary.text = "成长足迹正在同步，请稍后刷新。"
@@ -121,7 +121,7 @@ class MembershipCenterActivity : AppCompatActivity() {
     }
 
     private fun showMembershipUnavailable() {
-        binding.tvMemberName.text = "铁路会员"
+        binding.tvMemberName.text = "积分与权益账户"
         binding.tvMemberLevel.text = "会员服务暂不可用"
         binding.tvMemberRights.text = "本地数据正在保护中，请稍后返回重试。"
         binding.tvGrowthSummary.text = "成长足迹暂不可用"
@@ -141,7 +141,7 @@ class MembershipCenterActivity : AppCompatActivity() {
             showMembershipUnavailable()
             return
         }
-        binding.tvMemberName.text = user.username + " 的铁路会员"
+        binding.tvMemberName.text = "积分与权益账户"
         binding.tvMemberLevel.text = memberLevel(user.points)
         binding.tvMemberRights.text = memberRights(user.points)
         binding.tvGrowthSummary.text = membership.getGrowthProfile(userId).summary

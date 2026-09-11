@@ -4,17 +4,17 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/surface">
+    android:background="@drawable/bg_page_backdrop">
 
     <!-- 顶部标题栏 -->
     <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
-        app:cardBackgroundColor="@color/surface_container"
+        app:cardBackgroundColor="#DFFFFFFF"
         app:cardCornerRadius="@dimen/corner_large"
         app:cardElevation="0dp"
-        app:strokeColor="@color/divider"
+        app:strokeColor="#B3FFFFFF"
         app:strokeWidth="1dp">
 
         <LinearLayout
@@ -27,10 +27,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="我的行程"
-                android:textSize="22sp"
+                android:textSize="26sp"
                 android:textStyle="bold"
                 android:textColor="@color/text_primary"
-                android:gravity="center" />
+                android:gravity="start" />
 
             <TextView
                 android:layout_width="match_parent"
@@ -38,7 +38,7 @@
                 android:text="近期的铁路出行安排"
                 android:textSize="14sp"
                 android:textColor="@color/text_secondary"
-                android:gravity="center"
+                android:gravity="start"
                 android:layout_marginTop="4dp" />
 
         </LinearLayout>

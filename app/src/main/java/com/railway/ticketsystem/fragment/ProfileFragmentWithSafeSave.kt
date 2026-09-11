@@ -225,16 +225,6 @@ class ProfileFragmentWithSafeSave : Fragment() {
                 binding.tvUserInfo.text = currentUser.realName
                 binding.tvUserPhone.text = maskPhone(currentUser.phone)
                 binding.tvRegisterTime.text = currentUser.createTime.substring(0, 10)
-                binding.tvUserPoints.text = currentUser.points.toString()
-                
-                // 设置会员等级
-                val memberLevel = calculateMemberLevel(currentUser.points)
-                binding.tvMemberLevel.text = memberLevel
-                
-                // 调试信息
-                Log.d("ProfileFragmentWithSafeSave", "加载用户信息，当前积分: ${currentUser.points}")
-                Log.d("ProfileFragmentWithSafeSave", "积分TextView内容: ${binding.tvUserPoints.text}")
-                Log.d("ProfileFragmentWithSafeSave", "会员等级: $memberLevel")
                 
                 // 加载头像
                 loadAvatar(currentUser.avatarPath)
@@ -245,8 +235,6 @@ class ProfileFragmentWithSafeSave : Fragment() {
                 binding.tvUserInfo.text = "未登录"
                 binding.tvUserPhone.text = "未登录"
                 binding.tvRegisterTime.text = "未登录"
-                binding.tvUserPoints.text = "0"
-                binding.tvMemberLevel.text = "一星会员"
                 binding.ivAvatar.setImageResource(R.drawable.ic_default_avatar)
             }
         } catch (e: Exception) {
@@ -290,21 +278,6 @@ class ProfileFragmentWithSafeSave : Fragment() {
             "${phone.substring(0, 3)}****${phone.substring(7)}"
         } else {
             phone
-        }
-    }
-    
-    /**
-     * 根据积分计算会员等级
-     * @param points 用户积分
-     * @return 会员等级字符串
-     */
-    private fun calculateMemberLevel(points: Int): String {
-        return when {
-            points >= 100000 -> "五星会员"
-            points >= 75000 -> "四星会员"
-            points >= 50000 -> "三星会员"
-            points >= 20000 -> "二星会员"
-            else -> "一星会员"
         }
     }
     

@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/surface"
+    android:background="@drawable/bg_page_backdrop"
     android:fillViewport="true">
 
     <LinearLayout
@@ -25,13 +25,13 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="0dp"
+        android:layout_marginTop="-22dp"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
-        app:cardBackgroundColor="@color/surface_container"
+        app:cardBackgroundColor="#F5FFFFFF"
         app:cardCornerRadius="@dimen/corner_large"
         app:cardElevation="0dp"
-        app:strokeColor="@color/divider"
+        app:strokeColor="#CCFFFFFF"
         app:strokeWidth="1dp">
 
         <LinearLayout
@@ -131,6 +131,7 @@
             <!-- 查询按钮 -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnSearchTickets"
+                style="@style/App.Button.Search"
                 android:layout_width="match_parent"
                 android:layout_height="56dp"
                 android:text="@string/search_tickets"
