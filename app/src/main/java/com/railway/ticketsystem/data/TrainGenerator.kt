@@ -394,20 +394,18 @@ object TrainGenerator {
     }
 
     private fun determineTrainCountForStops(stops: Int, minCount: Int, maxCount: Int): Int {
-        return when {
-            stops <= 2 -> {
-                (50 + (0..10).random()).coerceIn(50, maxCount)
-            }
-            stops <= 5 -> {
-                (45 + (0..10).random()).coerceIn(45, maxCount)
-            }
-            stops <= 10 -> {
-                (42 + (0..10).random()).coerceIn(42, maxCount)
-            }
-            else -> {
-                (40 + (0..10).random()).coerceIn(minCount, maxCount)
-            }
+        // Search keeps its existing 40–60 default, while other consumers
+        // (such as the station board) can ask the very same generator for a
+        // compact sample without constructing dozens of unused services.
+        val lowerBound = minOf(minCount, maxCount).coerceAtLeast(1)
+        val upperBound = maxOf(minCount, maxCount).coerceAtLeast(lowerBound)
+        val target = when {
+            stops <= 2 -> 50 + (0..10).random()
+            stops <= 5 -> 45 + (0..10).random()
+            stops <= 10 -> 42 + (0..10).random()
+            else -> 40 + (0..10).random()
         }
+        return target.coerceIn(lowerBound, upperBound)
     }
 
     private fun generateTrainsForPath(

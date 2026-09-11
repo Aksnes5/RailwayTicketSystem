@@ -16,6 +16,12 @@ import com.railway.ticketsystem.data.StationBoardGenerator
 import com.railway.ticketsystem.data.todayDate
 import com.railway.ticketsystem.databinding.ActivityStationBoardBinding
 import com.railway.ticketsystem.model.Station
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -23,6 +29,8 @@ import java.util.Locale
 class StationBoardActivity : AppCompatActivity() {
     private lateinit var binding: ActivityStationBoardBinding
     private var stationNames: List<String> = emptyList()
+    private val screenScope = CoroutineScope(Dispatchers.Main)
+    private var renderBoardJob: Job? = null
     private val stationPicker = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         val station = result.data?.getSerializableExtra("selectedStation") as? Station
         if (result.resultCode == RESULT_OK && station != null) {
@@ -55,9 +63,36 @@ class StationBoardActivity : AppCompatActivity() {
             return
         }
         binding.llBoardRows.removeAllViews()
-        StationBoardGenerator.forStation(station, todayDate(), stationNames).forEach { entry ->
-            binding.llBoardRows.addView(boardRow(entry))
+        binding.btnRefreshBoard.isEnabled = false
+        binding.btnRefreshBoard.text = "加载中"
+        val boardDate = todayDate()
+        renderBoardJob?.cancel()
+        renderBoardJob = screenScope.launch {
+            val entries = withContext(Dispatchers.Default) {
+                StationBoardGenerator.forStation(station, boardDate)
+            }
+            if (isFinishing || isDestroyed) return@launch
+            binding.llBoardRows.removeAllViews()
+            if (entries.isEmpty()) {
+                binding.llBoardRows.addView(TextView(this@StationBoardActivity).apply {
+                    text = "暂无可展示的当日班次"
+                    textSize = 14f
+                    setTextColor(ContextCompat.getColor(this@StationBoardActivity, R.color.text_secondary))
+                    gravity = android.view.Gravity.CENTER
+                    setPadding(dp(12), dp(28), dp(12), dp(28))
+                })
+            } else {
+                entries.forEach { entry -> binding.llBoardRows.addView(boardRow(entry)) }
+            }
+            binding.btnRefreshBoard.isEnabled = true
+            binding.btnRefreshBoard.text = "查看"
         }
+    }
+
+    override fun onDestroy() {
+        renderBoardJob?.cancel()
+        screenScope.cancel()
+        super.onDestroy()
     }
 
     private fun boardRow(entry: com.railway.ticketsystem.data.StationBoardEntry): MaterialCardView {
