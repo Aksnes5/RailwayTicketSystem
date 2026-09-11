@@ -165,15 +165,16 @@ class AdvancedSearchResultsActivity : AppCompatActivity() {
         }
         
         transferTrainAdapter = TransferTrainAdapter(seatInventoryRepository, { departureDate }) { transferTrain ->
-            // 点击中转车次，跳转到座位选择页面（传递两段车次信息）
-            val intent = Intent(this, SeatSelectionActivity::class.java)
-            intent.putExtra("isTransfer", true)
-            intent.putExtra("firstLeg", transferTrain.firstLeg)
-            intent.putExtra("secondLeg", transferTrain.secondLeg)
-            intent.putExtra("transferStation", transferTrain.transferStation)
-            intent.putExtra("transferTime", transferTrain.transferTime)
-            intent.putExtra("totalPrice", transferTrain.totalPrice)
-            intent.putExtra("departureDate", departureDate)
+            // 中转换乘先进入两段服务的详情页。每一程在那里复用直达
+            // 车次的线路图、经停时刻、动态状态和担当车型，最后再选择席别。
+            val intent = Intent(this, TransferDetailActivity::class.java)
+            intent.putExtra(TransferDetailActivity.EXTRA_FIRST_LEG, transferTrain.firstLeg)
+            intent.putExtra(TransferDetailActivity.EXTRA_SECOND_LEG, transferTrain.secondLeg)
+            intent.putExtra(TransferDetailActivity.EXTRA_TRANSFER_STATION, transferTrain.transferStation)
+            intent.putExtra(TransferDetailActivity.EXTRA_TRANSFER_TIME, transferTrain.transferTime)
+            intent.putExtra(TransferDetailActivity.EXTRA_TOTAL_PRICE, transferTrain.totalPrice)
+            intent.putExtra(TransferDetailActivity.EXTRA_TOTAL_DURATION, transferTrain.totalDuration)
+            intent.putExtra(TransferDetailActivity.EXTRA_DEPARTURE_DATE, departureDate)
             startActivity(intent)
         }
         

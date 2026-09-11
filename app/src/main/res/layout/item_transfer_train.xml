@@ -90,11 +90,20 @@
                 android:gravity="center">
 
                 <TextView
+                    android:id="@+id/tvTransferDate"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="→"
-                    android:textSize="16sp"
-                    android:textColor="@color/gray_dark" />
+                    android:layout_marginBottom="2dp"
+                    android:text="9月13日"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="12sp" />
+
+                <ImageView
+                    android:layout_width="68dp"
+                    android:layout_height="10dp"
+                    android:contentDescription="从出发站前往到达站"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/ic_journey_forward" />
 
                 <TextView
                     android:id="@+id/tvDuration"
@@ -102,7 +111,8 @@
                     android:layout_height="wrap_content"
                     android:text="3小时15分"
                     android:textSize="12sp"
-                    android:textColor="@color/gray_dark" />
+                    android:textColor="@color/railway_blue"
+                    android:layout_marginTop="2dp" />
 
             </LinearLayout>
 

@@ -7,6 +7,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.railway.ticketsystem.R
 import com.railway.ticketsystem.data.SeatInventoryRepository
+import com.railway.ticketsystem.data.TrainSetResolver
 import com.railway.ticketsystem.model.TransferRisk
 import com.railway.ticketsystem.model.TransferTrain
 
@@ -45,6 +46,7 @@ class TransferTrainAdapter(
         private val tvDepartureTime: TextView = itemView.findViewById(R.id.tvDepartureTime)
         private val tvArrivalTime: TextView = itemView.findViewById(R.id.tvArrivalTime)
         private val tvDuration: TextView = itemView.findViewById(R.id.tvDuration)
+        private val tvTransferDate: TextView = itemView.findViewById(R.id.tvTransferDate)
         private val tvPrice: TextView = itemView.findViewById(R.id.tvPrice)
         private val tvTransferInfo: TextView = itemView.findViewById(R.id.tvTransferInfo)
         private val tvFirstLeg: TextView = itemView.findViewById(R.id.tvFirstLeg)
@@ -57,6 +59,7 @@ class TransferTrainAdapter(
             tvDepartureTime.text = transferTrain.departureTime
             tvArrivalTime.text = transferTrain.arrivalTime
             tvDuration.text = transferTrain.totalDuration
+            tvTransferDate.text = formatMonthDay(departureDateProvider())
             tvPrice.text = "¥${transferTrain.totalPrice.toInt()}"
             tvTransferInfo.text = transferTrain.transferInfo
             
@@ -79,15 +82,25 @@ class TransferTrainAdapter(
                 TransferRisk.NOT_RECOMMENDED -> R.color.railway_red
             }
             tvTransferRisk.setTextColor(itemView.context.getColor(riskColor))
-            tvFirstLeg.text = "① ${transferTrain.firstLeg.number} ${transferTrain.firstLeg.departureStation}→${transferTrain.firstLeg.arrivalStation} " +
-                             "${transferTrain.firstLeg.departureTime}→${transferTrain.firstLeg.arrivalTime} (${transferTrain.firstLeg.duration})"
-            
-            tvSecondLeg.text = "② ${transferTrain.secondLeg.number} ${transferTrain.secondLeg.departureStation}→${transferTrain.secondLeg.arrivalStation} " +
-                              "${transferTrain.secondLeg.departureTime}→${transferTrain.secondLeg.arrivalTime} (${transferTrain.secondLeg.duration})"
+            tvFirstLeg.text = legText("①", transferTrain.firstLeg)
+            tvSecondLeg.text = legText("②", transferTrain.secondLeg)
 
             itemView.setOnClickListener {
                 onItemClick(transferTrain)
             }
+        }
+
+        private fun legText(index: String, train: com.railway.ticketsystem.model.Train): String {
+            val basic = "$index ${train.number} ${train.departureStation}→${train.arrivalStation} " +
+                "${train.departureTime}→${train.arrivalTime} (${train.duration})"
+            val trainSet = TrainSetResolver.modelFor(train) ?: return basic
+            return "$basic · 担当$trainSet"
+        }
+
+        private fun formatMonthDay(value: String): String {
+            val source = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.CHINA)
+            val target = java.text.SimpleDateFormat("M月d日", java.util.Locale.CHINA)
+            return runCatching { source.parse(value) }.getOrNull()?.let(target::format) ?: value
         }
     }
 
