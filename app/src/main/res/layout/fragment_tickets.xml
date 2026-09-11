@@ -86,7 +86,7 @@
                     android:id="@+id/btnSwapStations"
                     android:layout_width="48dp"
                     android:layout_height="48dp"
-                    android:background="@drawable/bg_round_blue_action"
+                    android:background="@drawable/bg_swap_stations_light"
                     android:contentDescription="互换出发站与到达站"
                     android:foreground="?android:attr/selectableItemBackgroundBorderless"
                     android:padding="12dp"

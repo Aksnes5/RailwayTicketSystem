@@ -1,16 +1,23 @@
 package com.railway.ticketsystem.fragment
 
-import android.app.DatePickerDialog
+import android.app.Dialog
+import android.graphics.Color
+import android.graphics.Typeface
+import android.graphics.drawable.ColorDrawable
+import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
+import android.widget.GridLayout
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.core.content.ContextCompat
 import com.railway.ticketsystem.R
 import com.railway.ticketsystem.adapter.TicketAdapter
 import com.railway.ticketsystem.data.MembershipRepository
@@ -161,30 +168,287 @@ class TicketsFragment : Fragment() {
     }
 
     private fun showDatePicker() {
+        val context = requireContext()
         val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-        val selectedDepartureDate = runCatching { dateFormat.parse(binding.etDepartureDate.text.toString()) }.getOrNull()
-        val calendar = Calendar.getInstance()
-        if (selectedDepartureDate != null) calendar.time = selectedDepartureDate
-        val today = Calendar.getInstance()
-        val maxDate = Calendar.getInstance()
-        maxDate.add(Calendar.DAY_OF_MONTH, 15) // 最多选择15天后
-        
-        val datePickerDialog = DatePickerDialog(
-            requireContext(),
-            { _, year, month, dayOfMonth ->
-                val selectedDate = Calendar.getInstance()
-                selectedDate.set(year, month, dayOfMonth)
-                binding.etDepartureDate.setText(dateFormat.format(selectedDate.time))
-            },
-            calendar.get(Calendar.YEAR),
-            calendar.get(Calendar.MONTH),
-            calendar.get(Calendar.DAY_OF_MONTH)
-        )
-        
-        datePickerDialog.datePicker.minDate = today.timeInMillis
-        datePickerDialog.datePicker.maxDate = maxDate.timeInMillis
-        datePickerDialog.show()
+        val today = Calendar.getInstance().startOfDay()
+        val lastAvailableDay = (today.clone() as Calendar).apply { add(Calendar.DAY_OF_MONTH, 15) }
+        var selectedDate = runCatching {
+            Calendar.getInstance().apply {
+                time = dateFormat.parse(binding.etDepartureDate.text.toString()) ?: today.time
+                startOfDayInPlace()
+            }
+        }.getOrElse { today.clone() as Calendar }
+        if (selectedDate.before(today) || selectedDate.after(lastAvailableDay)) {
+            selectedDate = today.clone() as Calendar
+        }
+        var displayedMonth = (selectedDate.clone() as Calendar).apply {
+            set(Calendar.DAY_OF_MONTH, 1)
+            startOfDayInPlace()
+        }
+
+        val dialog = Dialog(context)
+        dialog.requestWindowFeature(android.view.Window.FEATURE_NO_TITLE)
+
+        val sheet = LinearLayout(context).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(dp(20), dp(10), dp(20), dp(20))
+            background = roundedBackground(Color.WHITE, 28)
+        }
+        sheet.addView(TextView(context).apply {
+            layoutParams = LinearLayout.LayoutParams(dp(38), dp(4)).apply {
+                gravity = Gravity.CENTER_HORIZONTAL
+                bottomMargin = dp(14)
+            }
+            background = roundedBackground(Color.rgb(214, 224, 235), 3)
+        })
+        sheet.addView(TextView(context).apply {
+            text = "选择出发日期"
+            textSize = 20f
+            setTextColor(Color.rgb(27, 39, 56))
+            setTypeface(typeface, Typeface.BOLD)
+            gravity = Gravity.CENTER
+        }, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
+        sheet.addView(TextView(context).apply {
+            text = "可选未来 15 天内的车票"
+            textSize = 13f
+            setTextColor(Color.rgb(124, 142, 160))
+            gravity = Gravity.CENTER
+            setPadding(0, dp(5), 0, dp(16))
+        }, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
+
+        val selectionSummary = TextView(context).apply {
+            textSize = 15f
+            setTextColor(ContextCompat.getColor(context, R.color.railway_blue_deep))
+            setTypeface(typeface, Typeface.BOLD)
+            gravity = Gravity.CENTER
+            setPadding(dp(12), dp(10), dp(12), dp(10))
+            background = roundedBackground(Color.rgb(238, 247, 255), 16)
+        }
+        sheet.addView(selectionSummary, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply {
+            bottomMargin = dp(14)
+        })
+
+        val monthBar = LinearLayout(context).apply {
+            gravity = Gravity.CENTER_VERTICAL
+            orientation = LinearLayout.HORIZONTAL
+        }
+        val previousMonth = calendarNavButton("‹", "查看上月")
+        val monthLabel = TextView(context).apply {
+            textSize = 17f
+            gravity = Gravity.CENTER
+            setTextColor(Color.rgb(27, 39, 56))
+            setTypeface(typeface, Typeface.BOLD)
+        }
+        val nextMonth = calendarNavButton("›", "查看下月")
+        monthBar.addView(previousMonth, LinearLayout.LayoutParams(dp(42), dp(42)))
+        monthBar.addView(monthLabel, LinearLayout.LayoutParams(0, dp(42), 1f))
+        monthBar.addView(nextMonth, LinearLayout.LayoutParams(dp(42), dp(42)))
+        sheet.addView(monthBar)
+
+        val weekdayGrid = GridLayout(context).apply {
+            columnCount = 7
+            rowCount = 1
+            useDefaultMargins = false
+        }
+        listOf("日", "一", "二", "三", "四", "五", "六").forEachIndexed { index, day ->
+            weekdayGrid.addView(TextView(context).apply {
+                text = day
+                textSize = 13f
+                gravity = Gravity.CENTER
+                setTextColor(if (index == 0 || index == 6) Color.rgb(138, 155, 173) else Color.rgb(89, 108, 128))
+            }, calendarGridParams(0, index, dp(28)))
+        }
+        sheet.addView(weekdayGrid)
+
+        val dayGrid = GridLayout(context).apply {
+            columnCount = 7
+            rowCount = 6
+            useDefaultMargins = false
+            alignmentMode = GridLayout.ALIGN_BOUNDS
+        }
+        sheet.addView(dayGrid, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(276)))
+
+        val actions = LinearLayout(context).apply {
+            gravity = Gravity.CENTER_VERTICAL
+            orientation = LinearLayout.HORIZONTAL
+            setPadding(0, dp(14), 0, 0)
+        }
+        val todayButton = calendarActionButton("今天", false)
+        val confirmButton = calendarActionButton("确定", true)
+        actions.addView(todayButton, LinearLayout.LayoutParams(0, dp(46), 1f).apply { marginEnd = dp(10) })
+        actions.addView(confirmButton, LinearLayout.LayoutParams(0, dp(46), 1f))
+        sheet.addView(actions)
+
+        fun refreshSelectionSummary() {
+            val weekday = arrayOf("周日", "周一", "周二", "周三", "周四", "周五", "周六")[selectedDate.get(Calendar.DAY_OF_WEEK) - 1]
+            val prefix = when {
+                selectedDate.isSameDay(today) -> "今天"
+                selectedDate.isSameDay((today.clone() as Calendar).apply { add(Calendar.DAY_OF_MONTH, 1) }) -> "明天"
+                else -> weekday
+            }
+            selectionSummary.text = "$prefix · ${selectedDate.get(Calendar.MONTH) + 1}月${selectedDate.get(Calendar.DAY_OF_MONTH)}日"
+        }
+
+        fun refreshMonthControls() {
+            val firstSelectableMonth = (today.clone() as Calendar).apply { set(Calendar.DAY_OF_MONTH, 1) }
+            val lastSelectableMonth = (lastAvailableDay.clone() as Calendar).apply { set(Calendar.DAY_OF_MONTH, 1) }
+            previousMonth.isEnabled = displayedMonth.after(firstSelectableMonth)
+            nextMonth.isEnabled = displayedMonth.before(lastSelectableMonth)
+            previousMonth.alpha = if (previousMonth.isEnabled) 1f else 0.35f
+            nextMonth.alpha = if (nextMonth.isEnabled) 1f else 0.35f
+            monthLabel.text = "${displayedMonth.get(Calendar.YEAR)}年${displayedMonth.get(Calendar.MONTH) + 1}月"
+        }
+
+        fun renderDays() {
+            dayGrid.removeAllViews()
+            val firstOfMonth = (displayedMonth.clone() as Calendar).apply { set(Calendar.DAY_OF_MONTH, 1) }
+            val leadingBlankCount = firstOfMonth.get(Calendar.DAY_OF_WEEK) - Calendar.SUNDAY
+            val daysInMonth = firstOfMonth.getActualMaximum(Calendar.DAY_OF_MONTH)
+            repeat(leadingBlankCount) { blankIndex ->
+                dayGrid.addView(View(context), calendarGridParams(blankIndex / 7, blankIndex % 7, dp(46)))
+            }
+            for (day in 1..daysInMonth) {
+                val date = (firstOfMonth.clone() as Calendar).apply { set(Calendar.DAY_OF_MONTH, day) }
+                val index = leadingBlankCount + day - 1
+                val isAvailable = !date.before(today) && !date.after(lastAvailableDay)
+                val isSelected = date.isSameDay(selectedDate)
+                dayGrid.addView(TextView(context).apply {
+                    text = day.toString()
+                    textSize = 16f
+                    gravity = Gravity.CENTER
+                    isClickable = isAvailable
+                    isFocusable = isAvailable
+                    when {
+                        isSelected -> {
+                            setTextColor(Color.WHITE)
+                            setTypeface(typeface, Typeface.BOLD)
+                            background = roundedBackground(ContextCompat.getColor(context, R.color.railway_blue), 18)
+                        }
+                        isAvailable -> {
+                            setTextColor(Color.rgb(35, 48, 65))
+                            background = roundedBackground(Color.TRANSPARENT, 18)
+                        }
+                        else -> {
+                            setTextColor(Color.rgb(196, 206, 217))
+                            background = roundedBackground(Color.TRANSPARENT, 18)
+                        }
+                    }
+                    if (isAvailable) {
+                        contentDescription = "选择${date.get(Calendar.MONTH) + 1}月${day}日"
+                        setOnClickListener {
+                            selectedDate = date
+                            refreshSelectionSummary()
+                            renderDays()
+                        }
+                    }
+                }, calendarGridParams(index / 7, index % 7, dp(46)))
+            }
+        }
+
+        previousMonth.setOnClickListener {
+            if (previousMonth.isEnabled) {
+                displayedMonth.add(Calendar.MONTH, -1)
+                refreshMonthControls()
+                renderDays()
+            }
+        }
+        nextMonth.setOnClickListener {
+            if (nextMonth.isEnabled) {
+                displayedMonth.add(Calendar.MONTH, 1)
+                refreshMonthControls()
+                renderDays()
+            }
+        }
+        todayButton.setOnClickListener {
+            selectedDate = today.clone() as Calendar
+            displayedMonth = (today.clone() as Calendar).apply { set(Calendar.DAY_OF_MONTH, 1) }
+            refreshSelectionSummary()
+            refreshMonthControls()
+            renderDays()
+        }
+        confirmButton.setOnClickListener {
+            binding.etDepartureDate.setText(dateFormat.format(selectedDate.time))
+            dialog.dismiss()
+        }
+
+        refreshSelectionSummary()
+        refreshMonthControls()
+        renderDays()
+        dialog.setContentView(sheet)
+        dialog.window?.apply {
+            setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+            setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+            setGravity(Gravity.BOTTOM)
+            attributes = attributes.apply {
+                width = ViewGroup.LayoutParams.MATCH_PARENT
+                dimAmount = 0.3f
+            }
+            addFlags(android.view.WindowManager.LayoutParams.FLAG_DIM_BEHIND)
+        }
+        dialog.show()
+        dialog.window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
     }
+
+    private fun calendarNavButton(label: String, description: String): TextView = TextView(requireContext()).apply {
+        text = label
+        textSize = 30f
+        gravity = Gravity.CENTER
+        setTextColor(ContextCompat.getColor(requireContext(), R.color.railway_blue_deep))
+        contentDescription = description
+        background = roundedBackground(Color.rgb(238, 247, 255), 16)
+        isClickable = true
+        isFocusable = true
+    }
+
+    private fun calendarActionButton(label: String, primary: Boolean): TextView = TextView(requireContext()).apply {
+        text = label
+        textSize = 16f
+        gravity = Gravity.CENTER
+        setTypeface(typeface, Typeface.BOLD)
+        val blue = ContextCompat.getColor(requireContext(), R.color.railway_blue)
+        setTextColor(if (primary) Color.WHITE else blue)
+        background = if (primary) {
+            roundedBackground(blue, 18)
+        } else {
+            roundedBackground(Color.rgb(238, 247, 255), 18, blue)
+        }
+        isClickable = true
+        isFocusable = true
+    }
+
+    private fun calendarGridParams(row: Int, column: Int, height: Int): GridLayout.LayoutParams {
+        return GridLayout.LayoutParams(
+            GridLayout.spec(row, 1, 1f),
+            GridLayout.spec(column, 1, 1f)
+        ).apply {
+            width = 0
+            this.height = height
+            setMargins(dp(2), dp(1), dp(2), dp(1))
+        }
+    }
+
+    private fun roundedBackground(fillColor: Int, radiusDp: Int, strokeColor: Int? = null): GradientDrawable {
+        return GradientDrawable().apply {
+            shape = GradientDrawable.RECTANGLE
+            cornerRadius = dp(radiusDp).toFloat()
+            setColor(fillColor)
+            strokeColor?.let { setStroke(dp(1), it) }
+        }
+    }
+
+    private fun dp(value: Int): Int = (value * resources.displayMetrics.density).toInt()
+
+    private fun Calendar.startOfDay(): Calendar = (clone() as Calendar).apply { startOfDayInPlace() }
+
+    private fun Calendar.startOfDayInPlace() {
+        set(Calendar.HOUR_OF_DAY, 0)
+        set(Calendar.MINUTE, 0)
+        set(Calendar.SECOND, 0)
+        set(Calendar.MILLISECOND, 0)
+    }
+
+    private fun Calendar.isSameDay(other: Calendar): Boolean =
+        get(Calendar.YEAR) == other.get(Calendar.YEAR) && get(Calendar.DAY_OF_YEAR) == other.get(Calendar.DAY_OF_YEAR)
     
     private fun searchTickets() {
         val departureStation = binding.etDepartureStation.text.toString().trim()

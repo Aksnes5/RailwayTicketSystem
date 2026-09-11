@@ -7,7 +7,7 @@
     <path
         android:fillColor="@android:color/transparent"
         android:pathData="M6,7L18,7M15,4L18,7L15,10M18,17L6,17M9,14L6,17L9,20"
-        android:strokeColor="@color/white"
+        android:strokeColor="@color/railway_blue"
         android:strokeLineCap="round"
         android:strokeLineJoin="round"
         android:strokeWidth="1.8" />
