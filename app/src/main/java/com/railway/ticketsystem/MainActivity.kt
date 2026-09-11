@@ -180,6 +180,7 @@ class MainActivity : AppCompatActivity(), TicketsFragment.OnTicketBookListener {
         try {
             if (currentFragment === fragment) return
             supportFragmentManager.beginTransaction().apply {
+                setCustomAnimations(R.anim.fragment_liquid_enter, R.anim.fragment_liquid_exit)
                 currentFragment?.takeIf { it.isAdded }?.let(::hide)
                 if (fragment.isAdded) {
                     show(fragment)

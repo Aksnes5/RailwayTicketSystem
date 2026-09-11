@@ -27,7 +27,7 @@
         app:itemActiveIndicatorStyle="@style/App.BottomNavigation.ActiveIndicator"
         app:itemRippleColor="@color/railway_blue_light"
         app:labelVisibilityMode="labeled"
-        android:elevation="0dp"
+        android:elevation="12dp"
         android:paddingTop="6dp"
         android:paddingBottom="6dp"
         app:menu="@menu/bottom_navigation_menu" />

@@ -20,12 +20,12 @@
     </style>
 
     <style name="App.Button.Primary" parent="Widget.Material3.Button">
-        <item name="cornerRadius">@dimen/corner_large</item>
-        <item name="strokeWidth">1dp</item>
-        <item name="strokeColor">@color/button_stroke</item>
-        <item name="backgroundTint">@color/action_surface</item>
+        <item name="cornerRadius">20dp</item>
+        <item name="strokeWidth">0dp</item>
+        <item name="backgroundTint">#D6EBFC</item>
         <item name="android:textColor">@color/railway_blue_deep</item>
-        <item name="android:minHeight">52dp</item>
+        <item name="rippleColor">#260677D7</item>
+        <item name="android:minHeight">50dp</item>
         <item name="android:textStyle">bold</item>
         <item name="android:elevation">0dp</item>
         <item name="elevation">0dp</item>
@@ -44,11 +44,11 @@
     </style>
 
     <style name="App.Button.Quiet" parent="Widget.Material3.Button.OutlinedButton">
-        <item name="cornerRadius">@dimen/corner_large</item>
-        <item name="strokeWidth">1dp</item>
-        <item name="strokeColor">@color/button_stroke</item>
-        <item name="backgroundTint">@color/surface_tint</item>
+        <item name="cornerRadius">20dp</item>
+        <item name="strokeWidth">0dp</item>
+        <item name="backgroundTint">#BFFFFFFF</item>
         <item name="android:textColor">@color/railway_blue_deep</item>
+        <item name="rippleColor">#260677D7</item>
         <item name="android:elevation">0dp</item>
         <item name="elevation">0dp</item>
     </style>
@@ -58,12 +58,14 @@
         <item name="boxCornerRadiusTopEnd">@dimen/corner_large</item>
         <item name="boxCornerRadiusBottomStart">@dimen/corner_large</item>
         <item name="boxCornerRadiusBottomEnd">@dimen/corner_large</item>
-        <item name="boxStrokeColor">@color/button_stroke</item>
+        <item name="boxBackgroundColor">#A6FFFFFF</item>
+        <item name="boxStrokeColor">@color/glass_input_stroke</item>
         <item name="boxStrokeWidth">1dp</item>
+        <item name="boxStrokeWidthFocused">2dp</item>
     </style>
 
     <style name="App.BottomNavigation.ActiveIndicator" parent="">
-        <item name="android:color">@color/railway_blue_light</item>
+        <item name="android:color">#C6DDF2FF</item>
         <item name="android:width">68dp</item>
         <item name="android:height">32dp</item>
         <item name="marginHorizontal">8dp</item>

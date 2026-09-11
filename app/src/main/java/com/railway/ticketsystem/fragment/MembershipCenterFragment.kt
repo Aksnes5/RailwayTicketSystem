@@ -149,11 +149,13 @@ class MembershipCenterFragment : Fragment() {
             isEnabled = true
             isClickable = !checkedIn
             if (checkedIn) {
-                backgroundTintList = ColorStateList.valueOf(requireContext().getColor(R.color.success_container))
+                setBackgroundResource(R.drawable.bg_liquid_success)
+                backgroundTintList = null
                 setTextColor(requireContext().getColor(R.color.success))
             } else {
-                backgroundTintList = ColorStateList.valueOf(requireContext().getColor(R.color.railway_blue))
-                setTextColor(requireContext().getColor(R.color.white))
+                setBackgroundResource(R.drawable.bg_liquid_action)
+                backgroundTintList = null
+                setTextColor(requireContext().getColor(R.color.railway_blue_deep))
             }
         }
         renderTasks(tasks)

@@ -1,6 +1,7 @@
 package com.railway.ticketsystem.fragment
 
 import android.app.Dialog
+import android.animation.ObjectAnimator
 import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.ColorDrawable
@@ -10,6 +11,7 @@ import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.LinearInterpolator
 import android.widget.ArrayAdapter
 import android.widget.GridLayout
 import android.widget.LinearLayout
@@ -34,6 +36,7 @@ class TicketsFragment : Fragment() {
     private var _binding: FragmentTicketsBinding? = null
     private val binding get() = _binding!!
     private lateinit var ticketAdapter: TicketAdapter
+    private var liquidSheenAnimator: ObjectAnimator? = null
     private val recentRoutesPrefs by lazy {
         SecurePreferences.open(requireContext(), "secure_search_history", "search_history")
     }
@@ -70,6 +73,7 @@ class TicketsFragment : Fragment() {
             android.util.Log.d("TicketsFragment", "setupDatePicker完成")
             setupRecentRoutes()
             android.util.Log.d("TicketsFragment", "setupRecentRoutes完成")
+            startLiquidMotion()
             android.util.Log.d("TicketsFragment", "onViewCreated完成")
         } catch (e: Exception) {
             e.printStackTrace()
@@ -107,6 +111,23 @@ class TicketsFragment : Fragment() {
             startActivity(android.content.Intent(requireContext(), com.railway.ticketsystem.activity.StationServiceActivity::class.java).apply {
                 putExtra(com.railway.ticketsystem.activity.StationServiceActivity.EXTRA_STATION, selectedStation)
             })
+        }
+    }
+
+    /** A slow, low-alpha light sweep makes the hero feel like a live glass surface. */
+    private fun startLiquidMotion() {
+        liquidSheenAnimator?.cancel()
+        val width = resources.displayMetrics.widthPixels.toFloat()
+        liquidSheenAnimator = ObjectAnimator.ofFloat(
+            binding.vLiquidSheen,
+            View.TRANSLATION_X,
+            -dp(180).toFloat(),
+            width + dp(180).toFloat()
+        ).apply {
+            duration = 6_800L
+            repeatCount = ObjectAnimator.INFINITE
+            interpolator = LinearInterpolator()
+            start()
         }
     }
 
@@ -150,8 +171,11 @@ class TicketsFragment : Fragment() {
             }
         }
     }
-    
+
     private fun setupDatePicker() {
+        binding.rowDepartureDate.setOnClickListener {
+            showDatePicker()
+        }
         binding.etDepartureDate.setOnClickListener {
             showDatePicker()
         }
@@ -569,6 +593,8 @@ class TicketsFragment : Fragment() {
     }
 
     override fun onDestroyView() {
+        liquidSheenAnimator?.cancel()
+        liquidSheenAnimator = null
         super.onDestroyView()
         _binding = null
     }

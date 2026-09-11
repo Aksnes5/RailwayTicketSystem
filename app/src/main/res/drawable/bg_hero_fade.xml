@@ -3,7 +3,7 @@
     <!-- The illustration dissolves into the app canvas before the floating search card. -->
     <gradient
         android:angle="270"
-        android:startColor="#00F3F8FD"
-        android:centerColor="#91F3F8FD"
-        android:endColor="@color/surface" />
+        android:startColor="#00000000"
+        android:centerColor="#2488CEFA"
+        android:endColor="#66D8F0FC" />
 </shape>

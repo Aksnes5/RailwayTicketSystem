@@ -287,10 +287,11 @@ class TripsFragment : Fragment() {
     }
 
     private fun styleFilterButton(button: MaterialButton, isSelected: Boolean) {
-        val color = requireContext().getColor(if (isSelected) R.color.railway_blue else R.color.surface_container)
-        button.backgroundTintList = ColorStateList.valueOf(color)
-        button.setTextColor(requireContext().getColor(if (isSelected) R.color.white else R.color.text_primary))
-        button.setStrokeColorResource(if (isSelected) R.color.railway_blue else R.color.button_stroke)
+        button.setBackgroundResource(if (isSelected) R.drawable.bg_filter_selected else R.drawable.bg_filter_idle)
+        button.backgroundTintList = null
+        button.setTextColor(requireContext().getColor(if (isSelected) R.color.railway_blue_deep else R.color.text_secondary))
+        button.strokeWidth = 0
+        button.translationZ = if (isSelected) dp(2).toFloat() else 0f
     }
 
     private fun styleDateButton(button: MaterialButton, isSelected: Boolean) {
@@ -300,6 +301,7 @@ class TripsFragment : Fragment() {
         button.setStrokeColorResource(if (isSelected) R.color.button_stroke else android.R.color.transparent)
         button.strokeWidth = if (isSelected) dp(1) else 0
         button.cornerRadius = dp(20)
+        button.translationZ = if (isSelected) dp(2).toFloat() else 0f
     }
 
     private fun dp(value: Int): Int = (value * resources.displayMetrics.density).toInt()

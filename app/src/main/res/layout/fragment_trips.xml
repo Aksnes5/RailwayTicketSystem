@@ -11,7 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
-        app:cardBackgroundColor="#DFFFFFFF"
+        app:cardBackgroundColor="#EFFFFFFF"
         app:cardCornerRadius="@dimen/corner_large"
         app:cardElevation="0dp"
         app:strokeColor="#B3FFFFFF"
@@ -20,6 +20,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@drawable/bg_trip_header_glass"
             android:orientation="vertical"
             android:padding="16dp">
 
@@ -53,7 +54,7 @@
         android:layout_marginBottom="12dp"
         android:clickable="true"
         android:focusable="true"
-        app:cardBackgroundColor="@color/surface_container"
+        app:cardBackgroundColor="#EFFFFFFF"
         app:cardCornerRadius="@dimen/corner_large"
         app:cardElevation="0dp"
         app:strokeColor="@color/divider"
@@ -62,6 +63,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@drawable/bg_glass_card"
             android:gravity="center_vertical"
             android:orientation="horizontal"
             android:padding="16dp">
@@ -117,7 +119,7 @@
         android:layout_marginBottom="14dp"
         android:clickable="true"
         android:focusable="true"
-        app:cardBackgroundColor="@color/white"
+        app:cardBackgroundColor="#EFFFFFFF"
         app:cardCornerRadius="@dimen/corner_large"
         app:cardElevation="0dp"
         app:strokeColor="@color/divider"
@@ -127,6 +129,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@drawable/bg_glass_card"
             android:orientation="vertical"
             android:padding="18dp">
 
