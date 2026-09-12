@@ -145,7 +145,7 @@ class TransferDetailActivity : ImmersiveActivity() {
             isVerticalScrollBarEnabled = true
             scrollBarStyle = View.SCROLLBARS_OUTSIDE_OVERLAY
         }
-        legBinding.tvLegStationCount.text = "共 ${displayPlan.stations.size} 个经停站 · 可上下滑动查看"
+        legBinding.tvLegStationCount.text = "共 ${displayPlan.stations.size} 个经停站"
         presentations += LegPresentation(train, fullRoute, timetable, adapter)
         legBinding.btnLegRouteMap.setOnClickListener {
             openRouteMap(train, fullRoute, timetable)

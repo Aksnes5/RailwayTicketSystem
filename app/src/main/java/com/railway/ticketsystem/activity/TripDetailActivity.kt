@@ -337,11 +337,7 @@ class TripDetailActivity : ImmersiveActivity() {
         // alighting stations, even when the timetable includes the entire through service.
         val boardingStation = order.departureStation
         val alightingStation = order.arrivalStation
-        binding.tvStopTimetableCount.text = if (rows.size > 5) {
-            "共 ${rows.size} 个经停站 · 向下滑动查看完整时刻"
-        } else {
-            "共 ${rows.size} 个经停站"
-        }
+        binding.tvStopTimetableCount.text = "共 ${rows.size} 个经停站"
         // Re-rendering on every onResume must not replace the layout manager: doing so discards
         // the recycler's scrap heap and re-inflates every visible row each time.
         val timetableList = binding.rvStopTimetable

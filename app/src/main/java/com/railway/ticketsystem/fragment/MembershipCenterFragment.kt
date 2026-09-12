@@ -171,7 +171,12 @@ class MembershipCenterFragment : Fragment() {
                 orientation = LinearLayout.HORIZONTAL
                 gravity = Gravity.CENTER_VERTICAL
                 minimumHeight = dp(54)
-                setPadding(0, dp(8), 0, dp(8))
+                setBackgroundResource(R.drawable.bg_glass_control)
+                setPadding(dp(12), dp(8), dp(12), dp(8))
+                layoutParams = LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+                ).apply { topMargin = dp(8) }
             }
             // Title and reward share one weighted group, so "+N" sits immediately after the
             // closing parenthesis instead of being pushed to the far right of the row.
@@ -270,7 +275,16 @@ class MembershipCenterFragment : Fragment() {
                 text = offer.second + "  ·  " + offer.third + " 积分兑换"
                 isAllCaps = false
                 textSize = 13f
+                insetTop = 0
+                insetBottom = 0
+                setBackgroundResource(R.drawable.bg_glass_control)
+                backgroundTintList = null
+                setTextColor(requireContext().getColor(R.color.railway_blue_deep))
                 setOnClickListener { confirmRedeem(offer.first, offer.second, offer.third) }
+                layoutParams = LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    dp(46)
+                ).apply { topMargin = dp(8) }
             }
             binding.llCouponOffers.addView(button)
         }

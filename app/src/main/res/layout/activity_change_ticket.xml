@@ -69,7 +69,9 @@
         android:layout_marginHorizontal="16dp"
         android:layout_marginBottom="16dp"
         app:cardCornerRadius="@dimen/corner_large"
-        app:cardElevation="4dp">
+        app:cardElevation="0dp"
+        app:strokeColor="#8CFFFFFF"
+        app:strokeWidth="1dp">
 
         <LinearLayout
             android:layout_width="match_parent"

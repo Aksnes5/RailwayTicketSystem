@@ -141,7 +141,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="14dp"
-            android:background="@drawable/bg_surface_card"
+            android:background="@drawable/bg_glass_card"
             android:orientation="vertical"
             android:padding="16dp">
 
@@ -181,7 +181,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="14dp"
-            android:background="@drawable/bg_surface_card"
+            android:background="@drawable/bg_glass_card"
             android:orientation="vertical"
             android:padding="16dp">
 
@@ -214,7 +214,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="14dp"
             android:layout_marginBottom="16dp"
-            android:background="@drawable/bg_surface_card"
+            android:background="@drawable/bg_glass_card"
             android:orientation="vertical"
             android:padding="16dp">
 

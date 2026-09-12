@@ -41,7 +41,7 @@
                     android:clickable="true"
                     android:focusable="true"
                     android:foreground="@drawable/ripple_glass"
-                    app:cardBackgroundColor="@color/white">
+                    app:cardBackgroundColor="#B8FFFFFF">
 
                     <com.google.android.material.imageview.ShapeableImageView
                         android:id="@+id/ivAvatar"

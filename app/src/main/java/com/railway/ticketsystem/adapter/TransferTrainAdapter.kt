@@ -46,7 +46,8 @@ class TransferTrainAdapter(
         private val tvDepartureTime: TextView = itemView.findViewById(R.id.tvDepartureTime)
         private val tvArrivalTime: TextView = itemView.findViewById(R.id.tvArrivalTime)
         private val tvDuration: TextView = itemView.findViewById(R.id.tvDuration)
-        private val tvTransferDate: TextView = itemView.findViewById(R.id.tvTransferDate)
+        private val tvDepartureStation: TextView = itemView.findViewById(R.id.tvDepartureStation)
+        private val tvArrivalStation: TextView = itemView.findViewById(R.id.tvArrivalStation)
         private val tvPrice: TextView = itemView.findViewById(R.id.tvPrice)
         private val tvTransferInfo: TextView = itemView.findViewById(R.id.tvTransferInfo)
         private val tvFirstLeg: TextView = itemView.findViewById(R.id.tvFirstLeg)
@@ -55,13 +56,14 @@ class TransferTrainAdapter(
         private val tvTransferRisk: TextView = itemView.findViewById(R.id.tvTransferRisk)
         private val tvTransferInventory: TextView = itemView.findViewById(R.id.tvTransferInventory)
         fun bind(transferTrain: TransferTrain) {
-            tvRoute.text = "${transferTrain.departureStation} → ${transferTrain.arrivalStation}"
+            tvRoute.text = "中转换乘"
             tvDepartureTime.text = transferTrain.departureTime
             tvArrivalTime.text = transferTrain.arrivalTime
+            tvDepartureStation.text = transferTrain.departureStation
+            tvArrivalStation.text = transferTrain.arrivalStation
             tvDuration.text = transferTrain.totalDuration
-            tvTransferDate.text = formatMonthDay(departureDateProvider())
             tvPrice.text = "¥${transferTrain.totalPrice.toInt()}"
-            tvTransferInfo.text = transferTrain.transferInfo
+            tvTransferInfo.text = "${transferTrain.transferStation}换乘 · ${transferTrain.transferTime}分钟"
             
             // 显示两段车次的详细信息
             val departureDate = departureDateProvider()
@@ -82,8 +84,8 @@ class TransferTrainAdapter(
                 TransferRisk.NOT_RECOMMENDED -> R.color.railway_red
             }
             tvTransferRisk.setTextColor(itemView.context.getColor(riskColor))
-            tvFirstLeg.text = legText("①", transferTrain.firstLeg)
-            tvSecondLeg.text = legText("②", transferTrain.secondLeg)
+            tvFirstLeg.text = legText("第一程", transferTrain.firstLeg)
+            tvSecondLeg.text = legText("第二程", transferTrain.secondLeg)
 
             itemView.setOnClickListener {
                 onItemClick(transferTrain)
@@ -91,17 +93,15 @@ class TransferTrainAdapter(
         }
 
         private fun legText(index: String, train: com.railway.ticketsystem.model.Train): String {
-            val basic = "$index ${train.number} ${train.departureStation}→${train.arrivalStation} " +
-                "${train.departureTime}→${train.arrivalTime} (${train.duration})"
-            val trainSet = TrainSetResolver.modelFor(train) ?: return basic
-            return "$basic · 担当$trainSet"
+            val trainSet = TrainSetResolver.modelFor(train)
+            val runningInfo = buildString {
+                append("${train.departureStation} → ${train.arrivalStation} · ${train.departureTime} - ${train.arrivalTime}")
+                append(" · ${train.duration}")
+                trainSet?.let { append(" · $it") }
+            }
+            return "$index  ${train.number}\n$runningInfo"
         }
 
-        private fun formatMonthDay(value: String): String {
-            val source = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.CHINA)
-            val target = java.text.SimpleDateFormat("M月d日", java.util.Locale.CHINA)
-            return runCatching { source.parse(value) }.getOrNull()?.let(target::format) ?: value
-        }
     }
 
 }

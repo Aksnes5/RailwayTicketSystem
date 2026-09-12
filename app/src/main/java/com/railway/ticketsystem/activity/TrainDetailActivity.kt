@@ -165,53 +165,11 @@ class TrainDetailActivity : ImmersiveActivity() {
                 visibility = android.view.View.VISIBLE
             }
             
-            val stationCountText = if (routeStations.size > 5) {
-                stationCountMessage(routeStations, routeStations.size, "向下滑动查看完整时刻")
-            } else {
-                stationCountMessage(routeStations, routeStations.size)
-            }
-            binding.tvStationCount.text = stationCountText
+            binding.tvStationCount.text = stationCountMessage(routeStations, routeStations.size)
             refreshLiveStopStatuses()
-            
-            // 添加滚动监听器来显示滚动提示
-            binding.rvStations.addOnScrollListener(object : androidx.recyclerview.widget.RecyclerView.OnScrollListener() {
-                override fun onScrolled(recyclerView: androidx.recyclerview.widget.RecyclerView, dx: Int, dy: Int) {
-                    super.onScrolled(recyclerView, dx, dy)
-                    updateScrollHint()
-                }
-            })
         } else {
             binding.tvStationCount.text = "暂无经停站信息"
             binding.rvStations.visibility = android.view.View.GONE
-        }
-    }
-    
-    private fun updateScrollHint() {
-        val layoutManager = binding.rvStations.layoutManager as? LinearLayoutManager
-        if (layoutManager != null) {
-            val firstVisiblePosition = layoutManager.findFirstVisibleItemPosition()
-            val lastVisiblePosition = layoutManager.findLastVisibleItemPosition()
-            val totalItemCount = layoutManager.itemCount
-            
-            val hintText = when {
-                firstVisiblePosition == 0 && lastVisiblePosition == totalItemCount - 1 -> {
-                    // 所有项目都可见
-                    stationCountMessage(publishedTimetable.map { it.stationName }, totalItemCount)
-                }
-                firstVisiblePosition == 0 -> {
-                    // 在顶部
-                    stationCountMessage(publishedTimetable.map { it.stationName }, totalItemCount, "向下滑动查看完整时刻")
-                }
-                lastVisiblePosition == totalItemCount - 1 -> {
-                    // 在底部
-                    stationCountMessage(publishedTimetable.map { it.stationName }, totalItemCount, "向上滑动查看完整时刻")
-                }
-                else -> {
-                    // 在中间
-                    stationCountMessage(publishedTimetable.map { it.stationName }, totalItemCount, "可上下滑动查看完整时刻")
-                }
-            }
-            binding.tvStationCount.text = hintText
         }
     }
     
@@ -226,11 +184,8 @@ class TrainDetailActivity : ImmersiveActivity() {
         else -> "${stations.first()}始发 · ${stations.last()}终到"
     }.trim().trim('·').trim()
 
-    private fun stationCountMessage(stations: List<String>, count: Int, hint: String = ""): String {
-        val countText = buildString {
-            append("共 ${count} 个经停站")
-            if (hint.isNotBlank()) append(" · $hint")
-        }
+    private fun stationCountMessage(stations: List<String>, count: Int): String {
+        val countText = "共 ${count} 个经停站"
         return listOfNotNull(serviceRouteText(stations).takeIf { it.isNotBlank() }, countText)
             .joinToString(" · ")
     }
