@@ -4,32 +4,31 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/gray_light">
+    android:background="@drawable/bg_page_backdrop">
 
     <!-- 顶部标题栏 -->
-    <LinearLayout
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="56dp"
-        android:orientation="horizontal"
-        android:background="@color/surface"
-        android:gravity="center_vertical"
-        android:paddingHorizontal="16dp"
-        android:elevation="4dp">
+        android:background="@drawable/bg_secondary_header_glass"
+        android:elevation="0dp">
 
         <ImageView
             android:id="@+id/btnBack"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_gravity="start|center_vertical"
+            android:padding="12dp"
             android:src="@drawable/ic_arrow_back"
-            android:tint="@color/gray_dark" />
+            android:tint="@color/railway_blue_deep" />
 
         <TextView
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:layout_gravity="center"
             android:text="乘车人管理"
             android:textSize="18sp"
-            android:textColor="@color/gray_dark"
+            android:textColor="@color/text_primary"
             android:textStyle="bold"
             android:gravity="center" />
 
@@ -37,12 +36,14 @@
             android:id="@+id/btnAddPassenger"
             android:layout_width="wrap_content"
             android:layout_height="36dp"
+            android:layout_gravity="end|center_vertical"
+            android:layout_marginEnd="14dp"
             android:text="添加"
             android:textSize="14sp"
             app:cornerRadius="@dimen/corner_large"
             style="@style/App.Button.Quiet" />
 
-    </LinearLayout>
+    </FrameLayout>
 
     <!-- 乘车人列表 -->
     <androidx.recyclerview.widget.RecyclerView

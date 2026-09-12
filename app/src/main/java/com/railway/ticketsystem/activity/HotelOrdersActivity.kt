@@ -24,7 +24,7 @@ class HotelOrdersActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityHotelOrdersBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        window.statusBarColor = getColor(R.color.railway_blue)
+        window.statusBarColor = getColor(R.color.surface)
         window.navigationBarColor = getColor(R.color.surface)
         reservations = HotelReservationRepository(this)
         users = UserRepository(this)

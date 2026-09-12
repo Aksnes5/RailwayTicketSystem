@@ -35,7 +35,7 @@ class HotelReservationConfirmActivity : AppCompatActivity() {
         binding = ActivityHotelReservationConfirmBinding.inflate(layoutInflater)
         setContentView(binding.root)
         passengerRepository = PassengerRepository(this)
-        window.statusBarColor = getColor(R.color.railway_blue)
+        window.statusBarColor = getColor(R.color.surface)
         window.navigationBarColor = getColor(R.color.surface)
         val valuesValid = readValues()
         if (!valuesValid) {

@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/surface">
+    android:background="@drawable/bg_page_backdrop">
 
     <!-- 原订单信息 -->
     <com.google.android.material.card.MaterialCardView
@@ -12,7 +12,10 @@
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
         app:cardCornerRadius="@dimen/corner_large"
-        app:cardElevation="4dp">
+        app:cardBackgroundColor="#D9FFFFFF"
+        app:cardElevation="0dp"
+        app:strokeColor="#8CFFFFFF"
+        app:strokeWidth="1dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -103,7 +106,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:background="@color/surface"
+        android:background="@android:color/transparent"
         android:layout_marginHorizontal="16dp"
         android:layout_marginBottom="16dp" />
 

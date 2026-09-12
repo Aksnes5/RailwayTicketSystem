@@ -3,13 +3,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/surface"
+    android:background="@drawable/bg_page_backdrop"
     android:orientation="vertical">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="64dp"
-        android:background="@color/railway_blue"
+        android:background="@drawable/bg_secondary_header_glass"
         android:gravity="center_vertical"
         android:paddingHorizontal="18dp">
 
@@ -19,7 +19,7 @@
             android:layout_height="24dp"
             android:contentDescription="返回"
             android:src="@drawable/ic_arrow_back"
-            android:tint="@color/white" />
+            android:tint="@color/railway_blue_deep" />
 
         <TextView
             android:layout_width="0dp"
@@ -27,7 +27,7 @@
             android:layout_marginStart="18dp"
             android:layout_weight="1"
             android:text="计次票"
-            android:textColor="@color/white"
+            android:textColor="@color/text_primary"
             android:textSize="20sp"
             android:textStyle="bold" />
     </LinearLayout>

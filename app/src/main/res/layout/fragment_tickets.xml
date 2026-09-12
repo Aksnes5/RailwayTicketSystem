@@ -31,6 +31,15 @@
                 android:layout_height="match_parent"
                 android:background="@drawable/bg_hero_liquid_overlay" />
 
+            <!-- Dissolve the illustration into the page canvas before the frosted sheet begins. -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="128dp"
+                android:layout_gravity="bottom"
+                android:background="@drawable/bg_hero_fade"
+                android:clickable="false"
+                android:focusable="false" />
+
             <View
                 android:id="@+id/vLiquidSheen"
                 android:layout_width="140dp"
@@ -39,16 +48,6 @@
                 android:clickable="false"
                 android:focusable="false" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="bottom|start"
-                android:layout_marginStart="24dp"
-                android:layout_marginBottom="104dp"
-                android:text="让每一段旅程，轻盈抵达"
-                android:textColor="#EFFFFFFF"
-                android:textSize="15sp"
-                android:textStyle="bold" />
         </FrameLayout>
 
         <!-- iOS-style frosted travel form: content is a transparent sheet, not an opaque card. -->
@@ -56,7 +55,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:layout_marginTop="-104dp"
+            android:layout_marginTop="-78dp"
             android:layout_marginEnd="16dp"
             android:background="@drawable/bg_liquid_search_panel"
             android:clipToOutline="true"
@@ -93,18 +92,6 @@
                         android:textSize="12sp" />
                 </LinearLayout>
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/bg_glass_control"
-                    android:paddingStart="11dp"
-                    android:paddingTop="7dp"
-                    android:paddingEnd="11dp"
-                    android:paddingBottom="7dp"
-                    android:text="火车票"
-                    android:textColor="@color/railway_blue_deep"
-                    android:textSize="12sp"
-                    android:textStyle="bold" />
             </LinearLayout>
 
             <LinearLayout
@@ -124,18 +111,10 @@
                     android:gravity="center_vertical"
                     android:orientation="vertical">
 
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="出发"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="12sp" />
-
                     <androidx.appcompat.widget.AppCompatEditText
                         android:id="@+id/etDepartureStation"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
                         android:background="@null"
                         android:clickable="true"
                         android:focusable="false"
@@ -166,19 +145,10 @@
                     android:gravity="center_vertical"
                     android:orientation="vertical">
 
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="end"
-                        android:text="到达"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="12sp" />
-
                     <androidx.appcompat.widget.AppCompatEditText
                         android:id="@+id/etArrivalStation"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
                         android:background="@null"
                         android:clickable="true"
                         android:focusable="false"
@@ -258,36 +228,21 @@
                 android:layout_width="match_parent"
                 android:layout_height="58dp"
                 android:layout_marginTop="14dp"
-                android:background="@drawable/bg_primary_action"
+                android:background="@drawable/bg_query_action"
                 android:clickable="true"
                 android:contentDescription="查询车票"
                 android:focusable="true"
                 android:foreground="@drawable/ripple_glass"
-                android:gravity="center_vertical"
+                android:gravity="center"
                 android:orientation="horizontal"
-                android:paddingStart="20dp"
-                android:paddingEnd="18dp">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="查询车票"
-                    android:textColor="@color/white"
-                    android:textSize="17sp"
-                    android:textStyle="bold" />
+                android:paddingHorizontal="20dp">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/bg_glass_control"
-                    android:paddingStart="10dp"
-                    android:paddingTop="5dp"
-                    android:paddingEnd="10dp"
-                    android:paddingBottom="5dp"
-                    android:text="出发"
-                    android:textColor="@color/railway_blue_deep"
-                    android:textSize="12sp"
+                    android:text="查询车票"
+                    android:textColor="@color/white"
+                    android:textSize="17sp"
                     android:textStyle="bold" />
             </LinearLayout>
         </LinearLayout>
@@ -334,8 +289,8 @@
                 android:foreground="@drawable/ripple_glass"
                 android:gravity="center"
                 android:orientation="vertical"
-                android:paddingTop="11dp">
-                <ImageView android:layout_width="34dp" android:layout_height="34dp" android:background="@drawable/bg_service_icon_glass" android:contentDescription="@null" android:padding="7dp" android:src="@drawable/ic_service_meal" />
+                android:paddingTop="8dp">
+                <ImageView android:layout_width="46dp" android:layout_height="46dp" android:contentDescription="@null" android:padding="1dp" android:src="@drawable/ic_service_meal" />
                 <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="5dp" android:gravity="center" android:text="高铁订餐" android:textColor="@color/railway_blue_deep" android:textSize="12sp" android:textStyle="bold" />
             </LinearLayout>
 
@@ -352,8 +307,8 @@
                 android:foreground="@drawable/ripple_glass"
                 android:gravity="center"
                 android:orientation="vertical"
-                android:paddingTop="11dp">
-                <ImageView android:layout_width="34dp" android:layout_height="34dp" android:background="@drawable/bg_service_icon_glass" android:contentDescription="@null" android:padding="7dp" android:src="@drawable/ic_service_station_board" />
+                android:paddingTop="8dp">
+                <ImageView android:layout_width="46dp" android:layout_height="46dp" android:contentDescription="@null" android:padding="1dp" android:src="@drawable/ic_service_station_board" />
                 <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="5dp" android:gravity="center" android:text="车站大屏" android:textColor="@color/railway_blue_deep" android:textSize="12sp" android:textStyle="bold" />
             </LinearLayout>
 
@@ -369,8 +324,8 @@
                 android:foreground="@drawable/ripple_glass"
                 android:gravity="center"
                 android:orientation="vertical"
-                android:paddingTop="11dp">
-                <ImageView android:layout_width="34dp" android:layout_height="34dp" android:background="@drawable/bg_service_icon_glass" android:contentDescription="@null" android:padding="7dp" android:src="@drawable/ic_service_multi_pass" />
+                android:paddingTop="8dp">
+                <ImageView android:layout_width="46dp" android:layout_height="46dp" android:contentDescription="@null" android:padding="1dp" android:src="@drawable/ic_service_multi_pass" />
                 <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="5dp" android:gravity="center" android:text="计次票" android:textColor="@color/railway_blue_deep" android:textSize="12sp" android:textStyle="bold" />
             </LinearLayout>
         </LinearLayout>
@@ -396,8 +351,8 @@
                 android:foreground="@drawable/ripple_glass"
                 android:gravity="center"
                 android:orientation="vertical"
-                android:paddingTop="11dp">
-                <ImageView android:layout_width="34dp" android:layout_height="34dp" android:background="@drawable/bg_service_icon_glass" android:contentDescription="@null" android:padding="7dp" android:src="@drawable/ic_service_invoice" />
+                android:paddingTop="8dp">
+                <ImageView android:layout_width="46dp" android:layout_height="46dp" android:contentDescription="@null" android:padding="1dp" android:src="@drawable/ic_service_invoice" />
                 <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="5dp" android:gravity="center" android:text="电子凭证" android:textColor="@color/railway_blue_deep" android:textSize="12sp" android:textStyle="bold" />
             </LinearLayout>
 
@@ -414,8 +369,8 @@
                 android:foreground="@drawable/ripple_glass"
                 android:gravity="center"
                 android:orientation="vertical"
-                android:paddingTop="11dp">
-                <ImageView android:layout_width="34dp" android:layout_height="34dp" android:background="@drawable/bg_service_icon_glass" android:contentDescription="@null" android:padding="7dp" android:src="@drawable/ic_service_hotel" />
+                android:paddingTop="8dp">
+                <ImageView android:layout_width="46dp" android:layout_height="46dp" android:contentDescription="@null" android:padding="1dp" android:src="@drawable/ic_service_hotel" />
                 <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="5dp" android:gravity="center" android:text="酒店住宿" android:textColor="@color/railway_blue_deep" android:textSize="12sp" android:textStyle="bold" />
             </LinearLayout>
 
@@ -431,8 +386,8 @@
                 android:foreground="@drawable/ripple_glass"
                 android:gravity="center"
                 android:orientation="vertical"
-                android:paddingTop="11dp">
-                <ImageView android:layout_width="34dp" android:layout_height="34dp" android:background="@drawable/bg_service_icon_glass" android:contentDescription="@null" android:padding="7dp" android:src="@drawable/ic_service_station_service" />
+                android:paddingTop="8dp">
+                <ImageView android:layout_width="46dp" android:layout_height="46dp" android:contentDescription="@null" android:padding="1dp" android:src="@drawable/ic_service_station_service" />
                 <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="5dp" android:gravity="center" android:text="车站服务" android:textColor="@color/railway_blue_deep" android:textSize="12sp" android:textStyle="bold" />
             </LinearLayout>
         </LinearLayout>

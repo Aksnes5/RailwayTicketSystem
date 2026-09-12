@@ -38,7 +38,7 @@ class HotelDetailActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityHotelDetailBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        window.statusBarColor = getColor(R.color.railway_blue)
+        window.statusBarColor = getColor(R.color.surface)
         window.navigationBarColor = getColor(R.color.surface)
         hotel = readHotel() ?: run {
             finish()

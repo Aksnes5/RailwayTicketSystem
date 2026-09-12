@@ -113,7 +113,7 @@
                         android:layout_weight="1"
                         android:clickable="true"
                         android:focusable="true"
-                        android:foreground="?android:attr/selectableItemBackground"
+                        android:foreground="@drawable/ripple_glass"
                         android:orientation="vertical">
 
                         <TextView

@@ -3,13 +3,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/surface"
+    android:background="@drawable/bg_page_backdrop"
     android:orientation="vertical">
 
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="56dp"
-        android:background="@color/railway_blue">
+        android:background="@drawable/bg_secondary_header_glass">
 
         <ImageView
             android:id="@+id/btnBack"
@@ -19,7 +19,7 @@
             android:contentDescription="返回"
             android:padding="12dp"
             android:src="@drawable/ic_arrow_back"
-            android:tint="@color/white" />
+            android:tint="@color/railway_blue_deep" />
 
         <TextView
             android:layout_width="match_parent"
@@ -27,7 +27,7 @@
             android:layout_gravity="center"
             android:gravity="center"
             android:text="中转换乘"
-            android:textColor="@color/white"
+            android:textColor="@color/text_primary"
             android:textSize="18sp"
             android:textStyle="bold" />
     </FrameLayout>
@@ -48,7 +48,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="14dp"
-                app:cardBackgroundColor="@color/surface_container"
+                app:cardBackgroundColor="#D9FFFFFF"
                 app:cardCornerRadius="@dimen/corner_large"
                 app:cardElevation="0dp"
                 app:strokeColor="@color/divider"

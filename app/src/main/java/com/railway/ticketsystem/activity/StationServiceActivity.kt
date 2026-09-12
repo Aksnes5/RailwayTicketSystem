@@ -33,7 +33,7 @@ class StationServiceActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityStationServiceBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        window.statusBarColor = getColor(R.color.railway_blue)
+        window.statusBarColor = getColor(R.color.surface)
         serviceRepository = StationServiceRepository(this)
         userRepository = UserRepository(this)
 

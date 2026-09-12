@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/gray_light">
+    android:background="@drawable/bg_page_backdrop">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -17,7 +17,10 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
             app:cardCornerRadius="@dimen/corner_large"
-            app:cardElevation="4dp">
+            app:cardBackgroundColor="#D9FFFFFF"
+            app:cardElevation="0dp"
+            app:strokeColor="#8CFFFFFF"
+            app:strokeWidth="1dp">
 
             <LinearLayout
                 android:layout_width="match_parent"

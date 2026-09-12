@@ -4,13 +4,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/surface">
+    android:background="@drawable/bg_page_backdrop">
 
     <!-- 顶部标题栏 -->
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="56dp"
-        android:background="@color/railway_blue">
+        android:background="@drawable/bg_secondary_header_glass">
 
         <ImageView
             android:id="@+id/btnBack"
@@ -19,7 +19,7 @@
             android:layout_gravity="start|center_vertical"
             android:padding="12dp"
             android:src="@drawable/ic_arrow_back"
-            android:tint="@color/white" />
+            android:tint="@color/railway_blue_deep" />
 
         <TextView
             android:layout_width="match_parent"
@@ -29,7 +29,7 @@
             android:text="车次详情"
             android:textSize="18sp"
             android:textStyle="bold"
-            android:textColor="@color/white" />
+            android:textColor="@color/text_primary" />
 
     </FrameLayout>
 

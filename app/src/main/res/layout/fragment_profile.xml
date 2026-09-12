@@ -40,7 +40,7 @@
                     app:cardElevation="0dp"
                     android:clickable="true"
                     android:focusable="true"
-                    android:foreground="?android:attr/selectableItemBackground"
+                    android:foreground="@drawable/ripple_glass"
                     app:cardBackgroundColor="@color/white">
 
                     <com.google.android.material.imageview.ShapeableImageView

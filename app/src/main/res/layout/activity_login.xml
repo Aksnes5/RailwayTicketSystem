@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="24dp"
-    android:background="@color/surface">
+    android:background="@drawable/bg_page_backdrop">
 
     <!-- 标题 -->
     <TextView
@@ -113,7 +113,6 @@
         android:layout_marginTop="24dp" />
 
 </LinearLayout>
-
 
 
 

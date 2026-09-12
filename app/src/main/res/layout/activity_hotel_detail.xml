@@ -3,13 +3,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/surface"
+    android:background="@drawable/bg_page_backdrop"
     android:orientation="vertical">
 
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="64dp"
-        android:background="@color/railway_blue">
+        android:background="@drawable/bg_secondary_header_glass">
 
         <ImageView
             android:id="@+id/btnHotelDetailBack"
@@ -19,7 +19,7 @@
             android:contentDescription="返回"
             android:padding="12dp"
             android:src="@drawable/ic_arrow_back"
-            android:tint="@color/white" />
+            android:tint="@color/railway_blue_deep" />
 
         <TextView
             android:layout_width="match_parent"
@@ -27,7 +27,7 @@
             android:layout_gravity="center"
             android:gravity="center"
             android:text="酒店详情"
-            android:textColor="@color/white"
+            android:textColor="@color/text_primary"
             android:textSize="20sp"
             android:textStyle="bold" />
     </FrameLayout>
