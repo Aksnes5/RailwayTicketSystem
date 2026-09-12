@@ -217,10 +217,10 @@
 
                         <TextView
                             android:id="@+id/tvAlphabetIndex"
-                            android:layout_width="34dp"
+                            android:layout_width="28dp"
                             android:layout_height="match_parent"
-                            android:layout_marginStart="6dp"
-                            android:background="@drawable/bg_price_pill"
+                            android:layout_marginStart="4dp"
+                            android:background="@null"
                             android:contentDescription="按住并上下拖动可快速定位车站首字母"
                             android:gravity="center"
                             android:includeFontPadding="false"

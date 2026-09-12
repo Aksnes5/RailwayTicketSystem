@@ -72,19 +72,14 @@
                         android:textStyle="bold"
                         android:textColor="@color/railway_blue" />
 
-                    <View
-                        android:layout_width="80dp"
-                        android:layout_height="2dp"
-                        android:background="@drawable/bg_route_line"
-                        android:layout_marginVertical="4dp" />
-
                     <TextView
                         android:id="@+id/tvDuration"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="15分"
                         android:textSize="12sp"
-                        android:textColor="@color/railway_blue" />
+                        android:textColor="@color/text_secondary"
+                        android:layout_marginTop="4dp" />
 
                 </LinearLayout>
 

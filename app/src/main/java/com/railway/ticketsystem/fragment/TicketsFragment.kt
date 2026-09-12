@@ -3,8 +3,11 @@ package com.railway.ticketsystem.fragment
 import android.app.Dialog
 import android.animation.ObjectAnimator
 import android.graphics.Color
+import android.graphics.RenderEffect
+import android.graphics.Shader
 import android.graphics.Typeface
 import android.graphics.drawable.ColorDrawable
+import android.os.Build
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.view.Gravity
@@ -73,6 +76,7 @@ class TicketsFragment : Fragment() {
             android.util.Log.d("TicketsFragment", "setupDatePicker完成")
             setupRecentRoutes()
             android.util.Log.d("TicketsFragment", "setupRecentRoutes完成")
+            applyQueryGlassBlur()
             startLiquidMotion()
             android.util.Log.d("TicketsFragment", "onViewCreated完成")
         } catch (e: Exception) {
@@ -115,6 +119,14 @@ class TicketsFragment : Fragment() {
     }
 
     /** A slow, low-alpha light sweep makes the hero feel like a live glass surface. */
+    private fun applyQueryGlassBlur() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            binding.ivQueryGlassBackdrop.setRenderEffect(
+                RenderEffect.createBlurEffect(28f, 28f, Shader.TileMode.CLAMP)
+            )
+        }
+    }
+
     private fun startLiquidMotion() {
         liquidSheenAnimator?.cancel()
         val width = resources.displayMetrics.widthPixels.toFloat()
