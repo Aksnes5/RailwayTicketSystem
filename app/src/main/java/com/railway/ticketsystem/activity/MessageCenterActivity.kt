@@ -68,7 +68,9 @@ class MessageCenterActivity : AppCompatActivity() {
     private fun render() {
         val messages = if (userId.isBlank()) emptyList() else messageRepository.getMessages(userId)
         val unread = messages.count { !it.isRead }
-        binding.tvUnreadSummary.text = if (unread == 0) "全部消息已读" else "有 $unread 条未读消息"
+        binding.tvUnreadSummary.text = if (unread == 0) "暂无未读消息" else "有 $unread 条未读消息"
+        // 没有未读时不留一个灰色、无意义的“全部已读”伪按钮。
+        binding.btnReadAll.visibility = if (unread > 0) View.VISIBLE else View.GONE
         binding.tvEmptyMessages.visibility = if (messages.isEmpty()) View.VISIBLE else View.GONE
         binding.rvMessages.visibility = if (messages.isEmpty()) View.GONE else View.VISIBLE
         adapter.submit(messages)

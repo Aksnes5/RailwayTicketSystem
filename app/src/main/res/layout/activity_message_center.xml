@@ -29,14 +29,23 @@
                 android:textSize="16sp"
                 android:textStyle="bold" />
 
-            <TextView
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnReadAll"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:padding="8dp"
+                android:layout_height="36dp"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:minWidth="0dp"
+                android:paddingHorizontal="14dp"
                 android:text="全部已读"
-                android:textColor="@color/railway_blue"
-                android:textSize="14sp" />
+                android:textColor="@color/railway_blue_deep"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                app:backgroundTint="#C9E8F7FF"
+                app:cornerRadius="18dp"
+                app:rippleColor="#260677D7"
+                app:strokeColor="#8AC5E6FF"
+                app:strokeWidth="1dp" />
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
