@@ -241,7 +241,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="查询车票"
-                    android:textColor="@color/white"
+                    android:textColor="@color/railway_blue_deep"
                     android:textSize="17sp"
                     android:textStyle="bold" />
             </LinearLayout>
@@ -290,7 +290,7 @@
                 android:gravity="center"
                 android:orientation="vertical"
                 android:paddingTop="8dp">
-                <ImageView android:layout_width="38dp" android:layout_height="38dp" android:contentDescription="@null" android:padding="1dp" android:src="@drawable/ic_service_meal" />
+                <ImageView android:layout_width="33dp" android:layout_height="33dp" android:contentDescription="@null" android:padding="1dp" android:src="@drawable/ic_service_meal" />
                 <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="5dp" android:gravity="center" android:text="高铁订餐" android:textColor="@color/railway_blue_deep" android:textSize="12sp" android:textStyle="bold" />
             </LinearLayout>
 
@@ -308,7 +308,7 @@
                 android:gravity="center"
                 android:orientation="vertical"
                 android:paddingTop="8dp">
-                <ImageView android:layout_width="38dp" android:layout_height="38dp" android:contentDescription="@null" android:padding="1dp" android:src="@drawable/ic_service_station_board" />
+                <ImageView android:layout_width="33dp" android:layout_height="33dp" android:contentDescription="@null" android:padding="1dp" android:src="@drawable/ic_service_station_board" />
                 <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="5dp" android:gravity="center" android:text="车站大屏" android:textColor="@color/railway_blue_deep" android:textSize="12sp" android:textStyle="bold" />
             </LinearLayout>
 
@@ -325,7 +325,7 @@
                 android:gravity="center"
                 android:orientation="vertical"
                 android:paddingTop="8dp">
-                <ImageView android:layout_width="38dp" android:layout_height="38dp" android:contentDescription="@null" android:padding="1dp" android:src="@drawable/ic_service_multi_pass" />
+                <ImageView android:layout_width="33dp" android:layout_height="33dp" android:contentDescription="@null" android:padding="1dp" android:src="@drawable/ic_service_multi_pass" />
                 <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="5dp" android:gravity="center" android:text="计次票" android:textColor="@color/railway_blue_deep" android:textSize="12sp" android:textStyle="bold" />
             </LinearLayout>
         </LinearLayout>
@@ -352,7 +352,7 @@
                 android:gravity="center"
                 android:orientation="vertical"
                 android:paddingTop="8dp">
-                <ImageView android:layout_width="38dp" android:layout_height="38dp" android:contentDescription="@null" android:padding="1dp" android:src="@drawable/ic_service_invoice" />
+                <ImageView android:layout_width="33dp" android:layout_height="33dp" android:contentDescription="@null" android:padding="1dp" android:src="@drawable/ic_service_invoice" />
                 <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="5dp" android:gravity="center" android:text="电子凭证" android:textColor="@color/railway_blue_deep" android:textSize="12sp" android:textStyle="bold" />
             </LinearLayout>
 
@@ -370,7 +370,7 @@
                 android:gravity="center"
                 android:orientation="vertical"
                 android:paddingTop="8dp">
-                <ImageView android:layout_width="38dp" android:layout_height="38dp" android:contentDescription="@null" android:padding="1dp" android:src="@drawable/ic_service_hotel" />
+                <ImageView android:layout_width="33dp" android:layout_height="33dp" android:contentDescription="@null" android:padding="1dp" android:src="@drawable/ic_service_hotel" />
                 <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="5dp" android:gravity="center" android:text="酒店住宿" android:textColor="@color/railway_blue_deep" android:textSize="12sp" android:textStyle="bold" />
             </LinearLayout>
 
@@ -387,7 +387,7 @@
                 android:gravity="center"
                 android:orientation="vertical"
                 android:paddingTop="8dp">
-                <ImageView android:layout_width="38dp" android:layout_height="38dp" android:contentDescription="@null" android:padding="1dp" android:src="@drawable/ic_service_station_service" />
+                <ImageView android:layout_width="33dp" android:layout_height="33dp" android:contentDescription="@null" android:padding="1dp" android:src="@drawable/ic_service_station_service" />
                 <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="5dp" android:gravity="center" android:text="车站服务" android:textColor="@color/railway_blue_deep" android:textSize="12sp" android:textStyle="bold" />
             </LinearLayout>
         </LinearLayout>
@@ -408,7 +408,7 @@
                 android:layout_height="wrap_content"
                 android:text="最近查询"
                 android:textColor="@color/text_secondary"
-                android:textSize="12sp"
+                android:textSize="13sp"
                 android:textStyle="bold"
                 android:visibility="gone" />
 

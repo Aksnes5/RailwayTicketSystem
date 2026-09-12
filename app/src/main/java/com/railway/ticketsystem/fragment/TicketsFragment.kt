@@ -277,7 +277,7 @@ class TicketsFragment : Fragment() {
         listOf("日", "一", "二", "三", "四", "五", "六").forEachIndexed { index, day ->
             weekdayGrid.addView(TextView(context).apply {
                 text = day
-                textSize = 13f
+                textSize = 14f
                 gravity = Gravity.CENTER
                 setTextColor(if (index == 0 || index == 6) Color.rgb(138, 155, 173) else Color.rgb(89, 108, 128))
             }, calendarGridParams(0, index, dp(28)))
