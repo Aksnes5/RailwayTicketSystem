@@ -546,11 +546,11 @@ class TicketsFragment : Fragment() {
         routes.forEach { route ->
             val button = TextView(requireContext()).apply {
                 text = "${route.departure} → ${route.arrival}"
-                textSize = 13f
+                textSize = 15f
                 setTextColor(resources.getColor(R.color.railway_blue, null))
                 setTypeface(typeface, android.graphics.Typeface.BOLD)
                 gravity = android.view.Gravity.CENTER_VERTICAL
-                val verticalPadding = (6 * resources.displayMetrics.density).toInt()
+                val verticalPadding = (7 * resources.displayMetrics.density).toInt()
                 setPadding(0, verticalPadding, 0, verticalPadding)
                 contentDescription = "查询${route.departure}到${route.arrival}"
                 setOnClickListener {
