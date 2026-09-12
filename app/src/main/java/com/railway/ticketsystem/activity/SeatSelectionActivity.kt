@@ -170,10 +170,7 @@ class SeatSelectionActivity : ImmersiveActivity() {
     
     private fun setupSeatTypeSelection() {
         binding.llSeatTypeButtons.removeAllViews()
-        
-        // 创建座位类型按钮
         val seatTypes = SeatTypes.forTrain(train).map { it to it.name }
-        
         for ((seatType, displayName) in seatTypes) {
             val seatTypeButton = com.google.android.material.button.MaterialButton(this)
             val availabilityLabel = if (isTransfer) {
@@ -189,43 +186,24 @@ class SeatSelectionActivity : ImmersiveActivity() {
             seatTypeButton.textSize = 12f
             seatTypeButton.minWidth = 0
             seatTypeButton.height = 60
-            seatTypeButton.setPadding(8, 8, 8, 8)
-            
-            // 设置布局参数，均分一行
+            seatTypeButton.insetTop = 0
+            seatTypeButton.insetBottom = 0
+            seatTypeButton.setPadding(dp(8), dp(8), dp(8), dp(8))
             val layoutParams = LinearLayout.LayoutParams(
-                0, // 宽度为0，使用weight
+                0,
                 LinearLayout.LayoutParams.WRAP_CONTENT
             ).apply {
-                weight = 1f // 每个按钮权重相等，实现均分
-                setMargins(4, 4, 4, 4)
+                weight = 1f
+                setMargins(dp(4), dp(4), dp(4), dp(4))
             }
             seatTypeButton.layoutParams = layoutParams
-            
-            // 设置按钮样式 - 使用边框样式
-            seatTypeButton.setBackgroundColor(android.graphics.Color.WHITE)
-            seatTypeButton.strokeColor = android.content.res.ColorStateList.valueOf(android.graphics.Color.BLACK)
-            seatTypeButton.strokeWidth = 2
-            seatTypeButton.setTextColor(android.graphics.Color.BLACK)
-            
-            // 设置选中状态
-            if (seatType == selectedSeatType) {
-                seatTypeButton.setBackgroundColor(android.graphics.Color.parseColor("#1976D2"))
-                seatTypeButton.setTextColor(android.graphics.Color.WHITE)
-            }
-            
+            styleGlassChoice(seatTypeButton, seatType == selectedSeatType)
             seatTypeButton.setOnClickListener {
-                // 重置所有按钮样式
                 for (i in 0 until binding.llSeatTypeButtons.childCount) {
                     val button = binding.llSeatTypeButtons.getChildAt(i) as com.google.android.material.button.MaterialButton
-                    button.setBackgroundColor(android.graphics.Color.WHITE)
-                    button.setTextColor(android.graphics.Color.BLACK)
+                    styleGlassChoice(button, false)
                 }
-                
-                // 设置当前按钮为选中状态
-                seatTypeButton.setBackgroundColor(android.graphics.Color.parseColor("#1976D2"))
-                seatTypeButton.setTextColor(android.graphics.Color.WHITE)
-                
-                // 更新选中的座位类型
+                styleGlassChoice(seatTypeButton, true)
                 selectedSeatType = seatType
                 resetSeatSelections()
                 updateSeatNumbers()
@@ -309,49 +287,68 @@ class SeatSelectionActivity : ImmersiveActivity() {
 
         for (seatLetter in selectedSeatType.availableSeats) {
             val seatButton = com.google.android.material.button.MaterialButton(this)
-            seatButton.text = seatLetter
+            seatButton.tag = seatLetter
+            seatButton.text = "$seatLetter\n${seatPositionLabel(seatLetter)}"
             seatButton.textSize = 12f
             seatButton.minWidth = 0
-            seatButton.height = 60
-            seatButton.setPadding(8, 8, 8, 8)
+            seatButton.height = 64
+            seatButton.insetTop = 0
+            seatButton.insetBottom = 0
+            seatButton.setPadding(dp(4), dp(6), dp(4), dp(6))
 
             val layoutParams = LinearLayout.LayoutParams(
                 0,
                 LinearLayout.LayoutParams.WRAP_CONTENT
             ).apply {
                 weight = 1f
-                setMargins(4, 4, 4, 4)
+                val aisleGap = dp(11)
+                val start = if (seatLetter == "D") aisleGap else dp(4)
+                val end = if (seatLetter == "C") aisleGap else dp(4)
+                setMargins(start, dp(4), end, dp(4))
             }
             seatButton.layoutParams = layoutParams
-
-            seatButton.setBackgroundColor(android.graphics.Color.WHITE)
-            seatButton.strokeColor = android.content.res.ColorStateList.valueOf(android.graphics.Color.BLACK)
-            seatButton.strokeWidth = 2
-            seatButton.setTextColor(android.graphics.Color.BLACK)
-
-            if (seatLetter == preselectedSeat) {
-                seatButton.isSelected = true
-                seatButton.setBackgroundColor(android.graphics.Color.parseColor("#1976D2"))
-                seatButton.setTextColor(android.graphics.Color.WHITE)
-            }
+            seatButton.isSelected = seatLetter == preselectedSeat
+            styleGlassChoice(seatButton, seatButton.isSelected)
 
             seatButton.setOnClickListener {
                 for (i in 0 until container.childCount) {
                     val child = container.getChildAt(i) as? com.google.android.material.button.MaterialButton
                     child?.isSelected = false
-                    child?.setBackgroundColor(android.graphics.Color.WHITE)
-                    child?.setTextColor(android.graphics.Color.BLACK)
+                    child?.let { styleGlassChoice(it, false) }
                 }
-
                 seatButton.isSelected = true
-                seatButton.setBackgroundColor(android.graphics.Color.parseColor("#1976D2"))
-                seatButton.setTextColor(android.graphics.Color.WHITE)
+                styleGlassChoice(seatButton, true)
                 onSeatSelected(seatLetter)
             }
 
             container.addView(seatButton)
         }
     }
+
+    private fun seatPositionLabel(seatLetter: String): String = when (seatLetter) {
+        "A", "F" -> "靠窗"
+        "C", "D" -> "走廊"
+        else -> "中间"
+    }
+
+    private fun styleGlassChoice(
+        button: com.google.android.material.button.MaterialButton,
+        selected: Boolean
+    ) {
+        button.backgroundTintList = android.content.res.ColorStateList.valueOf(
+            android.graphics.Color.parseColor(if (selected) "#D5D9F0FF" else "#B8FFFFFF")
+        )
+        button.strokeColor = android.content.res.ColorStateList.valueOf(
+            android.graphics.Color.parseColor(if (selected) "#B077BDF4" else "#A8FFFFFF")
+        )
+        button.strokeWidth = dp(1)
+        button.cornerRadius = dp(20)
+        button.rippleColor = android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#260677D7"))
+        button.setTextColor(getColor(if (selected) R.color.railway_blue_deep else R.color.text_primary))
+        button.elevation = 0f
+    }
+
+    private fun dp(value: Int): Int = (value * resources.displayMetrics.density).toInt()
 
     private fun resetSeatSelections() {
         selectedSeatNumber = ""
@@ -499,24 +496,63 @@ class SeatSelectionActivity : ImmersiveActivity() {
             return
         }
         val checked = passengers.map { it.id in selectedPassengers.map(Passenger::id) }.toBooleanArray()
-        val labels = passengers.map { "${it.name}  ${it.idCard.take(6)}******" }.toTypedArray()
-        AlertDialog.Builder(this)
-            .setTitle("选择同行乘车人（最多 5 位）")
-            .setMultiChoiceItems(labels, checked) { _, which, isChecked -> checked[which] = isChecked }
-            .setNegativeButton("取消", null)
-            .setNeutralButton("手动输入") { _, _ ->
-                showManualInput()
-                updatePrice()
-            }
-            .setPositiveButton("确定") { _, _ ->
-                val selected = passengers.filterIndexed { index, _ -> checked[index] }
-                when {
-                    selected.isEmpty() -> Toast.makeText(this, "请至少选择一位乘车人", Toast.LENGTH_SHORT).show()
-                    selected.size > 5 -> Toast.makeText(this, "单次最多选择 5 位同行乘车人", Toast.LENGTH_SHORT).show()
-                    else -> selectPassengers(selected)
+        val dialogBinding = DialogPassengerSelectionBinding.inflate(layoutInflater)
+        passengers.forEachIndexed { index, passenger ->
+            val row = com.google.android.material.button.MaterialButton(this).apply {
+                minWidth = 0
+                height = dp(58)
+                insetTop = 0
+                insetBottom = 0
+                gravity = android.view.Gravity.CENTER_VERTICAL
+                textAlignment = View.TEXT_ALIGNMENT_VIEW_START
+                setPadding(dp(16), dp(6), dp(12), dp(6))
+                layoutParams = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                ).apply { bottomMargin = dp(8) }
+                renderPassengerChoice(passenger, checked[index])
+                setOnClickListener {
+                    checked[index] = !checked[index]
+                    renderPassengerChoice(passenger, checked[index])
                 }
             }
-            .show()
+            dialogBinding.llPassengerChoices.addView(row)
+        }
+        val dialog = AlertDialog.Builder(this)
+            .setView(dialogBinding.root)
+            .create()
+        dialog.setOnShowListener {
+            dialog.window?.setBackgroundDrawable(android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT))
+        }
+        dialogBinding.btnManualInput.setOnClickListener {
+            dialog.dismiss()
+            showManualInput()
+            updatePrice()
+        }
+        dialogBinding.btnConfirmPassengers.setOnClickListener {
+            val selected = passengers.filterIndexed { index, _ -> checked[index] }
+            when {
+                selected.isEmpty() -> Toast.makeText(this, "请至少选择一位乘车人", Toast.LENGTH_SHORT).show()
+                selected.size > 5 -> Toast.makeText(this, "单次最多选择 5 位同行乘车人", Toast.LENGTH_SHORT).show()
+                else -> {
+                    selectPassengers(selected)
+                    dialog.dismiss()
+                }
+            }
+        }
+        dialog.show()
+    }
+
+    private fun com.google.android.material.button.MaterialButton.renderPassengerChoice(
+        passenger: Passenger,
+        selected: Boolean
+    ) {
+        text = if (selected) {
+            "✓  ${passenger.name}\n    身份证尾号 ${passenger.idCard.takeLast(4)}"
+        } else {
+            "    ${passenger.name}\n    身份证尾号 ${passenger.idCard.takeLast(4)}"
+        }
+        styleGlassChoice(this, selected)
     }
 
     private fun selectPassengers(passengers: List<Passenger>) {

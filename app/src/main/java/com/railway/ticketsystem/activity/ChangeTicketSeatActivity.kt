@@ -90,30 +90,23 @@ class ChangeTicketSeatActivity : ImmersiveActivity() {
         
         seatTypes.forEach { seatType ->
             val button = com.google.android.material.button.MaterialButton(this)
+            button.tag = seatType.name
             button.text = seatType.name
-            button.textSize = 14f
+            button.textSize = 13f
             button.minWidth = 0
-            button.height = 48
+            button.height = 52
+            button.insetTop = 0
+            button.insetBottom = 0
             
             val layoutParams = LinearLayout.LayoutParams(
                 0,
                 LinearLayout.LayoutParams.WRAP_CONTENT
             ).apply {
                 weight = 1f
-                setMargins(4, 4, 4, 4)
+                setMargins(dp(4), dp(4), dp(4), dp(4))
             }
             button.layoutParams = layoutParams
-            
-            // 设置按钮样式
-            if (seatType == selectedSeatType) {
-                button.setBackgroundColor(resources.getColor(R.color.railway_blue))
-                button.setTextColor(resources.getColor(R.color.white))
-            } else {
-                button.setBackgroundColor(resources.getColor(R.color.white))
-                button.strokeColor = android.content.res.ColorStateList.valueOf(resources.getColor(R.color.railway_blue))
-                button.strokeWidth = 2
-                button.setTextColor(resources.getColor(R.color.railway_blue))
-            }
+            styleGlassChoice(button, seatType == selectedSeatType)
             
             button.setOnClickListener {
                 selectSeatType(seatType)
@@ -133,17 +126,7 @@ class ChangeTicketSeatActivity : ImmersiveActivity() {
         // 更新按钮状态
         for (i in 0 until binding.llSeatTypeButtons.childCount) {
             val button = binding.llSeatTypeButtons.getChildAt(i) as com.google.android.material.button.MaterialButton
-            val isSelected = button.text.toString() == seatType.name
-            
-            if (isSelected) {
-                button.setBackgroundColor(resources.getColor(R.color.railway_blue))
-                button.setTextColor(resources.getColor(R.color.white))
-            } else {
-                button.setBackgroundColor(resources.getColor(R.color.white))
-                button.strokeColor = android.content.res.ColorStateList.valueOf(resources.getColor(R.color.railway_blue))
-                button.strokeWidth = 2
-                button.setTextColor(resources.getColor(R.color.railway_blue))
-            }
+            styleGlassChoice(button, button.tag == seatType.name)
         }
         
         updateSeatNumbers()
@@ -157,34 +140,29 @@ class ChangeTicketSeatActivity : ImmersiveActivity() {
     private fun updateSeatNumbers() {
         binding.llSeatButtons.removeAllViews()
         
-        val seatCount = when (selectedSeatType.name) {
-            "二等座" -> 5
-            "一等座" -> 4
-            "商务座" -> 2
-            else -> 5
-        }
-        
         for (seatLetter in selectedSeatType.availableSeats) {
             val seatButton = com.google.android.material.button.MaterialButton(this)
-            seatButton.text = seatLetter
+            seatButton.tag = seatLetter
+            seatButton.text = "$seatLetter\n${seatPositionLabel(seatLetter)}"
             seatButton.textSize = 12f
             seatButton.minWidth = 0
-            seatButton.height = 60
-            seatButton.setPadding(8, 8, 8, 8)
+            seatButton.height = 64
+            seatButton.insetTop = 0
+            seatButton.insetBottom = 0
+            seatButton.setPadding(dp(4), dp(6), dp(4), dp(6))
             
             val layoutParams = LinearLayout.LayoutParams(
                 0,
                 LinearLayout.LayoutParams.WRAP_CONTENT
             ).apply {
                 weight = 1f
-                setMargins(4, 4, 4, 4)
+                val aisleGap = dp(11)
+                val start = if (seatLetter == "D") aisleGap else dp(4)
+                val end = if (seatLetter == "C") aisleGap else dp(4)
+                setMargins(start, dp(4), end, dp(4))
             }
             seatButton.layoutParams = layoutParams
-            
-            seatButton.setBackgroundColor(android.graphics.Color.WHITE)
-            seatButton.strokeColor = android.content.res.ColorStateList.valueOf(android.graphics.Color.BLACK)
-            seatButton.strokeWidth = 2
-            seatButton.setTextColor(android.graphics.Color.BLACK)
+            styleGlassChoice(seatButton, false)
             
             seatButton.setOnClickListener {
                 selectSeatNumber(seatLetter)
@@ -202,19 +180,34 @@ class ChangeTicketSeatActivity : ImmersiveActivity() {
         // 更新按钮状态
         for (i in 0 until binding.llSeatButtons.childCount) {
             val button = binding.llSeatButtons.getChildAt(i) as com.google.android.material.button.MaterialButton
-            val isSelected = button.text.toString() == seatLetter
-            
-            if (isSelected) {
-                button.setBackgroundColor(resources.getColor(R.color.railway_blue))
-                button.setTextColor(resources.getColor(R.color.white))
-            } else {
-                button.setBackgroundColor(android.graphics.Color.WHITE)
-                button.strokeColor = android.content.res.ColorStateList.valueOf(android.graphics.Color.BLACK)
-                button.strokeWidth = 2
-                button.setTextColor(android.graphics.Color.BLACK)
-            }
+            styleGlassChoice(button, button.tag == seatLetter)
         }
     }
+
+    private fun seatPositionLabel(seatLetter: String): String = when (seatLetter) {
+        "A", "F" -> "靠窗"
+        "C", "D" -> "走廊"
+        else -> "中间"
+    }
+
+    private fun styleGlassChoice(
+        button: com.google.android.material.button.MaterialButton,
+        selected: Boolean
+    ) {
+        button.backgroundTintList = android.content.res.ColorStateList.valueOf(
+            android.graphics.Color.parseColor(if (selected) "#D5D9F0FF" else "#B8FFFFFF")
+        )
+        button.strokeColor = android.content.res.ColorStateList.valueOf(
+            android.graphics.Color.parseColor(if (selected) "#B077BDF4" else "#A8FFFFFF")
+        )
+        button.strokeWidth = dp(1)
+        button.cornerRadius = dp(20)
+        button.rippleColor = android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#260677D7"))
+        button.setTextColor(getColor(if (selected) R.color.railway_blue_deep else R.color.text_primary))
+        button.elevation = 0f
+    }
+
+    private fun dp(value: Int): Int = (value * resources.displayMetrics.density).toInt()
     
     private fun setupPriceCalculation() {
         updatePrice()

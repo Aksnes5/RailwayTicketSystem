@@ -5,7 +5,10 @@
     android:layout_height="wrap_content"
     android:layout_marginBottom="12dp"
     app:cardCornerRadius="@dimen/corner_large"
-    app:cardElevation="2dp"
+    app:cardBackgroundColor="#B8FFFFFF"
+    app:cardElevation="0dp"
+    app:strokeColor="#8CFFFFFF"
+    app:strokeWidth="1dp"
     android:clickable="true"
     android:focusable="true"
     android:foreground="?android:attr/selectableItemBackground">
@@ -22,8 +25,10 @@
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_marginEnd="16dp"
-            app:cardCornerRadius="@dimen/corner_large"
-            app:cardElevation="2dp">
+            app:cardCornerRadius="25dp"
+            app:cardElevation="0dp"
+            app:strokeColor="#A8FFFFFF"
+            app:strokeWidth="1dp">
 
             <ImageView
                 android:id="@+id/ivPassengerAvatar"

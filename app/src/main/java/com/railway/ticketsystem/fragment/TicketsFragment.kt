@@ -532,12 +532,14 @@ class TicketsFragment : Fragment() {
     private fun renderRecentRoutes() {
         val routes = runCatching { loadRecentRoutes() }.getOrElse {
             binding.llRecentRoutes.removeAllViews()
+            binding.llRecentRoutesContainer.visibility = View.GONE
             binding.tvRecentRoutes.visibility = View.GONE
             binding.svRecentRoutes.visibility = View.GONE
             emptyList()
         }
         binding.llRecentRoutes.removeAllViews()
         val showRoutes = routes.isNotEmpty()
+        binding.llRecentRoutesContainer.visibility = if (showRoutes) View.VISIBLE else View.GONE
         binding.tvRecentRoutes.visibility = if (showRoutes) View.VISIBLE else View.GONE
         binding.svRecentRoutes.visibility = if (showRoutes) View.VISIBLE else View.GONE
 

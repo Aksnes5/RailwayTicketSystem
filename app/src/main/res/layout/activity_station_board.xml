@@ -69,6 +69,7 @@
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnRefreshBoard"
+                    style="@style/App.Button.Quiet"
                     android:layout_width="88dp"
                     android:layout_height="52dp"
                     android:layout_marginStart="10dp"
@@ -94,9 +95,9 @@
                 android:orientation="horizontal"
                 android:padding="12dp">
 
-                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1.1" android:text="车次 / 方向" android:textColor="@color/white" android:textSize="12sp" />
-                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="到 / 开" android:textColor="@color/white" android:textSize="12sp" />
-                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="0.8" android:gravity="end" android:text="站台" android:textColor="@color/white" android:textSize="12sp" />
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1.1" android:text="车次 / 方向" android:textColor="@color/railway_blue_deep" android:textSize="12sp" />
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="到 / 开" android:textColor="@color/railway_blue_deep" android:textSize="12sp" />
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="0.8" android:gravity="end" android:text="站台" android:textColor="@color/railway_blue_deep" android:textSize="12sp" />
             </LinearLayout>
 
             <LinearLayout

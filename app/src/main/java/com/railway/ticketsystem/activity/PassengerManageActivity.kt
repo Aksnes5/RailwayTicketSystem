@@ -1,6 +1,7 @@
 package com.railway.ticketsystem.activity
 
 import android.app.AlertDialog
+import android.graphics.drawable.ColorDrawable
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -94,6 +95,10 @@ class PassengerManageActivity : ImmersiveActivity() {
         val dialog = AlertDialog.Builder(this)
             .setView(dialogBinding.root)
             .create()
+
+        dialog.setOnShowListener {
+            dialog.window?.setBackgroundDrawable(ColorDrawable(android.graphics.Color.TRANSPARENT))
+        }
 
         dialogBinding.btnCancel.setOnClickListener {
             dialog.dismiss()

@@ -97,11 +97,11 @@ class StationBoardActivity : ImmersiveActivity() {
 
     private fun boardRow(entry: com.railway.ticketsystem.data.StationBoardEntry): MaterialCardView {
         val card = MaterialCardView(this).apply {
-            radius = dp(16).toFloat()
+            radius = dp(24).toFloat()
             cardElevation = 0f
-            setCardBackgroundColor(Color.WHITE)
+            setCardBackgroundColor(Color.parseColor("#B8FFFFFF"))
             strokeWidth = dp(1)
-            strokeColor = ContextCompat.getColor(this@StationBoardActivity, R.color.divider)
+            strokeColor = Color.parseColor("#BFFFFFFF")
             layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
                 topMargin = dp(6)
             }

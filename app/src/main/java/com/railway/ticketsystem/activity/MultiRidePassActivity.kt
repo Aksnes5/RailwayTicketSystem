@@ -186,9 +186,17 @@ class MultiRidePassActivity : ImmersiveActivity() {
     }
 
     private fun toggle(button: MaterialButton, selected: Boolean) {
-        val color = ContextCompat.getColor(this, if (selected) R.color.railway_blue else R.color.surface_container)
-        button.backgroundTintList = ColorStateList.valueOf(color)
-        button.setTextColor(ContextCompat.getColor(this, if (selected) R.color.white else R.color.text_primary))
+        button.backgroundTintList = ColorStateList.valueOf(
+            android.graphics.Color.parseColor(if (selected) "#D5D9F0FF" else "#B8FFFFFF")
+        )
+        button.strokeColor = ColorStateList.valueOf(
+            android.graphics.Color.parseColor(if (selected) "#B077BDF4" else "#A8FFFFFF")
+        )
+        button.strokeWidth = (resources.displayMetrics.density).toInt()
+        button.cornerRadius = (20 * resources.displayMetrics.density).toInt()
+        button.rippleColor = ColorStateList.valueOf(android.graphics.Color.parseColor("#260677D7"))
+        button.setTextColor(ContextCompat.getColor(this, if (selected) R.color.railway_blue_deep else R.color.text_primary))
+        button.elevation = 0f
     }
 
     private fun money(cents: Long) = "¥" + String.format(Locale.CHINA, "%.2f", cents / 100.0)
