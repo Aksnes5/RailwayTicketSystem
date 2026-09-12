@@ -12,7 +12,7 @@ import com.railway.ticketsystem.data.StationImportManager
 import com.railway.ticketsystem.databinding.ActivityStationImportBinding
 import com.railway.ticketsystem.model.RouteType
 
-class StationImportActivity : AppCompatActivity() {
+class StationImportActivity : ImmersiveActivity() {
     
     private lateinit var binding: ActivityStationImportBinding
     private lateinit var routeAdapter: RouteInfoAdapter

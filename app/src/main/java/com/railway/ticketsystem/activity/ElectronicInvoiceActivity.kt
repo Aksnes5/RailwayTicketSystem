@@ -24,7 +24,7 @@ import com.railway.ticketsystem.databinding.ActivityElectronicInvoiceBinding
 import com.railway.ticketsystem.model.Order
 import java.util.Locale
 
-class ElectronicInvoiceActivity : AppCompatActivity() {
+class ElectronicInvoiceActivity : ImmersiveActivity() {
     private lateinit var binding: ActivityElectronicInvoiceBinding
     private lateinit var userRepository: UserRepository
     private lateinit var orderRepository: OrderRepository

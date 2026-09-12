@@ -29,7 +29,7 @@ import java.util.Date
 import java.util.Locale
 import java.util.UUID
 
-class MealOrderActivity : AppCompatActivity() {
+class MealOrderActivity : ImmersiveActivity() {
     private lateinit var binding: ActivityMealOrderBinding
     private lateinit var userRepository: UserRepository
     private lateinit var orderRepository: OrderRepository

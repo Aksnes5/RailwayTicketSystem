@@ -23,7 +23,7 @@ import com.railway.ticketsystem.model.Train
 import java.text.SimpleDateFormat
 import java.util.*
 
-class OrderConfirmActivity : AppCompatActivity() {
+class OrderConfirmActivity : ImmersiveActivity() {
     
     private lateinit var binding: ActivityOrderConfirmBinding
     private lateinit var train: Train

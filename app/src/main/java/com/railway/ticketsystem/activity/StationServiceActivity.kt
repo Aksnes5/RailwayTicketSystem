@@ -16,7 +16,7 @@ import com.railway.ticketsystem.databinding.ActivityStationServiceBinding
 import com.railway.ticketsystem.model.Station
 
 /** Station-side services that complete the ticket, meal and hotel travel chain. */
-class StationServiceActivity : AppCompatActivity() {
+class StationServiceActivity : ImmersiveActivity() {
     private lateinit var binding: ActivityStationServiceBinding
     private lateinit var serviceRepository: StationServiceRepository
     private lateinit var userRepository: UserRepository
@@ -33,7 +33,8 @@ class StationServiceActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityStationServiceBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        window.statusBarColor = getColor(R.color.surface)
+        window.statusBarColor = android.graphics.Color.TRANSPARENT
+        window.navigationBarColor = android.graphics.Color.TRANSPARENT
         serviceRepository = StationServiceRepository(this)
         userRepository = UserRepository(this)
 

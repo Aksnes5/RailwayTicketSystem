@@ -9,15 +9,15 @@ import com.railway.ticketsystem.data.HotelReservationRepository
 import com.railway.ticketsystem.data.UserRepository
 import com.railway.ticketsystem.databinding.ActivityHotelBookingSuccessBinding
 
-class HotelBookingSuccessActivity : AppCompatActivity() {
+class HotelBookingSuccessActivity : ImmersiveActivity() {
     private lateinit var binding: ActivityHotelBookingSuccessBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityHotelBookingSuccessBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        window.statusBarColor = getColor(R.color.surface)
-        window.navigationBarColor = getColor(R.color.surface)
+        window.statusBarColor = android.graphics.Color.TRANSPARENT
+        window.navigationBarColor = android.graphics.Color.TRANSPARENT
         val reservation = readReservation()
         if (reservation != null) {
             binding.tvHotelSuccessSummary.text = "${reservation.hotelName}\n${reservation.checkInDate} 入住 · ${reservation.checkOutDate} 离店\n${reservation.roomName} · ${reservation.nights} 晚"

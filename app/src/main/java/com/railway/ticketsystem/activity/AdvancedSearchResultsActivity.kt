@@ -26,7 +26,7 @@ import com.railway.ticketsystem.model.Train
 import com.railway.ticketsystem.model.TransferTrain
 import com.railway.ticketsystem.model.TransferRisk
 
-class AdvancedSearchResultsActivity : AppCompatActivity() {
+class AdvancedSearchResultsActivity : ImmersiveActivity() {
     
     private lateinit var binding: ActivitySearchResultsBinding
     private lateinit var trainAdapter: TrainResultAdapter
@@ -134,8 +134,8 @@ class AdvancedSearchResultsActivity : AppCompatActivity() {
     }
 
     private fun applySurfaceSystemBars() {
-        window.statusBarColor = getColor(R.color.surface)
-        window.navigationBarColor = getColor(R.color.surface)
+        window.statusBarColor = android.graphics.Color.TRANSPARENT
+        window.navigationBarColor = android.graphics.Color.TRANSPARENT
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             window.decorView.systemUiVisibility = window.decorView.systemUiVisibility or View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
         }

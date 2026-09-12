@@ -17,7 +17,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-class PaymentActivity : AppCompatActivity() {
+class PaymentActivity : ImmersiveActivity() {
     private lateinit var binding: ActivityPaymentBinding
     private lateinit var paymentLifecycle: PaymentLifecycle
     private lateinit var orderRepository: OrderRepository

@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- The base remains calm enough for long lists, while two soft glows make cards feel layered. -->
+    <!-- One shared refraction source keeps every page on the same glass material. -->
+    <item>
+        <bitmap
+            android:gravity="fill"
+            android:src="@drawable/glass_refraction_backdrop"
+            android:tileMode="disabled" />
+    </item>
     <item>
         <shape android:shape="rectangle">
-            <gradient
-                android:angle="270"
-                android:startColor="#FBFDFF"
-                android:centerColor="#F2F8FE"
-                android:endColor="#E5F1FC" />
+            <solid android:color="#52F7FBFF" />
         </shape>
     </item>
     <item
@@ -18,10 +20,10 @@
         android:top="-150dp">
         <shape android:shape="oval">
             <gradient
-                android:centerColor="#2EBAE7FF"
+                android:centerColor="#23BAE7FF"
                 android:endColor="#00CDEBFF"
                 android:gradientRadius="245dp"
-                android:startColor="#72A8DBFF"
+                android:startColor="#46A8DBFF"
                 android:type="radial" />
         </shape>
     </item>
@@ -33,10 +35,10 @@
         android:bottom="-230dp">
         <shape android:shape="oval">
             <gradient
-                android:centerColor="#21B7DFFF"
+                android:centerColor="#19B7DFFF"
                 android:endColor="#00C5DCFF"
                 android:gradientRadius="285dp"
-                android:startColor="#44D5E9FF"
+                android:startColor="#2FD5E9FF"
                 android:type="radial" />
         </shape>
     </item>

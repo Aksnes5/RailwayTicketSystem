@@ -19,7 +19,7 @@ import com.railway.ticketsystem.databinding.ActivityHotelBookingBinding
 import com.railway.ticketsystem.model.Station
 import kotlin.math.max
 
-class HotelBookingActivity : AppCompatActivity() {
+class HotelBookingActivity : ImmersiveActivity() {
     private lateinit var binding: ActivityHotelBookingBinding
     private var stationNames: Set<String> = emptySet()
 

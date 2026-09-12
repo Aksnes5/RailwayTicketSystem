@@ -63,7 +63,7 @@ private val DEPARTURE_FORMAT = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.CHINA
 private var cachedQrContent: String? = null
 private var cachedQrBitmap: Bitmap? = null
 
-class TripDetailActivity : AppCompatActivity() {
+class TripDetailActivity : ImmersiveActivity() {
     
     private lateinit var binding: ActivityTripDetailBinding
     private var order: Order? = null
@@ -151,8 +151,8 @@ class TripDetailActivity : AppCompatActivity() {
      * the same treatment the search results screens apply.
      */
     private fun applySurfaceSystemBars() {
-        window.statusBarColor = getColor(R.color.gray_light)
-        window.navigationBarColor = getColor(R.color.gray_light)
+        window.statusBarColor = android.graphics.Color.TRANSPARENT
+        window.navigationBarColor = android.graphics.Color.TRANSPARENT
         WindowInsetsControllerCompat(window, window.decorView).apply {
             isAppearanceLightStatusBars = true
             isAppearanceLightNavigationBars = true

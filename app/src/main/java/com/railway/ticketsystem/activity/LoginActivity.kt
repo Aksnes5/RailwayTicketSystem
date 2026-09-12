@@ -11,7 +11,7 @@ import com.railway.ticketsystem.model.User
 import java.text.SimpleDateFormat
 import java.util.*
 
-class LoginActivity : AppCompatActivity() {
+class LoginActivity : ImmersiveActivity() {
     
     private lateinit var binding: ActivityLoginBinding
     private lateinit var userRepository: UserRepository

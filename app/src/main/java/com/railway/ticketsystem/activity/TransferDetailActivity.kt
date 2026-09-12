@@ -27,7 +27,7 @@ import com.railway.ticketsystem.model.TransferRisk
  * leg therefore uses the same route planner, half-arrow, train-set resolver,
  * live stop status resolver and RailwayMapActivity payload as a direct result.
  */
-class TransferDetailActivity : AppCompatActivity() {
+class TransferDetailActivity : ImmersiveActivity() {
     private lateinit var binding: ActivityTransferDetailBinding
     private lateinit var firstLeg: Train
     private lateinit var secondLeg: Train

@@ -17,7 +17,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
             app:cardCornerRadius="@dimen/corner_large"
-            app:cardBackgroundColor="#D9FFFFFF"
+            app:cardBackgroundColor="#B8FFFFFF"
             app:cardElevation="0dp"
             app:strokeColor="#8CFFFFFF"
             app:strokeWidth="1dp">
@@ -64,7 +64,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
             app:cardCornerRadius="@dimen/corner_large"
-            app:cardBackgroundColor="#D9FFFFFF"
+            app:cardBackgroundColor="#B8FFFFFF"
             app:cardElevation="0dp"
             app:strokeColor="#8CFFFFFF"
             app:strokeWidth="1dp">
@@ -106,7 +106,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
             app:cardCornerRadius="@dimen/corner_large"
-            app:cardBackgroundColor="#D9FFFFFF"
+            app:cardBackgroundColor="#B8FFFFFF"
             app:cardElevation="0dp"
             app:strokeColor="#8CFFFFFF"
             app:strokeWidth="1dp">
@@ -212,7 +212,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
             app:cardCornerRadius="@dimen/corner_large"
-            app:cardBackgroundColor="#D9FFFFFF"
+            app:cardBackgroundColor="#B8FFFFFF"
             app:cardElevation="0dp"
             app:strokeColor="#8CFFFFFF"
             app:strokeWidth="1dp">
@@ -321,7 +321,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
             app:cardCornerRadius="@dimen/corner_large"
-            app:cardBackgroundColor="#D9FFFFFF"
+            app:cardBackgroundColor="#B8FFFFFF"
             app:cardElevation="0dp"
             app:strokeColor="#8CFFFFFF"
             app:strokeWidth="1dp">

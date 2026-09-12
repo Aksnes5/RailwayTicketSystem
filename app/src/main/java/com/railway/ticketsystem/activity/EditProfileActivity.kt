@@ -18,7 +18,7 @@ import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
 
-class EditProfileActivity : AppCompatActivity() {
+class EditProfileActivity : ImmersiveActivity() {
     
     private lateinit var binding: ActivityEditProfileBinding
     private lateinit var userRepository: UserRepository

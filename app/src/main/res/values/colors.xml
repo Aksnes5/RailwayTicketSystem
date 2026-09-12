@@ -10,7 +10,7 @@
     <color name="railway_red_dark">#BF360C</color>
     <color name="railway_orange">#F56A00</color>
     <color name="surface">#F3F8FD</color>
-    <color name="surface_container">#EAFFFFFF</color>
+    <color name="surface_container">#C4FFFFFF</color>
     <color name="surface_tint">#DDF8FBFF</color>
     <color name="divider">#B8C9D8E6</color>
     <color name="button_stroke">#B9D5EE</color>

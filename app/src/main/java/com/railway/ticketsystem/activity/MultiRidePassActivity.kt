@@ -26,7 +26,7 @@ import com.railway.ticketsystem.model.Station
 import java.util.Locale
 import java.util.UUID
 
-class MultiRidePassActivity : AppCompatActivity() {
+class MultiRidePassActivity : ImmersiveActivity() {
     private enum class StationField { DEPARTURE, ARRIVAL }
 
     private lateinit var binding: ActivityMultiRidePassBinding

@@ -17,7 +17,7 @@ import com.railway.ticketsystem.data.RailwayData
 import com.railway.ticketsystem.databinding.ActivityStationSelectionBinding
 import com.railway.ticketsystem.model.Station
 
-class StationSelectionActivity : AppCompatActivity() {
+class StationSelectionActivity : ImmersiveActivity() {
     
     private lateinit var binding: ActivityStationSelectionBinding
     private lateinit var stationAdapter: StationDirectoryAdapter

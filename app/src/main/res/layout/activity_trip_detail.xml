@@ -57,7 +57,7 @@
             android:layout_marginBottom="16dp"
             app:cardCornerRadius="@dimen/corner_large"
             app:cardElevation="0dp"
-            app:cardBackgroundColor="#D9FFFFFF"
+            app:cardBackgroundColor="#B8FFFFFF"
             app:strokeColor="@color/divider"
             app:strokeWidth="1dp">
 
@@ -481,7 +481,7 @@
             android:visibility="gone"
             app:cardCornerRadius="@dimen/corner_large"
             app:cardElevation="0dp"
-            app:cardBackgroundColor="#D9FFFFFF"
+            app:cardBackgroundColor="#B8FFFFFF"
             app:strokeColor="@color/divider"
             app:strokeWidth="1dp">
 

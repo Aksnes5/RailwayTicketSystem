@@ -15,7 +15,7 @@ import com.railway.ticketsystem.databinding.ActivityPassengerManageBinding
 import com.railway.ticketsystem.databinding.DialogEditPassengerBinding
 import com.railway.ticketsystem.model.Passenger
 
-class PassengerManageActivity : AppCompatActivity() {
+class PassengerManageActivity : ImmersiveActivity() {
 
     private lateinit var binding: ActivityPassengerManageBinding
     private lateinit var passengerAdapter: PassengerAdapter

@@ -26,7 +26,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-class StationBoardActivity : AppCompatActivity() {
+class StationBoardActivity : ImmersiveActivity() {
     private lateinit var binding: ActivityStationBoardBinding
     private var stationNames: List<String> = emptyList()
     private val screenScope = CoroutineScope(Dispatchers.Main)

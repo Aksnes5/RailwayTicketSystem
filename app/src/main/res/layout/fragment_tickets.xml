@@ -62,17 +62,16 @@
             android:clipToOutline="true"
             android:clipChildren="true">
 
-            <!-- This is deliberately a blurred copy of the hero, so the sheet has a real
-                 frosted source instead of being a flat translucent colour. -->
+            <!-- A dedicated abstract refraction source keeps the glass independent of the train art. -->
             <ImageView
                 android:id="@+id/ivQueryGlassBackdrop"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:alpha="0.34"
+                android:alpha="0.46"
                 android:contentDescription="@null"
                 android:importantForAccessibility="no"
                 android:scaleType="centerCrop"
-                android:src="@drawable/hero_railway_journey" />
+                android:src="@drawable/glass_refraction_backdrop" />
 
             <View
                 android:layout_width="match_parent"

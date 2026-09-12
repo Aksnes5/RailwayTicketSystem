@@ -24,7 +24,7 @@ import com.railway.ticketsystem.model.TransferTrain
 import java.text.SimpleDateFormat
 import java.util.*
 
-class SeatSelectionActivity : AppCompatActivity() {
+class SeatSelectionActivity : ImmersiveActivity() {
     
     private lateinit var binding: ActivitySeatSelectionBinding
     private lateinit var train: Train

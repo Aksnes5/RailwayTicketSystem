@@ -13,7 +13,7 @@ import com.railway.ticketsystem.data.MessageRepository
 import com.railway.ticketsystem.data.UserRepository
 import com.railway.ticketsystem.databinding.ActivityNotificationSettingsBinding
 
-class NotificationSettingsActivity : AppCompatActivity() {
+class NotificationSettingsActivity : ImmersiveActivity() {
     private lateinit var binding: ActivityNotificationSettingsBinding
     private lateinit var messages: MessageRepository
 

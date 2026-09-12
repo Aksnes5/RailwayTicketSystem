@@ -22,7 +22,7 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 
-class HotelDetailActivity : AppCompatActivity() {
+class HotelDetailActivity : ImmersiveActivity() {
     private lateinit var binding: ActivityHotelDetailBinding
     private lateinit var hotel: NearbyHotel
     private val checkIn = Calendar.getInstance().apply {
@@ -38,8 +38,8 @@ class HotelDetailActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityHotelDetailBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        window.statusBarColor = getColor(R.color.surface)
-        window.navigationBarColor = getColor(R.color.surface)
+        window.statusBarColor = android.graphics.Color.TRANSPARENT
+        window.navigationBarColor = android.graphics.Color.TRANSPARENT
         hotel = readHotel() ?: run {
             finish()
             return

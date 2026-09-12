@@ -15,7 +15,7 @@ import com.railway.ticketsystem.data.TrainStopSchedule
 import com.railway.ticketsystem.databinding.ActivityTrainDetailBinding
 import com.railway.ticketsystem.model.Train
 
-class TrainDetailActivity : AppCompatActivity() {
+class TrainDetailActivity : ImmersiveActivity() {
     
     private lateinit var binding: ActivityTrainDetailBinding
     private lateinit var train: Train

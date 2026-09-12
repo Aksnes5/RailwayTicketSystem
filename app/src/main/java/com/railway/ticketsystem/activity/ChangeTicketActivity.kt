@@ -17,7 +17,7 @@ import com.railway.ticketsystem.model.Train
 import java.text.SimpleDateFormat
 import java.util.*
 
-class ChangeTicketActivity : AppCompatActivity() {
+class ChangeTicketActivity : ImmersiveActivity() {
     
     private lateinit var binding: ActivityChangeTicketBinding
     private lateinit var originalOrder: Order

@@ -6,7 +6,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.railway.ticketsystem.R
 import com.railway.ticketsystem.data.RailwayData
 
-class TestRoutesActivity : AppCompatActivity() {
+class TestRoutesActivity : ImmersiveActivity() {
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

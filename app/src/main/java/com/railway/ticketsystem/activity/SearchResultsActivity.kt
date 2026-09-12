@@ -21,7 +21,7 @@ import com.railway.ticketsystem.model.TransferTrain
 import java.text.SimpleDateFormat
 import java.util.*
 
-class SearchResultsActivity : AppCompatActivity() {
+class SearchResultsActivity : ImmersiveActivity() {
     
     private lateinit var binding: ActivitySearchResultsBinding
     private lateinit var trainAdapter: TrainResultAdapter
@@ -157,8 +157,8 @@ class SearchResultsActivity : AppCompatActivity() {
     }
 
     private fun applySurfaceSystemBars() {
-        window.statusBarColor = getColor(R.color.surface)
-        window.navigationBarColor = getColor(R.color.surface)
+        window.statusBarColor = android.graphics.Color.TRANSPARENT
+        window.navigationBarColor = android.graphics.Color.TRANSPARENT
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             window.decorView.systemUiVisibility = window.decorView.systemUiVisibility or View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
         }

@@ -19,7 +19,7 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 
-class HotelReservationConfirmActivity : AppCompatActivity() {
+class HotelReservationConfirmActivity : ImmersiveActivity() {
     private lateinit var binding: ActivityHotelReservationConfirmBinding
     private lateinit var hotel: NearbyHotel
     private lateinit var room: HotelRoom
@@ -35,8 +35,8 @@ class HotelReservationConfirmActivity : AppCompatActivity() {
         binding = ActivityHotelReservationConfirmBinding.inflate(layoutInflater)
         setContentView(binding.root)
         passengerRepository = PassengerRepository(this)
-        window.statusBarColor = getColor(R.color.surface)
-        window.navigationBarColor = getColor(R.color.surface)
+        window.statusBarColor = android.graphics.Color.TRANSPARENT
+        window.navigationBarColor = android.graphics.Color.TRANSPARENT
         val valuesValid = readValues()
         if (!valuesValid) {
             finish()

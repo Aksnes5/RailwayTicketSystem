@@ -20,7 +20,7 @@ import com.railway.ticketsystem.data.UserRepository
 import com.railway.ticketsystem.databinding.ActivityMembershipCenterSafeBinding
 import java.util.Locale
 
-class MembershipCenterActivity : AppCompatActivity() {
+class MembershipCenterActivity : ImmersiveActivity() {
     private lateinit var binding: ActivityMembershipCenterSafeBinding
     private lateinit var users: UserRepository
     private lateinit var membership: MembershipRepository

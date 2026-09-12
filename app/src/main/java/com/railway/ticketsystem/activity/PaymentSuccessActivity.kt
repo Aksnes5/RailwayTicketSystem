@@ -14,7 +14,7 @@ import com.railway.ticketsystem.databinding.ActivityPaymentSuccessBinding
 import com.railway.ticketsystem.model.Order
 import java.util.Locale
 
-class PaymentSuccessActivity : AppCompatActivity() {
+class PaymentSuccessActivity : ImmersiveActivity() {
     private lateinit var binding: ActivityPaymentSuccessBinding
     private lateinit var orderRepository: OrderRepository
     private lateinit var userRepository: UserRepository

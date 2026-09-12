@@ -15,7 +15,7 @@ import com.railway.ticketsystem.data.UserRepository
 import com.railway.ticketsystem.databinding.ActivityHotelOrdersBinding
 
 /** The durable entry point for every hotel reservation created from the travel services page. */
-class HotelOrdersActivity : AppCompatActivity() {
+class HotelOrdersActivity : ImmersiveActivity() {
     private lateinit var binding: ActivityHotelOrdersBinding
     private lateinit var reservations: HotelReservationRepository
     private lateinit var users: UserRepository
@@ -24,8 +24,8 @@ class HotelOrdersActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityHotelOrdersBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        window.statusBarColor = getColor(R.color.surface)
-        window.navigationBarColor = getColor(R.color.surface)
+        window.statusBarColor = android.graphics.Color.TRANSPARENT
+        window.navigationBarColor = android.graphics.Color.TRANSPARENT
         reservations = HotelReservationRepository(this)
         users = UserRepository(this)
         binding.btnHotelOrdersBack.setOnClickListener { finish() }
