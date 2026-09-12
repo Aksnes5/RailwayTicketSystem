@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@drawable/bg_page_backdrop">
+    android:background="@drawable/bg_results_liquid_backdrop">
 
 
     <!-- 路线类型选择 -->
@@ -13,24 +13,25 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:background="@android:color/transparent"
-        android:paddingVertical="8dp"
-        android:paddingHorizontal="16dp"
+        android:paddingVertical="10dp"
+        android:paddingHorizontal="18dp"
         android:layout_marginTop="0dp">
 
         <!-- 直达 / 中转：一条圆角长条均分两半，选中半边填充蓝色 -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:cardBackgroundColor="#D9FFFFFF"
-            app:cardCornerRadius="@dimen/corner_large"
+            android:layout_height="56dp"
+            app:cardBackgroundColor="@android:color/transparent"
+            app:cardCornerRadius="28dp"
             app:cardElevation="0dp"
-            app:strokeColor="#8CFFFFFF"
-            app:strokeWidth="1dp">
+            app:strokeWidth="0dp">
 
             <com.google.android.material.button.MaterialButtonToggleGroup
                 android:id="@+id/routeTypeToggle"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
+                android:background="@drawable/bg_segment_track"
+                android:padding="4dp"
                 app:checkedButton="@id/btnDirect"
                 app:selectionRequired="true"
                 app:singleSelection="true">
@@ -38,7 +39,7 @@
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnDirect"
                     android:layout_width="0dp"
-                    android:layout_height="42dp"
+                    android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:insetTop="0dp"
                     android:insetBottom="0dp"
@@ -46,7 +47,7 @@
                     android:textColor="@color/route_type_toggle_text"
                     android:textSize="15sp"
                     app:backgroundTint="@color/route_type_toggle_bg"
-                    app:cornerRadius="0dp"
+                    app:cornerRadius="22dp"
                     app:icon="@drawable/ic_route_direct"
                     app:iconGravity="textStart"
                     app:iconPadding="6dp"
@@ -57,7 +58,7 @@
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnTransfer"
                     android:layout_width="0dp"
-                    android:layout_height="42dp"
+                    android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:insetTop="0dp"
                     android:insetBottom="0dp"
@@ -65,7 +66,7 @@
                     android:textColor="@color/route_type_toggle_text"
                     android:textSize="15sp"
                     app:backgroundTint="@color/route_type_toggle_bg"
-                    app:cornerRadius="0dp"
+                    app:cornerRadius="22dp"
                     app:icon="@drawable/ic_route_transfer"
                     app:iconGravity="textStart"
                     app:iconPadding="6dp"

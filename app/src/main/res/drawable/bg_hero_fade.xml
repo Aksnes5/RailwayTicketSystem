@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
-    <!-- The illustration dissolves into the app canvas before the floating search card. -->
+    <!-- The illustration dissolves into the page canvas before the frosted sheet begins. -->
     <gradient
         android:angle="270"
         android:startColor="#00000000"
-        android:centerColor="#2488CEFA"
-        android:endColor="#66D8F0FC" />
+        android:centerColor="#5FCEE9FA"
+        android:endColor="#EAF5FBFF" />
 </shape>
