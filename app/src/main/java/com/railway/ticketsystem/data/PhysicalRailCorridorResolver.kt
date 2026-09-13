@@ -51,6 +51,24 @@ object PhysicalRailCorridorResolver {
      */
     private val corridors = listOf(
         Corridor(
+            id = "wuhan-hub-connector",
+            mapCorridor = "武汉枢纽连接线",
+            // 枢纽内既有客车联络段：它不是在建的“武汉枢纽直通线”主工程，
+            // 但确实承担武汉、汉口、武昌、武汉东之间的接续走行。
+            stationNames = listOf("武汉", "汉口", "武昌", "武汉东"),
+            serviceAliases = setOf("武汉枢纽连接线", "武汉枢纽联络线")
+        ),
+        Corridor(
+            id = "wuyi-hanyi-connectors",
+            mapCorridor = "武宜高铁",
+            // 武宜正线及宜昌北—宜昌东的既有接续段。站序仅用于把地图
+            // 锚定到轨道；中间站是否办理客运仍由列车实际时刻表决定。
+            stationNames = listOf(
+                "汉口", "汉川北", "天门", "京山南", "钟祥南", "荆门西", "当阳西", "宜昌北", "宜昌东"
+            ),
+            serviceAliases = setOf("武宜高铁", "汉宜铁路", "宁蓉铁路")
+        ),
+        Corridor(
             id = "hanxiao-hanshi",
             mapCorridor = "汉十高铁",
             stationNames = listOf(
