@@ -1490,6 +1490,7 @@ object RealRailwayRoutes {
         // Keep post-2024 commissioned passenger corridors in the same route graph.
         LatestRailwayNetwork.install()
         installConventionalTrunkRoutes()
+        NationalPassengerRailCatalog.install()
     }
 
     /**

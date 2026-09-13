@@ -24,6 +24,12 @@ object TrainGenerator {
     private const val SERVICE_FIRST_DEPARTURE_MINUTES = 6 * 60          // 06:00
     private const val SERVICE_LAST_DEPARTURE_MINUTES = 22 * 60 + 30     // 22:30
     private const val MINUTES_PER_DAY = 24 * 60
+    // The displayed slowest high-speed variant is 1.08× its base and the fastest
+    // conventional variant is 0.92× its base.  2.36 keeps every K/T/Z result
+    // at least twice as long as the comparable G/D/C result for the same pair.
+    private const val CONVENTIONAL_TO_HIGH_SPEED_BASE_RATIO = 2.36
+    private const val FASTEST_VARIANT_MULTIPLIER = 0.92
+    private const val SLOWEST_VARIANT_MULTIPLIER = 1.08
 
     private const val MAX_TOTAL_TRAINS = 3000
     private const val MAX_CROSSLINE_TRAINS = 600
@@ -376,15 +382,35 @@ object TrainGenerator {
         val declaredMinutes = parseDurationToMinutes(
             RailwayRouteManager.getDurationBetweenStations(from, to, routeType)
         )
-        val baseMinutes = declaredMinutes.takeIf { it > 0 }
-            ?: segments * if (routeType == RouteType.CONVENTIONAL) 42 else 20
+        val unadjustedMinutes = declaredMinutes.takeIf { it > 0 }
+            ?: segments * if (routeType == RouteType.CONVENTIONAL) 55 else 20
+        // A conventional route can share origin/destination cities with the high-speed
+        // network. Do not let a path with fewer graph hops look as quick as G/D/C: the
+        // timetable must include the lower line speed, more stopping and longer dwell.
+        val comparableHighSpeedMinutes = if (routeType == RouteType.CONVENTIONAL) {
+            parseDurationToMinutes(
+                RailwayRouteManager.getDurationBetweenStations(from, to, RouteType.HIGH_SPEED)
+            )
+        } else 0
+        val twiceHighSpeedFloor = if (comparableHighSpeedMinutes > 0) {
+            kotlin.math.ceil(
+                comparableHighSpeedMinutes * CONVENTIONAL_TO_HIGH_SPEED_BASE_RATIO
+            ).toInt()
+        } else 0
+        val baseMinutes = if (routeType == RouteType.CONVENTIONAL) {
+            maxOf(unadjustedMinutes, segments * 55, twiceHighSpeedFloor, 80)
+        } else {
+            unadjustedMinutes
+        }
         // Price the exact graph path selected for this result.  For a
         // cross-line service this accumulates the proportional fare of every
         // physical section instead of multiplying by its number of stops.
         val declaredPrice = RailwayRouteManager.getPriceForPath(pathStations, routeType)
         val basePrice = declaredPrice.takeIf { it > 0.0 }
             ?: segments * if (routeType == RouteType.CONVENTIONAL) 8.0 else 20.0
-        return listOf(0.92, 0.96, 1.0, 1.04, 1.08).map { multiplier ->
+        return listOf(
+            FASTEST_VARIANT_MULTIPLIER, 0.96, 1.0, 1.04, SLOWEST_VARIANT_MULTIPLIER
+        ).map { multiplier ->
             val duration = formatDuration((baseMinutes * multiplier).toInt().coerceAtLeast(2))
             // Timetables can vary by stopping pattern, but the same selected
             // section keeps its proportional base fare instead of getting a
@@ -653,10 +679,11 @@ object TrainGenerator {
      */
     fun generateTrainsForSegment(fromStation: String, toStation: String, count: Int = 10): List<Train> {
         val trains = mutableListOf<Train>()
-        val route = RailwayRouteManager.findRoute(fromStation, toStation)
+        val route = RailwayRouteManager.findRoute(fromStation, toStation, RouteType.HIGH_SPEED)
+            ?: RailwayRouteManager.findRoute(fromStation, toStation, RouteType.CONVENTIONAL)
         
         if (route != null) {
-            val variants = buildVariants(fromStation, toStation)
+            val variants = buildVariants(fromStation, toStation, routeType = route.routeType)
             for (i in 1..count) {
                 val trainNumber = generateTrainNumber(route.routeType, i)
                 val (duration, price) = variants[(i - 1) % variants.size]
@@ -671,7 +698,8 @@ object TrainGenerator {
                     arrivalTime = arrivalTime,
                     duration = duration,
                     price = price,
-                    availableSeats = (20..100).random()
+                    availableSeats = (20..100).random(),
+                    routeType = route.routeType
                 ))
             }
         }
