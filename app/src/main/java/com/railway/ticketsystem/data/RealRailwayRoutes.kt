@@ -1318,6 +1318,15 @@ object RealRailwayRoutes {
             routeName = "汉十高铁",
             stations = listOf(
                 Station("汉口", "Hankou", "HKN"),
+                // 汉十列车自武汉方向进入正线时使用汉孝城际的汉口—孝感东段。
+                // 不再把这段简化成一条直线，地图和运行线路均保留实际站序。
+                Station("后湖", "Houhu", "HHU"),
+                Station("金银潭", "Jinyintan", "JYT"),
+                Station("天河机场", "Tianhe Airport", "THA"),
+                Station("天河街", "Tianhejie", "THJ"),
+                Station("闵集", "Minji", "MJI"),
+                Station("毛陈", "Maochen", "MCH"),
+                Station("槐荫", "Huaiyin", "HYN"),
                 Station("孝感东", "Xiaogan East", "XGD"),
                 Station("云梦东", "Yunmeng East", "YMD"),
                 Station("安陆西", "Anlu West", "ALX"),
@@ -1332,7 +1341,14 @@ object RealRailwayRoutes {
                 Station("十堰东", "Shiyan East", "SYD")
             ),
             segmentPrices = mapOf(
-                "汉口-孝感东" to 15.0,
+                "汉口-后湖" to 3.0,
+                "后湖-金银潭" to 3.0,
+                "金银潭-天河机场" to 5.0,
+                "天河机场-天河街" to 3.0,
+                "天河街-闵集" to 3.0,
+                "闵集-毛陈" to 5.0,
+                "毛陈-槐荫" to 3.0,
+                "槐荫-孝感东" to 3.0,
                 "孝感东-云梦东" to 12.0,
                 "云梦东-安陆西" to 18.0,
                 "安陆西-随州南" to 25.0,

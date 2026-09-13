@@ -17,6 +17,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import com.railway.ticketsystem.data.PhysicalRailCorridorResolver
 import com.railway.ticketsystem.data.StationCoordinateCatalog
 import com.railway.ticketsystem.databinding.ActivityRailwayMapBinding
 
@@ -50,12 +51,14 @@ class RailwayMapActivity : AppCompatActivity() {
         setContentView(binding.root)
         applyImmersiveSystemBars()
 
-        val routeStationNames = normalizeStations(
+        val requestedRouteStations = normalizeStations(
             intent.getStringArrayListExtra(EXTRA_ROUTE_STATIONS).orEmpty()
         )
+        val resolvedRoute = PhysicalRailCorridorResolver.resolveForMap(requestedRouteStations)
+        val routeStationNames = resolvedRoute.stationNames
         val callingStationNames = normalizeStations(
             intent.getStringArrayListExtra(EXTRA_CALLING_STATIONS).orEmpty()
-        ).ifEmpty { routeStationNames }
+        ).ifEmpty { requestedRouteStations }
         val trainNumber = intent.getStringExtra(EXTRA_TRAIN_NUMBER).orEmpty()
         val boardingStation = intent.getStringExtra(EXTRA_BOARDING).orEmpty()
         val alightingStation = intent.getStringExtra(EXTRA_ALIGHTING).orEmpty()
@@ -78,6 +81,7 @@ class RailwayMapActivity : AppCompatActivity() {
                     )
                 }
             ),
+            routeCorridorHints = resolvedRoute.legCorridorHints,
             callingStations = callingStationNames,
             departureDate = departureDate,
             timetableStops = timetableStops
@@ -207,6 +211,8 @@ class RailwayMapActivity : AppCompatActivity() {
         val alightingStation: String,
         val routeStations: List<RailwayMapStation>,
         val callingStations: List<String>,
+        /** Physical OSM corridor for every line segment, used to avoid parallel-line jumps. */
+        val routeCorridorHints: List<String?>,
         val departureDate: String,
         val timetableStops: List<RailwayMapTimetableStop>
     )

@@ -608,13 +608,21 @@
      * share an OSM railway name; unlike the former national super-graph, this
      * cannot quietly jump from a parallel line to an unrelated corridor.
      */
-    function pathForAnchorPair(fromStation, toStation, fromCandidates, toCandidates) {
+    function pathForAnchorPair(fromStation, toStation, fromCandidates, toCandidates, corridorHints) {
       const direct = segmentLengthKm(fromStation, toStation);
       if (direct <= 0) return null;
+      // Kotlin supplies a physical-corridor hint for shared/continued lines.
+      // The hint is intentionally optional: imported routes that do not need
+      // alias resolution retain the conservative same-corridor behaviour.
+      const allowedCorridors = new Set((corridorHints || []).filter(Boolean));
       let best = null;
       for (const from of fromCandidates) {
         for (const to of toCandidates) {
-          if (from.line !== to.line) continue;
+          if (allowedCorridors.size > 0) {
+            if (!allowedCorridors.has(from.line) || !allowedCorridors.has(to.line)) continue;
+          } else if (from.line !== to.line) {
+            continue;
+          }
           const path = routeBetween(from.id, to.id);
           if (!path || path.length < 2) continue;
           const length = pathLengthKm(path);
@@ -635,7 +643,7 @@
      * anchors is distributed across the intermediate physical station legs, so
      * it remains continuous even when only a few stations have exact positions.
      */
-    function buildRoutePath(stations) {
+    function buildRoutePath(stations, legCorridorHints) {
       if (stations.length < 2) return straightRoute(stations);
       if (!networkReady()) return straightRoute(stations);
 
@@ -656,7 +664,14 @@
       for (let a = 0; a < anchors.length - 1; a++) {
         const from = anchors[a];
         const to = anchors[a + 1];
-        const matched = pathForAnchorPair(stations[from], stations[to], candidates[from], candidates[to]);
+        // One routed anchor pair can cover several non-call stations. Only
+        // pin it to a corridor when every leg belongs to the same physical
+        // alignment; a genuine junction remains two independently routed legs.
+        const spanHints = (legCorridorHints || []).slice(from, to).filter(Boolean);
+        const sharedHint = spanHints.length > 0 && spanHints.every(hint => hint === spanHints[0])
+          ? [spanHints[0]] : [];
+        const matched = pathForAnchorPair(
+          stations[from], stations[to], candidates[from], candidates[to], sharedHint);
         if (!matched) continue;
         for (let index = from; index < to; index++) {
           const firstFraction = (index - from) / (to - from);
@@ -707,7 +722,7 @@
       // snapLeg() returns null when the bundle is missing or a leg cannot be placed, so
       // this single call covers both the aligned and the straight-line case.
       networkReady();
-      const aligned = buildRoutePath(routeStations);
+      const aligned = buildRoutePath(routeStations, payload.routeCorridorHints || []);
       reportAlignment(aligned);
       routeLayer = L.polyline(aligned.path, { color: '#247dcc', weight: 5, opacity: .92, lineJoin: 'round', lineCap: 'round', smoothFactor: 1 }).addTo(map);
       stationLayer = L.layerGroup().addTo(map);
