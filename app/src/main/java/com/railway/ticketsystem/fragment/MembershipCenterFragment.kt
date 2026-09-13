@@ -15,6 +15,7 @@ import androidx.fragment.app.Fragment
 import com.google.android.material.button.MaterialButton
 import com.railway.ticketsystem.R
 import com.railway.ticketsystem.data.MemberCoupon
+import com.railway.ticketsystem.data.MemberTravelSnapshot
 import com.railway.ticketsystem.data.MembershipRepository
 import com.railway.ticketsystem.data.MembershipTask
 import com.railway.ticketsystem.data.UserRepository
@@ -103,6 +104,7 @@ class MembershipCenterFragment : Fragment() {
             binding.tvMemberLevel.text = memberLevel(user.points)
             binding.tvMemberRights.text = "会员服务正在同步，请稍后刷新重试。"
             binding.tvGrowthSummary.text = "成长足迹正在同步，请稍后刷新。"
+            renderTravelGrowthUnavailable("出行数据正在同步，请稍后刷新。")
             binding.tvMemberPoints.text = user.points.toString()
             binding.tvWalletBalance.text = "¥0.00"
             binding.btnCheckIn.isEnabled = false
@@ -119,6 +121,7 @@ class MembershipCenterFragment : Fragment() {
         binding.tvMemberLevel.text = "会员服务暂不可用"
         binding.tvMemberRights.text = "本地数据正在保护中，请稍后返回重试。"
         binding.tvGrowthSummary.text = "成长足迹暂不可用"
+        renderTravelGrowthUnavailable("出行数据暂不可用")
         binding.tvMemberPoints.text = "—"
         binding.tvWalletBalance.text = "—"
         binding.btnCheckIn.isEnabled = false
@@ -139,6 +142,7 @@ class MembershipCenterFragment : Fragment() {
         binding.tvMemberLevel.text = memberLevel(user.points)
         binding.tvMemberRights.text = memberRights(user.points)
         binding.tvGrowthSummary.text = membership.getGrowthProfile(userId).summary
+        renderTravelGrowth(membership.getTravelGrowthSnapshot(userId, user.points))
         binding.tvMemberPoints.text = user.points.toString()
         binding.tvWalletBalance.text = membership.getWalletBalanceText(userId)
         val tasks = membership.getTasks(userId)
@@ -162,6 +166,44 @@ class MembershipCenterFragment : Fragment() {
         renderOffers()
         renderCoupons(membership.getCoupons(userId))
         renderLedgers()
+    }
+
+    private fun renderTravelGrowth(snapshot: MemberTravelSnapshot) {
+        binding.tvYearMileage.text = String.format(Locale.CHINA, "%,d km", snapshot.mileageKm)
+        binding.tvTravelCities.text = "${snapshot.cities.size} 城"
+        binding.tvCarbonReduction.text = "${snapshot.carbonReductionKg} kg"
+        binding.tvCityFootprint.text = if (snapshot.cities.isEmpty()) {
+            "出行城市地图\n完成首段旅程后，在这里点亮你的第一座城市"
+        } else {
+            "出行城市地图 · 已点亮 ${snapshot.cities.size} 城\n" + snapshot.cities.joinToString(" · ")
+        }
+        binding.tvFrequentRoutes.text = if (snapshot.frequentRoutes.isEmpty()) {
+            "常坐线路\n暂无出行记录，购票出发后自动形成偏好线路"
+        } else {
+            "常坐线路\n" + snapshot.frequentRoutes.joinToString("\n")
+        }
+        binding.tvGrowthStreak.text = "连续签到 ${snapshot.checkInStreak} 天 · 第 7 天可额外领取 20 积分"
+        val unlocked = snapshot.badges.filter { it.unlocked }
+        binding.tvGrowthBadges.text = buildString {
+            append("徽章成就 · 已获得 ${unlocked.size}/${snapshot.badges.size}\n")
+            append(snapshot.badges.joinToString("\n") { badge ->
+                if (badge.unlocked) "● ${badge.title} · ${badge.description}" else "○ ${badge.title} · ${badge.description}"
+            })
+        }
+        binding.tvMonthlyChallenge.text = "月度挑战 · ${snapshot.monthlyTrips}/${snapshot.monthlyTarget}\n本月再完成 ${maxOf(0, snapshot.monthlyTarget - snapshot.monthlyTrips)} 段出行，即可领取 60 积分"
+        binding.tvTravelLeaderboard.text = "出行成长排行榜 · 第 ${snapshot.leaderboardRank} 位\n超过 ${snapshot.leaderboardPercentile}% 的同级会员"
+    }
+
+    private fun renderTravelGrowthUnavailable(message: String) {
+        binding.tvYearMileage.text = "—"
+        binding.tvTravelCities.text = "—"
+        binding.tvCarbonReduction.text = "—"
+        binding.tvCityFootprint.text = message
+        binding.tvFrequentRoutes.text = message
+        binding.tvGrowthStreak.text = message
+        binding.tvGrowthBadges.text = message
+        binding.tvMonthlyChallenge.text = message
+        binding.tvTravelLeaderboard.text = message
     }
 
     private fun renderTasks(tasks: List<MembershipTask>) {

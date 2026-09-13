@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import com.railway.ticketsystem.model.Order
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -58,6 +59,28 @@ data class MemberGrowthProfile(
     val summary: String
         get() = "连续签到 $checkInStreak 天 · 已点亮 ${stationFootprint.size} 站 · $badgeTitle"
 }
+
+/** A durable, order-backed view of a member's railway activity for the current year. */
+data class MemberTravelSnapshot(
+    val year: Int,
+    val tripCount: Int,
+    val mileageKm: Int,
+    val cities: List<String>,
+    val frequentRoutes: List<String>,
+    val carbonReductionKg: Int,
+    val badges: List<MemberTravelBadge>,
+    val checkInStreak: Int,
+    val monthlyTrips: Int,
+    val monthlyTarget: Int,
+    val leaderboardRank: Int,
+    val leaderboardPercentile: Int
+)
+
+data class MemberTravelBadge(
+    val title: String,
+    val description: String,
+    val unlocked: Boolean
+)
 
 private data class TaskState(val id: String, val progress: Int = 0, val claimed: Boolean = false)
 private data class TaskDefinition(val id: String, val title: String, val description: String, val target: Int, val rewardPoints: Int)
@@ -260,8 +283,121 @@ class MembershipRepository(context: Context) {
         return MemberGrowthProfile(getCheckInStreak(userId), stations, badge)
     }
 
+    /**
+     * Aggregates the growth dashboard from persisted orders instead of producing a new
+     * random profile on every render. A paid journey enters the annual account once its
+     * travel day has arrived; completed journeys remain in the history permanently.
+     */
+    fun getTravelGrowthSnapshot(userId: String, memberPoints: Int): MemberTravelSnapshot {
+        val today = today()
+        val year = today.take(4).toIntOrNull() ?: java.util.Calendar.getInstance().get(java.util.Calendar.YEAR)
+        val monthPrefix = today.take(7)
+        val travelled = OrderRepository(appContext).getOrdersByUserId(userId)
+            .filter { order ->
+                order.departureDate.startsWith(year.toString()) &&
+                    (order.status == "已完成" || (order.status == "已支付" && order.departureDate <= today))
+            }
+        val mileage = travelled.sumOf(::estimateMileageKm)
+        val cities = travelled
+            .flatMap { listOf(it.departureStation, it.arrivalStation) }
+            .map(::cityForStation)
+            .filter { it.isNotBlank() }
+            .distinct()
+            .sorted()
+        val frequentRoutes = travelled
+            .groupingBy { "${it.departureStation}—${it.arrivalStation}" }
+            .eachCount()
+            .entries
+            .sortedWith(compareByDescending<Map.Entry<String, Int>> { it.value }.thenBy { it.key })
+            .take(3)
+            .map { "${it.key} · ${it.value}次" }
+        val carbon = (mileage * 0.115).toInt()
+        val streak = getCheckInStreak(userId)
+        val monthlyTrips = travelled.count { it.departureDate.startsWith(monthPrefix) }
+        val target = 3
+        val badges = listOf(
+            MemberTravelBadge("启程新星", "完成首段铁路旅程", travelled.isNotEmpty()),
+            MemberTravelBadge("千里奔赴", "年度铁路里程满 1,000 km", mileage >= 1_000),
+            MemberTravelBadge("城市漫游者", "点亮 3 座出行城市", cities.size >= 3),
+            MemberTravelBadge("绿色同行", "累计减少 50 kg 碳排放", carbon >= 50),
+            MemberTravelBadge("签到不息", "连续签到 7 天", streak >= 7)
+        )
+        // The account has no network leaderboard. Keep the local ranking stable for one
+        // member/year, while allowing points and actual trips to improve the displayed tier.
+        val seed = kotlin.math.abs((userId + year).hashCode())
+        val baseRank = 45 + seed % 160
+        val rank = (baseRank - (memberPoints / 180) - (tripCountBonus(travelled.size, mileage))).coerceAtLeast(1)
+        val percentile = (100 - rank / 3).coerceIn(35, 99)
+        return MemberTravelSnapshot(
+            year = year,
+            tripCount = travelled.size,
+            mileageKm = mileage,
+            cities = cities,
+            frequentRoutes = frequentRoutes,
+            carbonReductionKg = carbon,
+            badges = badges,
+            checkInStreak = streak,
+            monthlyTrips = monthlyTrips,
+            monthlyTarget = target,
+            leaderboardRank = rank,
+            leaderboardPercentile = percentile
+        )
+    }
+
     fun getCheckInStreak(userId: String): Int =
         prefs.getInt("checkin_streak_" + userId, 0).coerceAtLeast(0)
+
+    private fun estimateMileageKm(order: Order): Int {
+        val duration = durationMinutes(order.timetableDuration).takeIf { it > 0 }
+            ?: durationMinutesBetween(order.departureTime, order.arrivalTime)
+        val prefix = order.trainNumber.trim().firstOrNull()?.uppercaseChar()
+        val hourlySpeed = when (prefix) {
+            'G', 'C' -> 270
+            'D' -> 200
+            else -> 105
+        }
+        return ((duration.coerceAtLeast(15) * hourlySpeed) / 60).coerceIn(40, 2_600)
+    }
+
+    private fun durationMinutes(value: String?): Int {
+        val text = value.orEmpty()
+        val hour = Regex("(\\d+)小时").find(text)?.groupValues?.getOrNull(1)?.toIntOrNull() ?: 0
+        val minute = Regex("(\\d+)(?:分钟|分)").find(text)?.groupValues?.getOrNull(1)?.toIntOrNull() ?: 0
+        return hour * 60 + minute
+    }
+
+    private fun durationMinutesBetween(departure: String, arrival: String): Int {
+        fun toMinutes(value: String): Int {
+            val parts = value.split(":")
+            return (parts.getOrNull(0)?.toIntOrNull() ?: 0) * 60 + (parts.getOrNull(1)?.toIntOrNull() ?: 0)
+        }
+        var result = toMinutes(arrival) - toMinutes(departure)
+        if (result <= 0) result += 24 * 60
+        return result
+    }
+
+    private fun tripCountBonus(tripCount: Int, mileageKm: Int): Int =
+        (tripCount * 2 + mileageKm / 800).coerceAtMost(35)
+
+    private fun cityForStation(station: String): String {
+        val normalized = station.trim()
+        val aliases = linkedMapOf(
+            "汉口" to "武汉", "武昌" to "武汉", "武汉" to "武汉",
+            "北京" to "北京", "上海" to "上海", "天津" to "天津", "重庆" to "重庆",
+            "广州" to "广州", "深圳" to "深圳", "成都" to "成都", "西安" to "西安",
+            "郑州" to "郑州", "长沙" to "长沙", "杭州" to "杭州", "南京" to "南京",
+            "合肥" to "合肥", "南昌" to "南昌", "济南" to "济南", "青岛" to "青岛",
+            "福州" to "福州", "厦门" to "厦门", "南宁" to "南宁", "昆明" to "昆明",
+            "贵阳" to "贵阳", "兰州" to "兰州", "西宁" to "西宁", "银川" to "银川",
+            "乌鲁木齐" to "乌鲁木齐", "拉萨" to "拉萨", "呼和浩特" to "呼和浩特",
+            "太原" to "太原", "石家庄" to "石家庄", "沈阳" to "沈阳", "长春" to "长春",
+            "哈尔滨" to "哈尔滨", "宜昌" to "宜昌", "襄阳" to "襄阳", "洛阳" to "洛阳",
+            "苏州" to "苏州", "无锡" to "无锡", "徐州" to "徐州", "宁波" to "宁波",
+            "温州" to "温州", "大连" to "大连", "烟台" to "烟台", "海口" to "海口"
+        )
+        return aliases.entries.firstOrNull { normalized.startsWith(it.key) }?.value
+            ?: normalized.removeSuffix("东").removeSuffix("西").removeSuffix("南").removeSuffix("北").ifBlank { normalized }
+    }
 
     fun claimTask(userId: String, taskId: String): Boolean {
         val task = getTasks(userId).firstOrNull { it.id == taskId } ?: return false

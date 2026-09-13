@@ -601,7 +601,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1.30"
                         android:text="停靠站"
-                        android:textColor="@color/white"
+                        android:textColor="@color/railway_blue_deep"
                         android:textSize="13sp" />
 
                     <TextView
@@ -610,7 +610,7 @@
                         android:layout_weight="0.85"
                         android:gravity="center"
                         android:text="到点"
-                        android:textColor="@color/white"
+                        android:textColor="@color/railway_blue_deep"
                         android:textSize="13sp" />
 
                     <TextView
@@ -619,7 +619,7 @@
                         android:layout_weight="0.85"
                         android:gravity="center"
                         android:text="开点"
-                        android:textColor="@color/white"
+                        android:textColor="@color/railway_blue_deep"
                         android:textSize="13sp" />
 
                     <TextView
@@ -628,7 +628,7 @@
                         android:layout_weight="0.75"
                         android:gravity="end"
                         android:text="停留"
-                        android:textColor="@color/white"
+                        android:textColor="@color/railway_blue_deep"
                         android:textSize="13sp" />
 
                     <TextView
@@ -637,7 +637,7 @@
                         android:layout_weight="0.95"
                         android:gravity="end"
                         android:text="状态"
-                        android:textColor="@color/white"
+                        android:textColor="@color/railway_blue_deep"
                         android:textSize="13sp" />
                 </LinearLayout>
 

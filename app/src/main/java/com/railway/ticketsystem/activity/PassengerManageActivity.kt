@@ -84,6 +84,7 @@ class PassengerManageActivity : ImmersiveActivity() {
 
     private fun showEditPassengerDialog(passenger: Passenger? = null) {
         val dialogBinding = DialogEditPassengerBinding.inflate(LayoutInflater.from(this))
+        dialogBinding.tvPassengerDialogTitle.text = if (passenger == null) "添加乘车人" else "编辑乘车人"
         
         // 如果是编辑模式，填充现有数据
         if (passenger != null) {
@@ -97,7 +98,10 @@ class PassengerManageActivity : ImmersiveActivity() {
             .create()
 
         dialog.setOnShowListener {
-            dialog.window?.setBackgroundDrawable(ColorDrawable(android.graphics.Color.TRANSPARENT))
+            dialog.window?.apply {
+                setBackgroundDrawable(ColorDrawable(android.graphics.Color.TRANSPARENT))
+                setLayout((resources.displayMetrics.widthPixels * 0.90f).toInt(), android.view.WindowManager.LayoutParams.WRAP_CONTENT)
+            }
         }
 
         dialogBinding.btnCancel.setOnClickListener {

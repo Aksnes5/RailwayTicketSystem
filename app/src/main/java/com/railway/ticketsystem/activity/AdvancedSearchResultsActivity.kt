@@ -24,6 +24,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import com.railway.ticketsystem.model.Train
 import com.railway.ticketsystem.model.TransferTrain
+import com.railway.ticketsystem.model.SeatTypes
 import com.railway.ticketsystem.model.TransferRisk
 
 class AdvancedSearchResultsActivity : ImmersiveActivity() {
@@ -293,13 +294,14 @@ class AdvancedSearchResultsActivity : ImmersiveActivity() {
      */
     private fun renderTransferTrains(transferTrains: List<TransferTrain>) {
         binding.rvTrains.adapter = transferTrainAdapter
-        // A transfer itinerary is sellable only while its first leg still is.
-        transferTrainAdapter.updateTransferTrains(
-            transferTrains.filter {
-                DepartureTimingPolicy.isBookable(departureDate, it.firstLeg.departureTime)
-            }
-        )
-        if (transferTrains.isEmpty()) showEmptyState(isDirect = false) else hideEmptyState()
+        // 中转换乘不是候补组合：只有两段存在同一可售席别时才可被展示、进入详情和下单。
+        // 这样不会让用户先选中方案，再在第二程才发现没有票。
+        val sellable = transferTrains.filter {
+            DepartureTimingPolicy.isBookable(departureDate, it.firstLeg.departureTime) &&
+                hasSellableSharedSeatClass(it)
+        }
+        transferTrainAdapter.updateTransferTrains(sellable)
+        if (sellable.isEmpty()) showEmptyState(isDirect = false) else hideEmptyState()
     }
 
     /**
@@ -430,10 +432,16 @@ class AdvancedSearchResultsActivity : ImmersiveActivity() {
             // 组合，实测上百万次查询，跑三分钟都出不来，界面看着就像卡死。
             // 罚分只取决于单趟车次，按车次号缓存；耗时也先解析一次，别在比较器里反复拆字符串。
             val penaltyByTrain = HashMap<String, Int>()
+            val sellableByPair = HashMap<String, Boolean>()
             fun availabilityPenalty(train: Train): Int = penaltyByTrain.getOrPut(train.number) {
                 if (requiresWaitlist(train)) 1 else 0
             }
             return transferTrains
+                .asSequence()
+                .filter { transfer ->
+                    val key = transfer.firstLeg.number + "|" + transfer.secondLeg.number
+                    sellableByPair.getOrPut(key) { hasSellableSharedSeatClass(transfer) }
+                }
                 .map { transfer ->
                     RankedTransfer(
                         transfer = transfer,
@@ -446,6 +454,7 @@ class AdvancedSearchResultsActivity : ImmersiveActivity() {
                 .sorted()
                 .take(20)
                 .map { it.transfer }
+                .toList()
                 .also { phase("算排序键并排序", "查库存 ${penaltyByTrain.size} 个车次") }
             
         } catch (e: Exception) {
@@ -522,6 +531,22 @@ class AdvancedSearchResultsActivity : ImmersiveActivity() {
     /** 单趟车次二等座是否需要候补。排序时按车次号缓存后调用，见 findTransferRoutes。 */
     private fun requiresWaitlist(train: Train): Boolean =
         seatInventoryRepository.getAvailability(train, departureDate, "二等座").requiresWaitlist
+
+    /**
+     * 两段车必须至少共享一个仍可售的席别。中转页沿用同一席别的双段选座逻辑，
+     * 因此不能仅检查第一程，或把两段各自有票但没有共同席别的组合放进结果。
+     */
+    private fun hasSellableSharedSeatClass(transfer: TransferTrain): Boolean {
+        val secondClasses = SeatTypes.forTrain(transfer.secondLeg).map { it.name }.toSet()
+        return SeatTypes.forTrain(transfer.firstLeg)
+            .asSequence()
+            .map { it.name }
+            .filter { it in secondClasses }
+            .any { seatType ->
+                !seatInventoryRepository.getAvailability(transfer.firstLeg, departureDate, seatType).requiresWaitlist &&
+                    !seatInventoryRepository.getAvailability(transfer.secondLeg, departureDate, seatType).requiresWaitlist
+            }
+    }
 
     private fun transferRiskRank(transferTrain: TransferTrain): Int = when (transferTrain.risk) {
         TransferRisk.STEADY -> 0
