@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- A blue glass surface reserved for the member-growth dashboard. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="rectangle">
+            <corners android:radius="28dp" />
+            <gradient
+                android:angle="315"
+                android:startColor="#4BAAF6"
+                android:centerColor="#258CF4"
+                android:endColor="#0A5AA8" />
+            <stroke android:width="1dp" android:color="#9AFFFFFF" />
+        </shape>
+    </item>
+    <item
+        android:width="250dp"
+        android:height="250dp"
+        android:gravity="top|end"
+        android:right="-76dp"
+        android:top="-116dp">
+        <shape android:shape="oval">
+            <gradient
+                android:endColor="#00FFFFFF"
+                android:gradientRadius="132dp"
+                android:startColor="#B8FFFFFF"
+                android:type="radial" />
+        </shape>
+    </item>
+    <item
+        android:height="34dp"
+        android:gravity="top"
+        android:left="28dp"
+        android:right="28dp">
+        <shape android:shape="rectangle">
+            <corners android:radius="22dp" />
+            <gradient
+                android:angle="0"
+                android:centerColor="#66FFFFFF"
+                android:endColor="#00FFFFFF"
+                android:startColor="#00FFFFFF" />
+        </shape>
+    </item>
+</layer-list>

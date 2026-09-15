@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/bg_page_backdrop"
     android:orientation="vertical"
     android:padding="16dp">
 
@@ -13,6 +14,7 @@
         android:text="从已有线路导入车站"
         android:textSize="20sp"
         android:textStyle="bold"
+        android:textColor="@color/text_primary"
         android:layout_marginBottom="8dp" />
 
     <TextView
@@ -20,7 +22,7 @@
         android:layout_height="wrap_content"
         android:text="选择要导入车站的线路，系统将自动提取线路中的所有车站并添加到车站列表中。"
         android:textSize="14sp"
-        android:textColor="@android:color/darker_gray"
+        android:textColor="@color/text_secondary"
         android:layout_marginBottom="16dp" />
 
     <!-- 操作按钮 -->
@@ -30,21 +32,31 @@
         android:orientation="horizontal"
         android:layout_marginBottom="16dp">
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_select_all"
+            style="@style/App.Button.Quiet"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="48dp"
             android:layout_weight="1"
+            android:insetBottom="0dp"
+            android:insetTop="0dp"
             android:text="全选"
-            android:layout_marginEnd="8dp" />
+            android:textSize="15sp"
+            android:layout_marginEnd="8dp"
+            app:cornerRadius="@dimen/corner_large" />
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_clear_selection"
+            style="@style/App.Button.Quiet"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="48dp"
             android:layout_weight="1"
+            android:insetBottom="0dp"
+            android:insetTop="0dp"
             android:text="清空"
-            android:layout_marginStart="8dp" />
+            android:textSize="15sp"
+            android:layout_marginStart="8dp"
+            app:cornerRadius="@dimen/corner_large" />
 
     </LinearLayout>
 
@@ -55,24 +67,35 @@
         android:orientation="horizontal"
         android:layout_marginBottom="16dp">
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_preview_import"
+            style="@style/App.Button.Quiet"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="48dp"
             android:layout_weight="1"
+            android:insetBottom="0dp"
+            android:insetTop="0dp"
             android:text="预览导入"
+            android:textSize="15sp"
             android:layout_marginEnd="8dp"
-            android:enabled="false" />
+            android:enabled="false"
+            app:cornerRadius="@dimen/corner_large" />
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_import_stations"
+            style="@style/App.Button.Quiet"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="48dp"
             android:layout_weight="1"
+            android:background="@drawable/bg_liquid_action"
+            android:insetBottom="0dp"
+            android:insetTop="0dp"
             android:text="导入车站"
+            android:textColor="@color/railway_blue_deep"
+            android:textSize="15sp"
             android:layout_marginStart="8dp"
             android:enabled="false"
-            android:backgroundTint="@color/colorPrimary" />
+            app:cornerRadius="@dimen/corner_large" />
 
     </LinearLayout>
 
@@ -91,7 +114,7 @@
         android:layout_height="wrap_content"
         android:text="暂无可用线路"
         android:textSize="16sp"
-        android:textColor="@android:color/darker_gray"
+        android:textColor="@color/text_secondary"
         android:gravity="center"
         android:padding="32dp"
         android:visibility="gone" />

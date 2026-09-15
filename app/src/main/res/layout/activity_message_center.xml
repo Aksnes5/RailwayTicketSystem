@@ -44,7 +44,7 @@
                 android:textSize="13sp"
                 android:textStyle="bold"
                 app:backgroundTint="#C9E8F7FF"
-                app:cornerRadius="18dp"
+                app:cornerRadius="@dimen/corner_large"
                 app:rippleColor="#260677D7"
                 app:strokeColor="#8AC5E6FF"
                 app:strokeWidth="1dp" />

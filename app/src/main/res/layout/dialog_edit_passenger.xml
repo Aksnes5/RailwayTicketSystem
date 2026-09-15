@@ -5,99 +5,138 @@
     android:layout_height="wrap_content"
     android:background="@drawable/bg_glass_card"
     android:orientation="vertical"
-    android:padding="22dp">
-
-    <TextView
-        android:id="@+id/tvPassengerDialogTitle"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:text="添加乘车人"
-        android:textColor="@color/text_primary"
-        android:textSize="21sp"
-        android:textStyle="bold" />
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="6dp"
-        android:gravity="center"
-        android:text="信息仅用于购票与出行服务"
-        android:textColor="@color/text_secondary"
-        android:textSize="13sp" />
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="22dp"
-        android:text="姓名"
-        android:textColor="@color/text_secondary"
-        android:textSize="13sp"
-        android:textStyle="bold" />
-
-    <androidx.appcompat.widget.AppCompatEditText
-        android:id="@+id/etPassengerName"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:layout_marginTop="7dp"
-        android:background="@drawable/bg_glass_control"
-        android:hint="请输入乘车人姓名"
-        android:inputType="textPersonName"
-        android:paddingHorizontal="16dp"
-        android:textColor="@color/text_primary"
-        android:textColorHint="@color/text_secondary"
-        android:textSize="16sp" />
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="身份证件号"
-        android:textColor="@color/text_secondary"
-        android:textSize="13sp"
-        android:textStyle="bold" />
-
-    <androidx.appcompat.widget.AppCompatEditText
-        android:id="@+id/etPassengerIdCard"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:layout_marginTop="7dp"
-        android:background="@drawable/bg_glass_control"
-        android:hint="请输入 18 位身份证号"
-        android:inputType="textCapCharacters"
-        android:maxLength="18"
-        android:paddingHorizontal="16dp"
-        android:textColor="@color/text_primary"
-        android:textColorHint="@color/text_secondary"
-        android:textSize="16sp" />
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="手机号"
-        android:textColor="@color/text_secondary"
-        android:textSize="13sp"
-        android:textStyle="bold" />
-
-    <androidx.appcompat.widget.AppCompatEditText
-        android:id="@+id/etPassengerPhone"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:layout_marginTop="7dp"
-        android:background="@drawable/bg_glass_control"
-        android:hint="请输入 11 位手机号"
-        android:inputType="phone"
-        android:maxLength="11"
-        android:paddingHorizontal="16dp"
-        android:textColor="@color/text_primary"
-        android:textColorHint="@color/text_secondary"
-        android:textSize="16sp" />
+    android:paddingStart="24dp"
+    android:paddingTop="24dp"
+    android:paddingEnd="24dp"
+    android:paddingBottom="20dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="42dp"
+            android:layout_height="42dp"
+            app:cardBackgroundColor="#C9E8F8FF"
+            app:cardCornerRadius="21dp"
+            app:cardElevation="0dp"
+            app:strokeColor="#B8FFFFFF"
+            app:strokeWidth="1dp">
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:contentDescription="乘车人"
+                android:padding="10dp"
+                android:src="@drawable/ic_passenger"
+                android:tint="@color/railway_blue_deep" />
+        </com.google.android.material.card.MaterialCardView>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tvPassengerDialogTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="添加乘车人"
+                android:textColor="@color/text_primary"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="实名信息仅用于购票与出行服务"
+                android:textColor="@color/text_secondary"
+                android:textSize="13sp" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:layout_marginTop="22dp"
+        app:cardBackgroundColor="#38FFFFFF"
+        app:cardCornerRadius="@dimen/corner_large"
+        app:cardElevation="0dp"
+        app:strokeColor="#9FFFFFFF"
+        app:strokeWidth="1dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="10dp">
+
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/App.TextInput.Rounded"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="姓名"
+                app:boxStrokeColor="#72C4E7FF">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etPassengerName"
+                    android:layout_width="match_parent"
+                    android:layout_height="54dp"
+                    android:inputType="textPersonName"
+                    android:paddingHorizontal="16dp"
+                    android:textColor="@color/text_primary"
+                    android:textSize="16sp" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/App.TextInput.Rounded"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:hint="身份证件号"
+                app:boxStrokeColor="#72C4E7FF">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etPassengerIdCard"
+                    android:layout_width="match_parent"
+                    android:layout_height="54dp"
+                    android:inputType="textCapCharacters"
+                    android:maxLength="18"
+                    android:paddingHorizontal="16dp"
+                    android:textColor="@color/text_primary"
+                    android:textSize="16sp" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/App.TextInput.Rounded"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:hint="手机号"
+                app:boxStrokeColor="#72C4E7FF">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etPassengerPhone"
+                    android:layout_width="match_parent"
+                    android:layout_height="54dp"
+                    android:inputType="phone"
+                    android:maxLength="11"
+                    android:paddingHorizontal="16dp"
+                    android:textColor="@color/text_primary"
+                    android:textSize="16sp" />
+            </com.google.android.material.textfield.TextInputLayout>
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="18dp"
         android:orientation="horizontal">
 
         <com.google.android.material.button.MaterialButton
@@ -118,6 +157,8 @@
             android:layout_height="48dp"
             android:layout_weight="1"
             android:background="@drawable/bg_liquid_action"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
             android:text="保存"
             android:textColor="@color/railway_blue_deep"
             android:textSize="15sp"

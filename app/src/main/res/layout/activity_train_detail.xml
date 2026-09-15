@@ -363,13 +363,17 @@
             <!-- 订票按钮 -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnBookTicket"
+                style="@style/App.Button.Quiet"
                 android:layout_width="match_parent"
                 android:layout_height="56dp"
+                android:background="@drawable/bg_liquid_action"
+                android:insetBottom="0dp"
+                android:insetTop="0dp"
                 android:text="立即订票"
+                android:textColor="@color/railway_blue_deep"
                 android:textSize="16sp"
                 android:textStyle="bold"
-                android:backgroundTint="@color/railway_blue"
-                android:textColor="@color/white" />
+                app:cornerRadius="@dimen/corner_large" />
 
         </LinearLayout>
 

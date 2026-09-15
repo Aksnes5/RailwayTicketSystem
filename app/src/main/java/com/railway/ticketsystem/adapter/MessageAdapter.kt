@@ -34,9 +34,10 @@ class MessageAdapter(private val onClick: (AppMessage) -> Unit) : RecyclerView.A
             binding.tvMessageTitle.text = userFacing(message.title)
             binding.tvMessageContent.text = userFacing(message.content)
             binding.tvMessageTime.text = message.createdAt
-            val color = if (message.isRead) R.color.gray_medium else R.color.railway_blue
+            // 已读消息仍保持清晰可读，只降低蓝色强调而不是整张卡片发灰。
+            val color = if (message.isRead) R.color.text_secondary else R.color.railway_blue
             binding.tvMessageTag.setTextColor(ContextCompat.getColor(binding.root.context, color))
-            binding.root.alpha = if (message.isRead) 0.72f else 1f
+            binding.root.alpha = if (message.isRead) 0.94f else 1f
             binding.root.setOnClickListener { onClick(message) }
         }
     }

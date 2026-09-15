@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:background="@drawable/bg_glass_card"
     android:orientation="vertical"
     android:padding="24dp">
 
@@ -12,7 +13,7 @@
         android:text="@string/ticket_info"
         android:textSize="20sp"
         android:textStyle="bold"
-        android:textColor="@color/gray_dark"
+        android:textColor="@color/text_primary"
         android:gravity="center"
         android:layout_marginBottom="24dp" />
 
@@ -29,7 +30,7 @@
             android:layout_weight="1"
             android:text="车次："
             android:textSize="16sp"
-            android:textColor="@color/gray_dark" />
+            android:textColor="@color/text_primary" />
 
         <TextView
             android:id="@+id/tvDialogTrainNumber"
@@ -55,7 +56,7 @@
             android:layout_weight="1"
             android:text="路线："
             android:textSize="16sp"
-            android:textColor="@color/gray_dark" />
+            android:textColor="@color/text_primary" />
 
         <TextView
             android:id="@+id/tvDialogRoute"
@@ -64,7 +65,7 @@
             android:text="北京南 → 上海虹桥"
             android:textSize="16sp"
             android:textStyle="bold"
-            android:textColor="@color/gray_dark" />
+            android:textColor="@color/text_primary" />
 
     </LinearLayout>
 
@@ -81,7 +82,7 @@
             android:layout_weight="1"
             android:text="@string/departure_time"
             android:textSize="16sp"
-            android:textColor="@color/gray_dark" />
+            android:textColor="@color/text_primary" />
 
         <TextView
             android:id="@+id/tvDialogDepartureTime"
@@ -90,7 +91,7 @@
             android:text="06:00"
             android:textSize="16sp"
             android:textStyle="bold"
-            android:textColor="@color/gray_dark" />
+            android:textColor="@color/text_primary" />
 
     </LinearLayout>
 
@@ -107,7 +108,7 @@
             android:layout_weight="1"
             android:text="@string/arrival_time"
             android:textSize="16sp"
-            android:textColor="@color/gray_dark" />
+            android:textColor="@color/text_primary" />
 
         <TextView
             android:id="@+id/tvDialogArrivalTime"
@@ -116,7 +117,7 @@
             android:text="11:30"
             android:textSize="16sp"
             android:textStyle="bold"
-            android:textColor="@color/gray_dark" />
+            android:textColor="@color/text_primary" />
 
     </LinearLayout>
 
@@ -133,7 +134,7 @@
             android:layout_weight="1"
             android:text="@string/price"
             android:textSize="16sp"
-            android:textColor="@color/gray_dark" />
+            android:textColor="@color/text_primary" />
 
         <TextView
             android:id="@+id/tvDialogPrice"
@@ -159,7 +160,7 @@
             android:layout_weight="1"
             android:text="@string/seat_number"
             android:textSize="16sp"
-            android:textColor="@color/gray_dark" />
+            android:textColor="@color/text_primary" />
 
         <TextView
             android:id="@+id/tvDialogSeatNumber"

@@ -188,13 +188,16 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnChooseTransferSeats"
+                style="@style/App.Button.Quiet"
                 android:layout_width="match_parent"
                 android:layout_height="56dp"
                 android:layout_marginTop="2dp"
                 android:layout_marginBottom="12dp"
-                android:backgroundTint="@color/railway_blue"
+                android:background="@drawable/bg_liquid_action"
+                android:insetBottom="0dp"
+                android:insetTop="0dp"
                 android:text="选择席别并购票"
-                android:textColor="@color/white"
+                android:textColor="@color/railway_blue_deep"
                 android:textSize="16sp"
                 android:textStyle="bold"
                 app:cornerRadius="@dimen/corner_large" />

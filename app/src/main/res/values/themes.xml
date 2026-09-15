@@ -24,7 +24,7 @@
     </style>
 
     <style name="App.Button.Primary" parent="Widget.Material3.Button">
-        <item name="cornerRadius">20dp</item>
+        <item name="cornerRadius">@dimen/corner_large</item>
         <item name="strokeWidth">0dp</item>
         <item name="backgroundTint">#D6EBFC</item>
         <item name="android:textColor">@color/railway_blue_deep</item>
@@ -48,7 +48,7 @@
     </style>
 
     <style name="App.Button.Quiet" parent="Widget.Material3.Button.OutlinedButton">
-        <item name="cornerRadius">20dp</item>
+        <item name="cornerRadius">@dimen/corner_large</item>
         <item name="strokeWidth">0dp</item>
         <item name="backgroundTint">#BFFFFFFF</item>
         <item name="android:textColor">@color/railway_blue_deep</item>

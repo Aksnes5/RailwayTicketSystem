@@ -13,7 +13,7 @@
         android:text="乘客信息"
         android:textSize="20sp"
         android:textStyle="bold"
-        android:textColor="@color/gray_dark"
+        android:textColor="@color/text_primary"
         android:gravity="center"
         android:layout_marginBottom="24dp" />
 
@@ -95,7 +95,6 @@
     </LinearLayout>
 
 </LinearLayout>
-
 
 
 

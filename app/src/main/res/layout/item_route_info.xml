@@ -5,7 +5,7 @@
     android:layout_height="wrap_content"
     android:orientation="horizontal"
     android:padding="16dp"
-    android:background="?android:attr/selectableItemBackground"
+    android:background="@drawable/ripple_glass"
     android:clickable="true"
     android:focusable="true">
 
@@ -30,7 +30,7 @@
             android:text="线路名称"
             android:textSize="16sp"
             android:textStyle="bold"
-            android:textColor="@android:color/black" />
+            android:textColor="@color/text_primary" />
 
         <!-- 线路ID -->
         <TextView
@@ -39,7 +39,7 @@
             android:layout_height="wrap_content"
             android:text="ID: ROUTE001"
             android:textSize="12sp"
-            android:textColor="@android:color/darker_gray"
+            android:textColor="@color/text_secondary"
             android:layout_marginTop="2dp" />
 
         <!-- 车站数量和类型 -->
@@ -66,7 +66,7 @@
                 android:layout_height="wrap_content"
                 android:text="高速铁路"
                 android:textSize="14sp"
-                android:textColor="@android:color/darker_gray"
+                android:textColor="@color/text_secondary"
                 android:layout_marginStart="8dp"
                 android:background="@drawable/bg_tag_secondary"
                 android:paddingHorizontal="8dp"
@@ -81,7 +81,7 @@
             android:layout_height="wrap_content"
             android:text="汉口 → 宜昌东"
             android:textSize="14sp"
-            android:textColor="@android:color/darker_gray"
+            android:textColor="@color/text_secondary"
             android:layout_marginTop="4dp" />
 
     </LinearLayout>
