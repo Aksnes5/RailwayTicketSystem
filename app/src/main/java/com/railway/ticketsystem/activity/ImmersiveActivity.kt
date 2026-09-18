@@ -5,7 +5,7 @@ import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.app.AppCompatActivity
+import com.railway.ticketsystem.data.AccessibilityPreferences
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
@@ -17,7 +17,7 @@ import androidx.core.view.WindowInsetsCompat
  * content is inset. That keeps the clock and gesture area visually part of the page
  * without letting toolbars or lists slide underneath them.
  */
-open class ImmersiveActivity : AppCompatActivity() {
+open class ImmersiveActivity : AccessibleActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, false)
@@ -27,10 +27,9 @@ open class ImmersiveActivity : AppCompatActivity() {
             window.isStatusBarContrastEnforced = false
             window.isNavigationBarContrastEnforced = false
         }
-        WindowCompat.getInsetsController(window, window.decorView).apply {
-            isAppearanceLightStatusBars = true
-            isAppearanceLightNavigationBars = true
-        }
+
+        AccessibilityPreferences.applySystemBarAppearance(this)
+
     }
 
     override fun onPostCreate(savedInstanceState: Bundle?) {

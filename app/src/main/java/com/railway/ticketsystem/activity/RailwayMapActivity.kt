@@ -10,7 +10,6 @@ import android.webkit.JavascriptInterface
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.FrameLayout
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
@@ -19,6 +18,9 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.railway.ticketsystem.data.PhysicalRailCorridorResolver
 import com.railway.ticketsystem.data.StationCoordinateCatalog
+import com.railway.ticketsystem.data.OfflineTravelRepository
+import com.railway.ticketsystem.data.AccessibilityPreferences
+import android.webkit.WebSettings
 import com.railway.ticketsystem.databinding.ActivityRailwayMapBinding
 
 /** One saved timetable call used to calculate the live position on the map. */
@@ -33,7 +35,7 @@ data class RailwayMapTimetableStop(
  * calls as markers. Both layers are saved at checkout, so an order never
  * redraws against a newly generated stopping pattern.
  */
-class RailwayMapActivity : AppCompatActivity() {
+class RailwayMapActivity : AccessibleActivity() {
     private lateinit var binding: ActivityRailwayMapBinding
     private val gson = Gson()
     private var mapReady = false
@@ -105,10 +107,7 @@ class RailwayMapActivity : AppCompatActivity() {
         WindowCompat.setDecorFitsSystemWindows(window, false)
         window.statusBarColor = Color.TRANSPARENT
         window.navigationBarColor = Color.TRANSPARENT
-        WindowInsetsControllerCompat(window, window.decorView).apply {
-            isAppearanceLightStatusBars = true
-            isAppearanceLightNavigationBars = true
-        }
+        AccessibilityPreferences.applySystemBarAppearance(this)
         val baseMargin = (16 * resources.displayMetrics.density).toInt()
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, insets ->
             val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
@@ -149,6 +148,8 @@ class RailwayMapActivity : AppCompatActivity() {
             settings.javaScriptEnabled = true
             settings.domStorageEnabled = true
             settings.loadsImagesAutomatically = true
+            settings.cacheMode = WebSettings.LOAD_CACHE_ELSE_NETWORK
+            settings.allowFileAccess = true
             setBackgroundColor(Color.rgb(238, 247, 255))
             addJavascriptInterface(MapJavascriptBridge(), "RailwayMapBridge")
             webViewClient = object : WebViewClient() {
@@ -158,7 +159,10 @@ class RailwayMapActivity : AppCompatActivity() {
                     renderRoute()
                 }
             }
-            loadUrl("file:///android_asset/railway_map.html")
+            // A completed offline pack contains the same map shell, local Leaflet runtime and
+            // national tile atlas. Fall back to bundled assets when the atlas has not been downloaded.
+            val offlineMap = OfflineTravelRepository(this@RailwayMapActivity).offlineMapHtml()
+            loadUrl(offlineMap?.toURI()?.toString() ?: "file:///android_asset/railway_map.html")
         }
     }
 

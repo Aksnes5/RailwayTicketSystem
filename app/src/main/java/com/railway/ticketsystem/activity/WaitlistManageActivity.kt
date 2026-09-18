@@ -5,7 +5,6 @@ import android.graphics.Color
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
@@ -18,7 +17,7 @@ import com.railway.ticketsystem.data.WaitlistRepository
 import com.railway.ticketsystem.databinding.ActivityWaitlistManageBinding
 import com.railway.ticketsystem.model.WaitlistRequest
 
-class WaitlistManageActivity : AppCompatActivity() {
+class WaitlistManageActivity : AccessibleActivity() {
     private lateinit var binding: ActivityWaitlistManageBinding
     private lateinit var waitlistRepository: WaitlistRepository
     private lateinit var userRepository: UserRepository

@@ -4,7 +4,6 @@ import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.view.View
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
@@ -16,7 +15,7 @@ import com.railway.ticketsystem.data.UserRepository
 import com.railway.ticketsystem.databinding.ActivityMessageCenterBinding
 import com.railway.ticketsystem.model.AppMessage
 
-class MessageCenterActivity : AppCompatActivity() {
+class MessageCenterActivity : AccessibleActivity() {
     private lateinit var binding: ActivityMessageCenterBinding
     private lateinit var messageRepository: MessageRepository
     private lateinit var userRepository: UserRepository

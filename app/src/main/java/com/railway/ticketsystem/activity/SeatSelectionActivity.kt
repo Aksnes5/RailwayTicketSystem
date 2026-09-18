@@ -15,6 +15,8 @@ import com.railway.ticketsystem.data.PassengerRepository
 import com.railway.ticketsystem.data.UserRepository
 import com.railway.ticketsystem.data.SeatInventoryRepository
 import com.railway.ticketsystem.data.SeatAvailability
+import com.railway.ticketsystem.data.FamilyAccountRepository
+import com.railway.ticketsystem.data.FamilySeatAllocator
 import com.railway.ticketsystem.databinding.ActivitySeatSelectionBinding
 import com.railway.ticketsystem.databinding.DialogPassengerSelectionBinding
 import com.railway.ticketsystem.model.Passenger
@@ -48,6 +50,7 @@ class SeatSelectionActivity : ImmersiveActivity() {
     private lateinit var userRepository: UserRepository
     private var selectedPassengers: List<Passenger> = emptyList()
     private lateinit var seatInventoryRepository: SeatInventoryRepository
+    private lateinit var familyAccountRepository: FamilyAccountRepository
     private var isManualInput = true
     
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -94,6 +97,7 @@ class SeatSelectionActivity : ImmersiveActivity() {
         userRepository = UserRepository(this)
         
         seatInventoryRepository = SeatInventoryRepository(this)
+        familyAccountRepository = FamilyAccountRepository(this)
         setupUI()
         setupSeatTypeSelection()
         setupSeatNumberSelection()
@@ -402,8 +406,8 @@ class SeatSelectionActivity : ImmersiveActivity() {
             Toast.makeText(this, "余票仅剩 ${availableTickets} 张，不足 ${passengers.size} 人，整单无法出票", Toast.LENGTH_LONG).show()
             return
         }
-        if (!isTransfer && !requiresWaitlist && passengers.size > selectedSeatType.availableSeats.size) {
-            Toast.makeText(this, "当前席别无法安排 ${passengers.size} 人同排座位，请更换席别", Toast.LENGTH_LONG).show()
+        if (!isTransfer && !requiresWaitlist && passengers.size > 5) {
+            Toast.makeText(this, "单次最多安排 5 人同行", Toast.LENGTH_LONG).show()
             return
         }
         
@@ -547,10 +551,13 @@ class SeatSelectionActivity : ImmersiveActivity() {
         passenger: Passenger,
         selected: Boolean
     ) {
+        val family = userRepository.getCurrentUser()?.let { user -> familyAccountRepository.memberForPassenger(user.id, passenger.id) }
+        val detail = family?.let { "${it.relation} · ${it.travelerType} · ${it.benefitLabel}" }
+            ?: "身份证尾号 ${passenger.idCard.takeLast(4)}"
         text = if (selected) {
-            "✓  ${passenger.name}\n    身份证尾号 ${passenger.idCard.takeLast(4)}"
+            "✓  ${passenger.name}\n    $detail"
         } else {
-            "    ${passenger.name}\n    身份证尾号 ${passenger.idCard.takeLast(4)}"
+            "    ${passenger.name}\n    $detail"
         }
         styleGlassChoice(this, selected)
     }
@@ -565,7 +572,8 @@ class SeatSelectionActivity : ImmersiveActivity() {
         } else {
             "已选择 ${passengers.size} 位同行乘车人"
         }
-        binding.tvSelectedPassengerIdCard.text = passengers.joinToString("、") { it.name }
+        binding.tvSelectedPassengerIdCard.text = passengers.joinToString("、") { it.name } +
+            "\n" + FamilySeatAllocator.describe(selectedSeatType.name, passengers.size)
         binding.etPassengerName.setText("")
         binding.etPassengerIdCard.setText("")
         binding.etPassengerPhone.setText("")

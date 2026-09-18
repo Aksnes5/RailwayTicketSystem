@@ -7,7 +7,6 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
 import com.railway.ticketsystem.MainActivity
 import com.railway.ticketsystem.R
@@ -17,6 +16,7 @@ import com.railway.ticketsystem.data.RealRailwayRoutes
 import com.railway.ticketsystem.data.TrainGenerator
 import com.railway.ticketsystem.data.UserRepository
 import com.railway.ticketsystem.data.AsyncDataLoader
+import com.railway.ticketsystem.data.AccessibilityPreferences
 import com.railway.ticketsystem.databinding.ActivityLoadingBinding
 import kotlinx.coroutines.*
 
@@ -24,7 +24,7 @@ import kotlinx.coroutines.*
  * 启动加载Activity
  * 负责在应用启动时预加载所有数据，显示加载进度
  */
-class LoadingActivity : AppCompatActivity() {
+class LoadingActivity : AccessibleActivity() {
     
     private lateinit var binding: ActivityLoadingBinding
     private var loadingJob: Job? = null
@@ -34,10 +34,7 @@ class LoadingActivity : AppCompatActivity() {
         WindowCompat.setDecorFitsSystemWindows(window, false)
         window.statusBarColor = Color.TRANSPARENT
         window.navigationBarColor = Color.TRANSPARENT
-        WindowCompat.getInsetsController(window, window.decorView).apply {
-            isAppearanceLightStatusBars = true
-            isAppearanceLightNavigationBars = true
-        }
+        AccessibilityPreferences.applySystemBarAppearance(this)
         binding = ActivityLoadingBinding.inflate(layoutInflater)
         setContentView(binding.root)
         

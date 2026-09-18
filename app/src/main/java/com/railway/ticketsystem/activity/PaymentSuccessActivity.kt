@@ -10,6 +10,7 @@ import com.railway.ticketsystem.R
 import com.railway.ticketsystem.data.OrderRepository
 import com.railway.ticketsystem.data.PaymentLifecycle
 import com.railway.ticketsystem.data.UserRepository
+import com.railway.ticketsystem.data.OfflineTravelRepository
 import com.railway.ticketsystem.databinding.ActivityPaymentSuccessBinding
 import com.railway.ticketsystem.model.Order
 import java.util.Locale
@@ -44,6 +45,11 @@ class PaymentSuccessActivity : ImmersiveActivity() {
             !first.groupId.isNullOrBlank() ->
                 orderRepository.getOrdersByUserId(first.userId).filter { it.groupId == first.groupId }
             else -> listOf(first)
+        }
+        // Persist the trip details off the UI thread. The optional national map remains an
+        // explicit user download because it can use significantly more storage.
+        if (user != null && orders.any { it.status == "已支付" || it.status == "已完成" }) {
+            Thread { OfflineTravelRepository(applicationContext).autoPrepare(user.id) }.start()
         }
         render()
     }

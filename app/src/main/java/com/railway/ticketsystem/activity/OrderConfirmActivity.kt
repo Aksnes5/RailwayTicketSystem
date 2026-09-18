@@ -16,6 +16,7 @@ import com.railway.ticketsystem.data.PointsPolicy
 import com.railway.ticketsystem.data.TravelAssistant
 import com.railway.ticketsystem.data.UserRepository
 import com.railway.ticketsystem.data.WaitlistRepository
+import com.railway.ticketsystem.data.FamilySeatAllocator
 import com.railway.ticketsystem.databinding.ActivityOrderConfirmBinding
 import com.railway.ticketsystem.model.Order
 import com.railway.ticketsystem.model.Passenger
@@ -174,14 +175,13 @@ class OrderConfirmActivity : ImmersiveActivity() {
         carNumber = generateCarNumber()
         val passengers = passengersForOrder()
         val row = (1..20).random()
-        groupSeatNumbers = seatLettersForType(selectedSeatLetter, passengers.size).map { letter ->
-            "${String.format("%02d", row)}$letter"
-        }
+        val plan = FamilySeatAllocator.plan(seatType, selectedSeatLetter, row, passengers.size)
+        groupSeatNumbers = plan.seatNumbers
         seatNumber = groupSeatNumbers.firstOrNull().orEmpty()
         binding.tvOrderSeatNumber.text = if (passengers.size == 1) {
             "${carNumber}车$seatNumber"
         } else {
-            "${carNumber}车同排：${groupSeatNumbers.joinToString("、")}" 
+            "${carNumber}车${plan.label}：${groupSeatNumbers.joinToString("、")}"
         }
     }
 

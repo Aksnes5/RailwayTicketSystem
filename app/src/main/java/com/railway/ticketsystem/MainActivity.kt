@@ -7,7 +7,7 @@ import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
+import com.railway.ticketsystem.activity.AccessibleActivity
 import androidx.core.view.WindowCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -23,6 +23,7 @@ import com.railway.ticketsystem.data.PaymentLifecycle
 import com.railway.ticketsystem.data.TravelReminderScheduler
 import com.railway.ticketsystem.data.TripLifecycle
 import com.railway.ticketsystem.data.UserRepository
+import com.railway.ticketsystem.data.AccessibilityPreferences
 import com.railway.ticketsystem.data.WaitlistRepository
 import com.railway.ticketsystem.databinding.ActivityMainBinding
 import com.railway.ticketsystem.databinding.DialogBookingBinding
@@ -40,7 +41,7 @@ import com.railway.ticketsystem.model.Train
 import java.text.SimpleDateFormat
 import java.util.*
 
-class MainActivity : AppCompatActivity(), TicketsFragment.OnTicketBookListener {
+class MainActivity : AccessibleActivity(), TicketsFragment.OnTicketBookListener {
     
     private lateinit var binding: ActivityMainBinding
     private lateinit var userRepository: UserRepository
@@ -203,10 +204,7 @@ class MainActivity : AppCompatActivity(), TicketsFragment.OnTicketBookListener {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             window.isNavigationBarContrastEnforced = false
         }
-        WindowCompat.getInsetsController(window, window.decorView).apply {
-            isAppearanceLightStatusBars = true
-            isAppearanceLightNavigationBars = true
-        }
+        AccessibilityPreferences.applySystemBarAppearance(this)
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, insets ->
             statusBarInset = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
             val navigationInset = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
@@ -224,8 +222,7 @@ class MainActivity : AppCompatActivity(), TicketsFragment.OnTicketBookListener {
 
     private fun updateStatusBarFor(fragment: Fragment) {
         window.statusBarColor = Color.TRANSPARENT
-        WindowCompat.getInsetsController(window, window.decorView)
-            .isAppearanceLightStatusBars = true
+        AccessibilityPreferences.applySystemBarAppearance(this)
         applyContentInsets()
     }
     

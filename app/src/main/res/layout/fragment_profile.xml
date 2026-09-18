@@ -276,6 +276,69 @@
 
         </com.google.android.material.card.MaterialCardView>
 
+        <!-- 同行、离线与辅助功能 -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            app:cardBackgroundColor="#B8FFFFFF"
+            app:cardCornerRadius="@dimen/corner_large"
+            app:cardElevation="0dp"
+            app:strokeColor="@color/divider"
+            app:strokeWidth="1dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="同行与离线出行"
+                    android:textColor="@color/text_primary"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:text="家庭成员、常用同行人、离线车票与全国铁路地图，以及大字号和深色外观。"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="14sp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnFamilyAccount"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:layout_marginTop="14dp"
+                    android:text="多人同行与家庭账户"
+                    android:textSize="16sp"
+                    app:cornerRadius="@dimen/corner_large" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnOfflineTravelPack"
+                    style="@style/App.Button.Quiet"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:layout_marginTop="8dp"
+                    android:text="离线出行包"
+                    android:textSize="16sp"
+                    app:cornerRadius="@dimen/corner_large" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnAccessibilitySettings"
+                    style="@style/App.Button.Quiet"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:layout_marginTop="8dp"
+                    android:text="可访问性与性能"
+                    android:textSize="16sp"
+                    app:cornerRadius="@dimen/corner_large" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
         <!-- 消息与提醒 -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"

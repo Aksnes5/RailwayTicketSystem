@@ -11,6 +11,7 @@
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
 
     <application
+        android:name=".RailwayTicketApplication"
         android:allowBackup="false"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -42,6 +43,18 @@
         
         <activity
             android:name=".activity.PassengerManageActivity"
+            android:exported="false"
+            android:theme="@style/Theme.RailwayTicketSystem" />
+        <activity
+            android:name=".activity.FamilyAccountActivity"
+            android:exported="false"
+            android:theme="@style/Theme.RailwayTicketSystem" />
+        <activity
+            android:name=".activity.OfflineTravelPackActivity"
+            android:exported="false"
+            android:theme="@style/Theme.RailwayTicketSystem" />
+        <activity
+            android:name=".activity.AccessibilitySettingsActivity"
             android:exported="false"
             android:theme="@style/Theme.RailwayTicketSystem" />
         <activity

@@ -63,6 +63,8 @@ class PassengerManageActivity : ImmersiveActivity() {
 
         binding.rvPassengers.apply {
             layoutManager = LinearLayoutManager(this@PassengerManageActivity)
+            setHasFixedSize(true)
+            itemAnimator = null
             adapter = passengerAdapter
         }
     }

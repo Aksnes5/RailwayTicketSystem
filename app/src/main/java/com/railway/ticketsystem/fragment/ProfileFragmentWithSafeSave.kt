@@ -20,6 +20,9 @@ import com.railway.ticketsystem.activity.MessageCenterActivity
 import com.railway.ticketsystem.activity.NotificationSettingsActivity
 import com.railway.ticketsystem.activity.PassengerManageActivity
 import com.railway.ticketsystem.activity.TravelExpenseCenterActivity
+import com.railway.ticketsystem.activity.FamilyAccountActivity
+import com.railway.ticketsystem.activity.OfflineTravelPackActivity
+import com.railway.ticketsystem.activity.AccessibilitySettingsActivity
 import com.railway.ticketsystem.data.MessageRepository
 import com.railway.ticketsystem.data.PassengerRepository
 import com.railway.ticketsystem.data.UserRepository
@@ -210,6 +213,18 @@ class ProfileFragmentWithSafeSave : Fragment() {
 
             binding.btnExpenseCenter.setOnClickListener {
                 startActivity(Intent(requireContext(), TravelExpenseCenterActivity::class.java))
+            }
+
+            binding.btnFamilyAccount.setOnClickListener {
+                startActivity(Intent(requireContext(), FamilyAccountActivity::class.java))
+            }
+
+            binding.btnOfflineTravelPack.setOnClickListener {
+                startActivity(Intent(requireContext(), OfflineTravelPackActivity::class.java))
+            }
+
+            binding.btnAccessibilitySettings.setOnClickListener {
+                startActivity(Intent(requireContext(), AccessibilitySettingsActivity::class.java))
             }
 
             // 头像选择功能

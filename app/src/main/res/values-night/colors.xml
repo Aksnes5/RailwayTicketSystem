@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="railway_blue">#72B8FF</color>
+    <color name="railway_blue_light">#183B5C</color>
+    <color name="railway_blue_dark">#A5D2FF</color>
+    <color name="railway_blue_deep">#C5E4FF</color>
+    <color name="hero_sky">#17354D</color>
+    <color name="surface">#101B27</color>
+    <color name="surface_container">#D91A2A3B</color>
+    <color name="surface_tint">#D9223B53</color>
+    <color name="divider">#4AFFFFFF</color>
+    <color name="button_stroke">#5C9FCDF2</color>
+    <color name="action_surface">#233D57</color>
+    <color name="action_surface_pressed">#2D506F</color>
+    <color name="text_primary">#F2F7FC</color>
+    <color name="text_secondary">#B9C8D6</color>
+    <color name="gray_light">#172534</color>
+    <color name="gray_medium">#9AAFC2</color>
+    <color name="gray_dark">#D9E5EF</color>
+    <color name="success">#6ED8AA</color>
+    <color name="success_container">#173C32</color>
+    <color name="white">#F7FBFF</color>
+    <color name="black">#071019</color>
+    <color name="colorPrimary">#72B8FF</color>
+    <color name="colorPrimaryDark">#325E8B</color>
+</resources>
