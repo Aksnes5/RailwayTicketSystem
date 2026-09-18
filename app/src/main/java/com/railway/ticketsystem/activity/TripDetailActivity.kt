@@ -235,6 +235,8 @@ class TripDetailActivity : ImmersiveActivity() {
         binding.btnChangeStation.isEnabled = false
         binding.btnRefundItinerary.isEnabled = false
         binding.btnOrderMeal.isEnabled = false
+        binding.btnIndoorNavigation.isEnabled = false
+        binding.btnCarriageService.isEnabled = false
         binding.btnStationService.isEnabled = false
         binding.cardStopTimetable.visibility = View.GONE
         binding.cardTravelConcierge.visibility = View.GONE
@@ -513,6 +515,26 @@ class TripDetailActivity : ImmersiveActivity() {
             }
             startActivity(Intent(this, MealOrderActivity::class.java).putExtra("orderId", latest.id))
         }
+
+        binding.btnIndoorNavigation.setOnClickListener {
+            val latest = loadLatest() ?: return@setOnClickListener
+            if (latest.status == "已取消") {
+                Toast.makeText(this, "已取消订单不可关联站内导航", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            startActivity(Intent(this, IndoorNavigationActivity::class.java)
+                .putExtra(IndoorNavigationActivity.EXTRA_STATION, latest.departureStation)
+                .putExtra(IndoorNavigationActivity.EXTRA_TICKET_ORDER_ID, latest.id))
+        }
+        binding.btnCarriageService.setOnClickListener {
+            val latest = loadLatest() ?: return@setOnClickListener
+            if (latest.status != "已支付") {
+                Toast.makeText(this, "仅可为已支付且未出行的车票使用车厢服务", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            startActivity(Intent(this, CarriageServiceActivity::class.java)
+                .putExtra(CarriageServiceActivity.EXTRA_TICKET_ORDER_ID, latest.id))
+        }
         binding.btnStationService.setOnClickListener {
             val latest = loadLatest() ?: return@setOnClickListener
             if (latest.status == "已取消") {
@@ -645,6 +667,11 @@ class TripDetailActivity : ImmersiveActivity() {
     private fun setupButtonStates(order: Order) {
         binding.btnOrderMeal.isEnabled = order.status == "已支付"
         binding.btnOrderMeal.visibility = if (order.status == "已取消") View.GONE else View.VISIBLE
+
+        binding.btnIndoorNavigation.isEnabled = order.status != "已取消"
+        binding.btnIndoorNavigation.visibility = if (order.status == "已取消") View.GONE else View.VISIBLE
+        binding.btnCarriageService.isEnabled = order.status == "已支付"
+        binding.btnCarriageService.visibility = if (order.status == "已取消") View.GONE else View.VISIBLE
         binding.btnStationService.isEnabled = order.status != "已取消"
         binding.btnStationService.visibility = if (order.status == "已取消") View.GONE else View.VISIBLE
         binding.btnRouteMap.visibility = if (order.status == "已取消") View.GONE else View.VISIBLE

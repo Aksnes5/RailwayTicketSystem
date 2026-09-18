@@ -169,6 +169,15 @@
             android:name=".activity.HotelOrdersActivity"
             android:exported="false"
             android:theme="@style/Theme.RailwayTicketSystem" />
+
+        <activity
+            android:name=".activity.IndoorNavigationActivity"
+            android:exported="false"
+            android:theme="@style/Theme.RailwayTicketSystem" />
+        <activity
+            android:name=".activity.CarriageServiceActivity"
+            android:exported="false"
+            android:theme="@style/Theme.RailwayTicketSystem" />
         <activity
             android:name=".activity.StationServiceActivity"
             android:exported="false"

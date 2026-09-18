@@ -46,7 +46,11 @@ class StationServiceActivity : ImmersiveActivity() {
 
         binding.cardPickupDropoff.setOnClickListener { selectService(PICKUP_DROPOFF) }
         binding.cardParking.setOnClickListener { selectService(PARKING) }
-        binding.cardIndoorNavigation.setOnClickListener { selectService(NAVIGATION) }
+        binding.cardIndoorNavigation.setOnClickListener {
+            startActivity(Intent(this, IndoorNavigationActivity::class.java)
+                .putExtra(IndoorNavigationActivity.EXTRA_STATION, binding.actServiceStation.text?.toString()?.trim().orEmpty())
+                .putExtra(IndoorNavigationActivity.EXTRA_TICKET_ORDER_ID, intent.getStringExtra(EXTRA_TICKET_ORDER_ID)))
+        }
         binding.cardPriorityPassenger.setOnClickListener { selectService(PRIORITY_PASSENGER) }
         binding.cardLostFound.setOnClickListener { selectService(LOST_FOUND) }
         binding.cardLounge.setOnClickListener { selectService(LOUNGE) }
