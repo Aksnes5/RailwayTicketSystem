@@ -355,10 +355,11 @@
 
         <!-- 会员中心已作为底部独立栏目提供。 -->
 
-        <!-- 应用信息 -->
+        <!-- 出行账本与报销 -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            app:cardBackgroundColor="#B8FFFFFF"
             app:cardCornerRadius="@dimen/corner_large"
             app:cardElevation="0dp"
             app:strokeColor="@color/divider"
@@ -373,39 +374,28 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="应用信息"
+                    android:text="出行账本与报销"
+                    android:textColor="@color/text_primary"
                     android:textSize="18sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/gray_dark"
-                    android:layout_marginBottom="16dp" />
+                    android:textStyle="bold" />
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="12306购票系统 v2.0"
-                    android:textSize="14sp"
-                    android:textColor="@color/gray_medium"
-                    android:layout_marginBottom="8dp" />
+                    android:layout_marginTop="6dp"
+                    android:text="自动归集车票、酒店、餐饮和车站服务消费，生成企业报销单。"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="14sp" />
 
-                <TextView
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnExpenseCenter"
+                    style="@style/App.Button.Quiet"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="12306铁路购票系统"
-                    android:textSize="14sp"
-                    android:textColor="@color/gray_medium"
-                    android:layout_marginBottom="8dp" />
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="制作By Aksnes"
-                    android:textSize="14sp"
-                    android:textColor="@color/railway_blue"
-                    android:textStyle="bold"
-                    android:layout_marginBottom="16dp" />
-
+                    android:layout_height="48dp"
+                    android:layout_marginTop="14dp"
+                    android:text="进入出行账本"
+                    android:textSize="16sp" />
             </LinearLayout>
-
         </com.google.android.material.card.MaterialCardView>
 
     </LinearLayout>

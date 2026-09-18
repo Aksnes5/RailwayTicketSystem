@@ -430,6 +430,17 @@
                     app:cornerRadius="@dimen/corner_large" />
 
                 <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnStationService"
+                    style="@style/App.Button.Quiet"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:layout_marginBottom="10dp"
+                    android:text="行李与车站服务"
+                    android:textColor="@color/railway_blue"
+                    android:textSize="14sp"
+                    app:cornerRadius="@dimen/corner_large" />
+
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnRouteMap"
                     style="@style/App.Button.Quiet"
                     android:layout_width="match_parent"
@@ -515,6 +526,17 @@
                     android:layout_marginTop="8dp"
                     android:lineSpacingExtra="4dp"
                     android:textColor="@color/gray_dark"
+                    android:textSize="13sp" />
+
+                <TextView
+                    android:id="@+id/tvJourneyGuidance"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:background="@drawable/bg_surface_card"
+                    android:lineSpacingExtra="3dp"
+                    android:padding="12dp"
+                    android:textColor="@color/text_secondary"
                     android:textSize="13sp" />
 
                 <TextView

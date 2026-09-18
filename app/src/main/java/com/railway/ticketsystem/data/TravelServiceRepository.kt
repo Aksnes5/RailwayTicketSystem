@@ -71,6 +71,11 @@ class MealOrderRepository(context: Context) {
         read().filter { it.userId == userId && it.ticketOrderId == ticketOrderId }.sortedByDescending { it.createdAt }
     }
 
+    /** Used by the travel ledger to bring every paid onboard order into one view. */
+    fun getByUser(userId: String): List<MealOrder> = synchronized(lock) {
+        read().filter { it.userId == userId }.sortedByDescending { it.createdAt }
+    }
+
     fun save(order: MealOrder): Boolean = synchronized(lock) {
         val current = read()
         if (current.any { it.id == order.id } || order.lines.isEmpty() || order.totalCents <= 0) return@synchronized false

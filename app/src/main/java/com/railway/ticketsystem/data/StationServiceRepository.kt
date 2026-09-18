@@ -19,7 +19,11 @@ data class StationServiceRequest(
     val contact: String,
     val details: String,
     val status: String,
-    val createdAt: String
+    val createdAt: String,
+    /** Service fees are stored in cents so the travel ledger never needs to parse labels. */
+    val amountCents: Long = 0L,
+    /** An optional ticket relationship lets the trip detail reopen its service flow. */
+    val ticketOrderId: String? = null
 ) : Serializable
 
 /**
@@ -59,7 +63,9 @@ class StationServiceRepository(context: Context) {
             schedule: String,
             contact: String,
             details: String,
-            status: String = "已提交"
+            status: String = "已提交",
+            amountCents: Long = 0L,
+            ticketOrderId: String? = null
         ): StationServiceRequest = StationServiceRequest(
             id = "STS_" + UUID.randomUUID().toString().take(8).uppercase(Locale.ROOT),
             userId = userId,
@@ -69,7 +75,9 @@ class StationServiceRepository(context: Context) {
             contact = contact,
             details = details,
             status = status,
-            createdAt = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.CHINA).format(Date())
+            createdAt = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.CHINA).format(Date()),
+            amountCents = amountCents.coerceAtLeast(0L),
+            ticketOrderId = ticketOrderId
         )
     }
 }

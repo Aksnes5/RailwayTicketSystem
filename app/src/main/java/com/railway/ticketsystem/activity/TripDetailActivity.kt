@@ -235,6 +235,7 @@ class TripDetailActivity : ImmersiveActivity() {
         binding.btnChangeStation.isEnabled = false
         binding.btnRefundItinerary.isEnabled = false
         binding.btnOrderMeal.isEnabled = false
+        binding.btnStationService.isEnabled = false
         binding.cardStopTimetable.visibility = View.GONE
         binding.cardTravelConcierge.visibility = View.GONE
     }
@@ -375,6 +376,7 @@ class TripDetailActivity : ImmersiveActivity() {
             else -> "当前：已到达 ${order.arrivalStation}"
         }
         binding.tvJourneyTimeline.text = travelTimeline(order, stage, progress.updatedAt)
+        binding.tvJourneyGuidance.text = smartJourneyGuidance(order, stage)
 
         val user = userRepository.getCurrentUser()
         val usageKey = loungeUsageKey(order)
@@ -409,6 +411,65 @@ class TripDetailActivity : ImmersiveActivity() {
         binding.cardTravelConcierge.visibility = View.VISIBLE
     }
 
+    /** Compact operational guidance shared with the live position map; refreshed by the minute ticker. */
+    private fun smartJourneyGuidance(order: Order, stage: String): String {
+        val walkingMinutes = 8 + ((order.id + order.departureStation).hashCode() and Int.MAX_VALUE) % 11
+        val gate = runCatching { TicketTravelUpdates.getGate(this, order) }.getOrDefault("请以现场公告为准")
+        val transferHint = nextTransferHint(order)
+        return when (stage) {
+            TripProgress.STAGE_READY -> buildString {
+                append("到站倒计时 · ").append(TravelAssistant.departureCountdown(order))
+                append("\n站内步行 · 预计 ").append(walkingMinutes).append(" 分钟到达检票口 ").append(gate)
+                append("\n").append(transferHint)
+            }
+            TripProgress.STAGE_AT_STATION -> buildString {
+                append("检票指引 · 请前往 ").append(gate).append("，预计步行 ").append(walkingMinutes).append(" 分钟")
+                append("\n出发倒计时 · ").append(TravelAssistant.departureCountdown(order))
+                append("\n").append(transferHint)
+            }
+            TripProgress.STAGE_BOARDED -> "实时位置 · ${runningSection(order)}\n${operationalHint(order)}\n$transferHint"
+            else -> "到达服务 · 已抵达 ${order.arrivalStation}，预计步行 ${walkingMinutes.coerceAtLeast(6)} 分钟至出站口\n$transferHint"
+        }
+    }
+
+    private fun runningSection(order: Order): String {
+        val stops = order.timetableStops.orEmpty()
+        if (stops.size < 2) return "列车正驶向 ${order.arrivalStation}"
+        val departure = TravelAssistant.departureMillis(order) ?: return "列车正驶向 ${order.arrivalStation}"
+        val arrival = TravelAssistant.arrivalMillis(order) ?: return "列车正驶向 ${order.arrivalStation}"
+        val total = (arrival - departure).coerceAtLeast(1L)
+        val fraction = ((System.currentTimeMillis() - departure).toDouble() / total).coerceIn(0.0, 0.999)
+        val index = (fraction * (stops.size - 1)).toInt().coerceIn(0, stops.size - 2)
+        return "${stops[index].stationName}—${stops[index + 1].stationName} 区间 · 行程约 ${(fraction * 100).toInt()}%"
+    }
+
+    private fun operationalHint(order: Order): String {
+        val rows = TimetableStopStatusResolver.resolve(
+            order.timetableStops.orEmpty().map {
+                TrainStopSchedule(it.stationName, it.arrivalTime, it.departureTime, it.dwellLabel)
+            },
+            order.trainNumber,
+            order.departureDate
+        )
+        val latest = rows.lastOrNull { it.operationalStatus.isNotBlank() && it.operationalStatus != "--" }
+            ?: return "运行提示 · 当前区段运行平稳，请留意车内广播"
+        return when {
+            latest.operationalStatus.startsWith("晚点") -> "运行提示 · ${latest.stationName}${latest.operationalStatus}，到达预期已同步更新"
+            latest.operationalStatus.startsWith("早点") -> "运行提示 · ${latest.stationName}${latest.operationalStatus}，请提前做好下车准备"
+            else -> "运行提示 · ${latest.stationName}正点通过"
+        }
+    }
+
+    private fun nextTransferHint(order: Order): String {
+        if (itineraryOrders.size < 2) return "到站建议 · 如需接送、行李托运或同城送达，可在车站服务中预约"
+        val current = itineraryOrders.indexOfFirst { it.id == order.id }
+        val next = itineraryOrders.getOrNull(current + 1)
+        return if (next == null) {
+            "换乘完成后将抵达终到站 ${order.arrivalStation}"
+        } else {
+            "换乘建议 · 到达 ${order.arrivalStation} 后前往 ${next.departureStation} 候车，建议预留 25 分钟"
+        }
+    }
     private fun travelTimeline(order: Order, stage: String, updatedAt: String): String {
         val stageOrder = listOf(
             TripProgress.STAGE_READY,
@@ -451,6 +512,16 @@ class TripDetailActivity : ImmersiveActivity() {
                 return@setOnClickListener
             }
             startActivity(Intent(this, MealOrderActivity::class.java).putExtra("orderId", latest.id))
+        }
+        binding.btnStationService.setOnClickListener {
+            val latest = loadLatest() ?: return@setOnClickListener
+            if (latest.status == "已取消") {
+                Toast.makeText(this, "已取消订单不可关联车站服务", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            startActivity(Intent(this, StationServiceActivity::class.java)
+                .putExtra(StationServiceActivity.EXTRA_STATION, latest.departureStation)
+                .putExtra(StationServiceActivity.EXTRA_TICKET_ORDER_ID, latest.id))
         }
         binding.btnRouteMap.setOnClickListener {
             val latest = loadLatest() ?: return@setOnClickListener
@@ -574,6 +645,8 @@ class TripDetailActivity : ImmersiveActivity() {
     private fun setupButtonStates(order: Order) {
         binding.btnOrderMeal.isEnabled = order.status == "已支付"
         binding.btnOrderMeal.visibility = if (order.status == "已取消") View.GONE else View.VISIBLE
+        binding.btnStationService.isEnabled = order.status != "已取消"
+        binding.btnStationService.visibility = if (order.status == "已取消") View.GONE else View.VISIBLE
         binding.btnRouteMap.visibility = if (order.status == "已取消") View.GONE else View.VISIBLE
         when (order.status) {
             "待支付" -> {

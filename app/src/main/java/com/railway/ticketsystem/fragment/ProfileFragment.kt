@@ -16,6 +16,7 @@ import com.railway.ticketsystem.R
 import com.railway.ticketsystem.activity.LoginActivity
 import com.railway.ticketsystem.activity.PassengerManageActivity
 import com.railway.ticketsystem.activity.EditProfileActivity
+import com.railway.ticketsystem.activity.TravelExpenseCenterActivity
 import com.railway.ticketsystem.data.PassengerRepository
 import com.railway.ticketsystem.data.UserRepository
 import com.railway.ticketsystem.databinding.FragmentProfileBinding
@@ -83,6 +84,10 @@ class ProfileFragment : Fragment() {
         
         binding.cardAvatar.setOnClickListener {
             showAvatarSelectionDialog()
+        }
+
+        binding.btnExpenseCenter.setOnClickListener {
+            startActivity(Intent(requireContext(), TravelExpenseCenterActivity::class.java))
         }
         
     }

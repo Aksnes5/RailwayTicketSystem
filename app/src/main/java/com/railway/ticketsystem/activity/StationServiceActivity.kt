@@ -14,6 +14,7 @@ import com.railway.ticketsystem.data.StationServiceRequest
 import com.railway.ticketsystem.data.UserRepository
 import com.railway.ticketsystem.databinding.ActivityStationServiceBinding
 import com.railway.ticketsystem.model.Station
+import java.util.Locale
 
 /** Station-side services that complete the ticket, meal and hotel travel chain. */
 class StationServiceActivity : ImmersiveActivity() {
@@ -49,6 +50,8 @@ class StationServiceActivity : ImmersiveActivity() {
         binding.cardPriorityPassenger.setOnClickListener { selectService(PRIORITY_PASSENGER) }
         binding.cardLostFound.setOnClickListener { selectService(LOST_FOUND) }
         binding.cardLounge.setOnClickListener { selectService(LOUNGE) }
+        binding.cardLuggageConsignment.setOnClickListener { selectService(LUGGAGE_CONSIGNMENT) }
+        binding.cardLuggageDelivery.setOnClickListener { selectService(LUGGAGE_DELIVERY) }
 
         binding.actServiceStation.setText(intent.getStringExtra(EXTRA_STATION).orEmpty())
         val user = userRepository.getCurrentUser()
@@ -65,9 +68,9 @@ class StationServiceActivity : ImmersiveActivity() {
         binding.tvServiceFormDescription.text = service.description
         binding.tilServiceSchedule.hint = service.scheduleHint
         binding.etServiceDetails.hint = service.detailHint
-        binding.tvServiceNotice.text = service.notice
+        binding.tvServiceNotice.text = if (service.priceCents > 0L) "${service.notice}\n服务费 ¥%.2f，确认后计入出行账本。".format(Locale.CHINA, service.priceCents / 100.0) else service.notice
         binding.btnSubmitStationService.isEnabled = true
-        binding.btnSubmitStationService.text = service.submitLabel
+        binding.btnSubmitStationService.text = if (service.priceCents > 0L) "确认支付 ¥%.2f".format(Locale.CHINA, service.priceCents / 100.0) else service.submitLabel
         binding.tvServiceResult.visibility = View.GONE
     }
 
@@ -90,7 +93,11 @@ class StationServiceActivity : ImmersiveActivity() {
             Toast.makeText(this, "请先登录后提交车站服务", Toast.LENGTH_SHORT).show()
             return
         }
-        val status = if (service == NAVIGATION) "导航已生成" else "已提交"
+        val status = when {
+            service == NAVIGATION -> "导航已生成"
+            service.priceCents > 0L -> "待服务"
+            else -> "已提交"
+        }
         val request = StationServiceRepository.newRequest(
             userId = user.id,
             serviceType = service.label,
@@ -98,7 +105,9 @@ class StationServiceActivity : ImmersiveActivity() {
             schedule = schedule,
             contact = contact.ifBlank { user.phone.ifBlank { user.realName.ifBlank { user.username } } },
             details = details,
-            status = status
+            status = status,
+            amountCents = service.priceCents,
+            ticketOrderId = intent.getStringExtra(EXTRA_TICKET_ORDER_ID)
         )
         if (!serviceRepository.save(request)) {
             Toast.makeText(this, "服务提交失败，请重试", Toast.LENGTH_SHORT).show()
@@ -160,7 +169,8 @@ class StationServiceActivity : ImmersiveActivity() {
         val detailHint: String,
         val notice: String,
         val submitLabel: String,
-        val requiresDetail: Boolean = false
+        val requiresDetail: Boolean = false,
+        val priceCents: Long = 0L
     ) {
         fun confirmation(schedule: String, details: String): String = when {
             schedule.isNotBlank() -> schedule
@@ -171,6 +181,7 @@ class StationServiceActivity : ImmersiveActivity() {
 
     companion object {
         const val EXTRA_STATION = "station_service_station"
+        const val EXTRA_TICKET_ORDER_ID = "station_service_ticket_order_id"
 
         private val PICKUP_DROPOFF = ServiceDefinition(
             "接送站", "预约接站或送站用车，提前确认服务时间与车辆信息。",
@@ -201,6 +212,16 @@ class StationServiceActivity : ImmersiveActivity() {
             "贵宾厅预约", "预约高铁贵宾候车区，享受候车休息、餐饮与专属引导服务。",
             "到厅时间 / 关联车次", "使用人数、是否使用贵宾候车厅券",
             "贵宾厅开放及席位以车站当日安排为准。", "提交贵宾厅预约"
+        )
+        private val LUGGAGE_CONSIGNMENT = ServiceDefinition(
+            "行李托运", "在车站预约寄存或托运，工作人员到约定服务点收取行李。",
+            "预计交运行李时间", "行李件数、尺寸、重量及取件人信息",
+            "单笔服务含 2 件行李；贵重物品、易燃易爆品及违禁品不可交运。", "确认支付 ¥18.00", true, 1800L
+        )
+        private val LUGGAGE_DELIVERY = ServiceDefinition(
+            "同城送达", "将行李从车站配送至 5 公里内酒店、住所或指定服务点。",
+            "预计送达时间", "收件地址、房号/门牌、行李件数和收件人",
+            "同城配送范围为车站周边 5 公里，送达前会联系收件人确认。", "确认支付 ¥26.00", true, 2600L
         )
     }
 }
