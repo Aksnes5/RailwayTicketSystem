@@ -19,6 +19,7 @@ import com.railway.ticketsystem.activity.LoginActivity
 import com.railway.ticketsystem.activity.MessageCenterActivity
 import com.railway.ticketsystem.activity.NotificationSettingsActivity
 import com.railway.ticketsystem.activity.PassengerManageActivity
+import com.railway.ticketsystem.activity.TravelExpenseCenterActivity
 import com.railway.ticketsystem.data.MessageRepository
 import com.railway.ticketsystem.data.PassengerRepository
 import com.railway.ticketsystem.data.UserRepository
@@ -205,6 +206,10 @@ class ProfileFragmentWithSafeSave : Fragment() {
 
             binding.btnNotificationSettings.setOnClickListener {
                 startActivity(Intent(requireContext(), NotificationSettingsActivity::class.java))
+            }
+
+            binding.btnExpenseCenter.setOnClickListener {
+                startActivity(Intent(requireContext(), TravelExpenseCenterActivity::class.java))
             }
 
             // 头像选择功能

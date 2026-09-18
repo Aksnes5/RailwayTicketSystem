@@ -96,6 +96,17 @@ object PhysicalRailCorridorResolver {
             serviceAliases = setOf("汉宜铁路", "宁蓉铁路")
         ),
         Corridor(
+            id = "changfu-railway",
+            mapCorridor = "昌福铁路",
+            // 昌福正线完整客运站序。无论车次实际跨越多少中间站，地图都可沿
+            // 同一条物理走廊描边；时刻表和停站标记仍仅使用车次真实办理站。
+            stationNames = listOf(
+                "南昌西", "抚州", "南城", "南丰", "建宁县北", "泰宁", "将乐",
+                "三明北", "尤溪", "永泰", "福州"
+            ),
+            serviceAliases = setOf("昌福铁路", "京福高铁", "合福高铁")
+        ),
+        Corridor(
             id = "qinshen-jingha",
             mapCorridor = "秦沈客专",
             stationNames = listOf(
