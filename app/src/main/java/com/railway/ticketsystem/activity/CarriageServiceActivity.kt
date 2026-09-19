@@ -14,11 +14,13 @@ import androidx.core.content.ContextCompat
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
 import com.railway.ticketsystem.R
+import com.railway.ticketsystem.data.ArrivalReminderScheduler
 import com.railway.ticketsystem.data.CarriageServiceRepository
 import com.railway.ticketsystem.data.MealOrderRepository
 import com.railway.ticketsystem.data.MessageRepository
 import com.railway.ticketsystem.data.OrderRepository
 import com.railway.ticketsystem.data.UserRepository
+import com.railway.ticketsystem.data.TravelAssistant
 import com.railway.ticketsystem.model.Order
 
 /** On-board support center: every action is durable and attached to the current ticket. */
@@ -73,6 +75,11 @@ class CarriageServiceActivity : ImmersiveActivity() {
         }, margin(top = 10))
         body.addView(actionCard("遗失物登记", "登记遗失物品、位置和特征，乘务组会协助核查", "登记") { showRequestDialog("遗失物登记", "例如：黑色双肩包，可能遗留在 ${order.carNumber} 车") }, margin(top = 10))
         body.addView(actionCard("乘车偏好", "静音提醒、儿童友好服务等偏好将在本程生效", "设置") { showPreferenceDialog() }, margin(top = 10))
+        body.addView(actionCard(
+            "到站提醒",
+            if (ArrivalReminderScheduler.isEnabled(this, order)) "将在抵达${order.arrivalStation}前 20 分钟推送提醒" else "开启后将在抵达前 20 分钟向手机发送提醒",
+            if (ArrivalReminderScheduler.isEnabled(this, order)) "关闭" else "开启"
+        ) { toggleArrivalReminder(order) }, margin(top = 10))
         body.addView(text("本程服务进度", 18, R.color.text_primary, true), margin(top = 20, bottom = 8))
         val user = userRepository.getCurrentUser()
         val requests = user?.let { carriageRepository.getByTicket(it.id, order.id) }.orEmpty()
@@ -100,16 +107,50 @@ class CarriageServiceActivity : ImmersiveActivity() {
     }
 
     private fun requestCard(request: com.railway.ticketsystem.data.CarriageServiceRequest) = card().apply {
+        val currentStatus = carriageRepository.displayStatus(request)
         addView(LinearLayout(this@CarriageServiceActivity).apply {
-            orientation = LinearLayout.VERTICAL; setPadding(dp(18), dp(15), dp(18), dp(15))
+            orientation = LinearLayout.VERTICAL; setPadding(dp(18), dp(15), dp(18), dp(14))
             addView(LinearLayout(this@CarriageServiceActivity).apply {
                 gravity = Gravity.CENTER_VERTICAL
                 addView(text(request.type, 16, R.color.text_primary, true), LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
-                addView(text(carriageRepository.displayStatus(request), 13, R.color.railway_blue_deep, true))
+                addView(text(currentStatus, 13, R.color.railway_blue_deep, true))
             })
             addView(text(request.details, 14, R.color.text_secondary, false), margin(top = 5))
+            request.feedback?.let { addView(text("服务评价：$it", 13, R.color.success, false), margin(top = 5)) }
             addView(text("${request.carNumber}车 ${request.seatNumber}号 · ${request.createdAt}", 12, R.color.text_secondary, false), margin(top = 5))
+            when {
+                currentStatus == "已受理" -> addView(LinearLayout(this@CarriageServiceActivity).apply {
+                    gravity = Gravity.END
+                    addView(quietButton("撤销请求") { showCancelRequest(request) }, LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, dp(38)).apply { topMargin = dp(8) })
+                })
+                currentStatus == "已完成" && request.feedback == null -> addView(LinearLayout(this@CarriageServiceActivity).apply {
+                    gravity = Gravity.END
+                    addView(quietButton("评价服务") { showFeedbackDialog(request) }, LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, dp(38)).apply { topMargin = dp(8) })
+                })
+            }
         })
+    }
+
+    private fun showCancelRequest(request: com.railway.ticketsystem.data.CarriageServiceRequest) {
+        AlertDialog.Builder(this).setTitle("撤销服务请求").setMessage("尚未处理的「${request.type}」将不再派发给乘务组。")
+            .setNegativeButton("保留", null).setPositiveButton("确认撤销") { _, _ ->
+                val user = userRepository.getCurrentUser() ?: return@setPositiveButton
+                if (carriageRepository.cancel(user.id, request.id)) {
+                    MessageRepository(this).add(user.id, MessageRepository.TRAVEL, "车厢服务请求已撤销", "${request.trainNumber} ${request.type}已撤销。", request.ticketOrderId, "carriage_service_cancel:${request.id}")
+                    render()
+                } else Toast.makeText(this, "请求状态已变化，请刷新后重试", Toast.LENGTH_SHORT).show()
+            }.show()
+    }
+
+    private fun showFeedbackDialog(request: com.railway.ticketsystem.data.CarriageServiceRequest) {
+        val options = arrayOf("非常满意", "满意", "一般")
+        AlertDialog.Builder(this).setTitle("评价${request.type}").setItems(options) { _, index ->
+            val user = userRepository.getCurrentUser() ?: return@setItems
+            if (carriageRepository.leaveFeedback(user.id, request.id, options[index])) {
+                Toast.makeText(this, "感谢你的评价", Toast.LENGTH_SHORT).show()
+                render()
+            }
+        }.show()
     }
 
     private fun showRequestDialog(type: String, hint: String) {
@@ -130,6 +171,23 @@ class CarriageServiceActivity : ImmersiveActivity() {
         }.show()
     }
 
+    private fun toggleArrivalReminder(order: Order) {
+        val enabled = !ArrivalReminderScheduler.isEnabled(this, order)
+        if (!ArrivalReminderScheduler.setEnabled(this, order, enabled)) {
+            Toast.makeText(this, "提醒设置失败，请重试", Toast.LENGTH_SHORT).show()
+            return
+        }
+        if (enabled) {
+            MessageRepository(this).add(
+                order.userId, MessageRepository.TRAVEL, "到站提醒已开启",
+                "${order.trainNumber} 将在到达${order.arrivalStation}前约 20 分钟提醒您。", order.id,
+                eventKey = "arrival_reminder_enabled:${order.id}"
+            )
+        }
+        Toast.makeText(this, if (enabled) "已开启到站提醒" else "已关闭到站提醒", Toast.LENGTH_SHORT).show()
+        render()
+    }
+
     private fun saveRequest(type: String, detail: String): Boolean {
         val user = userRepository.getCurrentUser() ?: run { Toast.makeText(this, "请先登录后使用车厢服务", Toast.LENGTH_SHORT).show(); return false }
         val order = ticket ?: return false
@@ -145,7 +203,19 @@ class CarriageServiceActivity : ImmersiveActivity() {
         val user = userRepository.getCurrentUser() ?: return "可提前选购盒饭、饮品和零食，到座配送"
         val latest = MealOrderRepository(this).getByTicket(user.id, order.id).firstOrNull() ?: return "可提前选购盒饭、饮品和零食，到座配送"
         val items = latest.lines.joinToString("、") { "${it.name}×${it.quantity}" }
-        return "${latest.status} · $items"
+        if (latest.status == "已取消") return "餐饮订单已取消 · $items"
+        val now = System.currentTimeMillis()
+        val departure = TravelAssistant.departureMillis(order)
+        val phase = if (departure != null && now < departure) "已确认，将在乘车当天配送" else {
+            val created = runCatching { java.text.SimpleDateFormat("yyyy-MM-dd HH:mm", java.util.Locale.CHINA).parse(latest.createdAt)?.time }.getOrNull() ?: now
+            when ((now - created).coerceAtLeast(0L)) {
+                in 0 until 3 * 60_000L -> "商家已接单"
+                in 3 * 60_000L until 10 * 60_000L -> "餐食制作中"
+                in 10 * 60_000L until 18 * 60_000L -> "正在配送至${order.carNumber}车"
+                else -> "已送达座位"
+            }
+        }
+        return "$phase · $items"
     }
 
     private fun infoCard(title: String, detail: String) = card().apply { addView(LinearLayout(this@CarriageServiceActivity).apply { orientation = LinearLayout.VERTICAL; setPadding(dp(18), dp(17), dp(18), dp(17)); addView(text(title, 16, R.color.text_primary, true)); addView(text(detail, 14, R.color.text_secondary, false).apply { setLineSpacing(dp(3).toFloat(), 1f) }, margin(top = 5)) }) }

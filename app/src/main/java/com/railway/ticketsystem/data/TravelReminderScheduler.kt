@@ -77,6 +77,7 @@ object TravelReminderScheduler {
     fun recover(context: Context) {
         LocalNotifications.createChannels(context)
         OrderRepository(context).getAllOrders().forEach { schedule(context, it) }
+        ArrivalReminderScheduler.recover(context)
     }
 
     fun cancel(context: Context, order: Order) {

@@ -1,6 +1,7 @@
 package com.railway.ticketsystem.activity
 
 import android.content.Intent
+import android.content.res.ColorStateList
 import android.os.Bundle
 import android.view.Gravity
 import android.view.ViewGroup
@@ -16,6 +17,7 @@ import com.railway.ticketsystem.R
 import com.railway.ticketsystem.data.MessageRepository
 import com.railway.ticketsystem.data.OrderRepository
 import com.railway.ticketsystem.data.StationServiceRepository
+import com.railway.ticketsystem.data.TicketTravelUpdates
 import com.railway.ticketsystem.data.UserRepository
 import com.railway.ticketsystem.model.Order
 import com.railway.ticketsystem.model.Station
@@ -97,7 +99,12 @@ class IndoorNavigationActivity : ImmersiveActivity() {
     }
 
     private fun targetButton(value: String) = MaterialButton(this, null, com.google.android.material.R.attr.materialButtonOutlinedStyle).apply {
+        val selected = value == target
         text = value; textSize = 13f; insetTop = 0; insetBottom = 0; isAllCaps = false
+        strokeWidth = dp(1)
+        backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(this@IndoorNavigationActivity, if (selected) R.color.action_surface_pressed else R.color.surface_container))
+        strokeColor = ColorStateList.valueOf(ContextCompat.getColor(this@IndoorNavigationActivity, if (selected) R.color.railway_blue else R.color.divider))
+        setTextColor(ContextCompat.getColor(this@IndoorNavigationActivity, if (selected) R.color.railway_blue_deep else R.color.text_secondary))
         setOnClickListener { target = value; renderPlan() }
     }
 
@@ -119,7 +126,7 @@ class IndoorNavigationActivity : ImmersiveActivity() {
     }
 
     private fun buildPlan(): NavigationPlan {
-        val gate = 6 + abs((station + (ticket?.trainNumber ?: "")).hashCode() % 18)
+        val gate = ticket?.let { TicketTravelUpdates.getGate(this, it) } ?: "${6 + abs((station + (ticket?.trainNumber ?: "")).hashCode() % 18)}号"
         val common = mutableListOf(
             NavigationStep("进站口", "证件核验后进入候车区域", 1),
             NavigationStep("安检区", "通过安检，注意随身行李", 3)
@@ -129,7 +136,7 @@ class IndoorNavigationActivity : ImmersiveActivity() {
             TARGET_DINING -> common += listOf(NavigationStep("候车层", "乘扶梯至候车层", 2), NavigationStep("餐饮区", "靠近候车区的餐饮服务", 2))
             TARGET_ACCESSIBLE -> common += listOf(NavigationStep("无障碍电梯", "优先使用无障碍通道", 2), NavigationStep("候车区", "无障碍候车区", 2))
             TARGET_WAITING -> common += NavigationStep("候车区", "${ticket?.trainNumber ?: "本次列车"}候车区域", 3)
-            else -> common += listOf(NavigationStep("候车区", "${ticket?.trainNumber ?: "本次列车"}候车区域", 3), NavigationStep("$gate 号检票口", "请在开检后凭车票进站", 2))
+            else -> common += listOf(NavigationStep("候车区", "${ticket?.trainNumber ?: "本次列车"}候车区域", 3), NavigationStep("$gate 检票口", "请在开检后凭车票进站", 2))
         }
         val minutes = common.sumOf { it.minutes }
         return NavigationPlan(common, minutes, minutes * 78)
@@ -140,7 +147,10 @@ class IndoorNavigationActivity : ImmersiveActivity() {
             orientation = LinearLayout.VERTICAL; setPadding(dp(18), dp(16), dp(18), dp(16))
             addView(text("$station → $target", 19, R.color.text_primary, true))
             addView(text("约 ${plan.minutes} 分钟 · 约 ${plan.meters} 米", 14, R.color.railway_blue_deep, true), margin(top = 6))
-            ticket?.let { addView(text("关联车票：${it.trainNumber} · ${it.departureDate} ${it.departureTime}", 13, R.color.text_secondary, false), margin(top = 5)) }
+            ticket?.let {
+                addView(text("关联车票：${it.trainNumber} · ${it.departureDate} ${it.departureTime}", 13, R.color.text_secondary, false), margin(top = 5))
+                if (target == TARGET_GATE) addView(text("当前检票口：${TicketTravelUpdates.getGate(this@IndoorNavigationActivity, it)}", 13, R.color.railway_blue_deep, true), margin(top = 4))
+            }
         })
     }
 
