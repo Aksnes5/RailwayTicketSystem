@@ -17,6 +17,7 @@ import com.railway.ticketsystem.R
 import com.railway.ticketsystem.data.ArrivalReminderScheduler
 import com.railway.ticketsystem.data.CarriageServiceRepository
 import com.railway.ticketsystem.data.MealOrderRepository
+import com.railway.ticketsystem.data.MembershipRepository
 import com.railway.ticketsystem.data.MessageRepository
 import com.railway.ticketsystem.data.OrderRepository
 import com.railway.ticketsystem.data.UserRepository
@@ -147,7 +148,9 @@ class CarriageServiceActivity : ImmersiveActivity() {
         AlertDialog.Builder(this).setTitle("评价${request.type}").setItems(options) { _, index ->
             val user = userRepository.getCurrentUser() ?: return@setItems
             if (carriageRepository.leaveFeedback(user.id, request.id, options[index])) {
-                Toast.makeText(this, "感谢你的评价", Toast.LENGTH_SHORT).show()
+                val rewarded = userRepository.adjustPointsOnce(user.id, 8, "service_feedback:${request.id}")
+                MembershipRepository(this).trackEvent(user.id, MembershipRepository.EVENT_SERVICE_FEEDBACK)
+                Toast.makeText(this, if (rewarded) "感谢你的评价，已获得 8 积分" else "感谢你的评价", Toast.LENGTH_SHORT).show()
                 render()
             }
         }.show()

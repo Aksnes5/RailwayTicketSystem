@@ -481,15 +481,18 @@ class TripDetailActivity : ImmersiveActivity() {
         )
         val reached = stageOrder.indexOf(stage).coerceAtLeast(0)
         fun marker(index: Int) = if (index <= reached) "●" else "○"
+        val departure = TravelAssistant.departureMillis(order)
+        val stationScale = 10 + ((order.departureStation + order.id).hashCode() and Int.MAX_VALUE) % 11
+        fun planTime(minutesBefore: Int): String = departure?.let { CLOCK_FORMAT.format(Date(it - minutesBefore * 60_000L)) } ?: "请以车票时间为准"
         return listOf(
             "● 购票成功  " + (order.payTime ?: order.createTime),
-            marker(0) + " 出发前  " + order.departureDate + " " + order.departureTime + " 从" + order.departureStation + "出发",
-            marker(1) + " 到达车站  留意检票口和候车区通知",
-            marker(2) + " 乘车途中  " + order.trainNumber + " 前往" + order.arrivalStation,
-            marker(3) + " 到达目的地  " + if (stage == TripProgress.STAGE_ARRIVED) updatedAt else "待确认"
+            marker(0) + " 建议出门  " + planTime(75 + stationScale) + " · 预留路程与进站时间",
+            marker(1) + " 到站安检  " + planTime(45 + stationScale) + " · 前往候车区",
+            marker(2) + " 开始检票  " + planTime(20) + " · 请留意检票口变更",
+            marker(2) + " 列车发车  " + order.departureDate + " " + order.departureTime + " 从" + order.departureStation + "出发",
+            marker(3) + " 到达目的地  " + if (stage == TripProgress.STAGE_ARRIVED) updatedAt else "预计 " + order.arrivalTime + " 抵达" + order.arrivalStation
         ).joinToString("\n")
     }
-    
     private fun setupClickListeners() {
         binding.btnChangeTicket.setOnClickListener {
             when (loadLatest()?.status) {

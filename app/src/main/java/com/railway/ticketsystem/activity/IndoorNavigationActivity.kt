@@ -65,6 +65,12 @@ class IndoorNavigationActivity : ImmersiveActivity() {
             stationButton = quietButton("选择服务车站") { stationPicker.launch(Intent(this@IndoorNavigationActivity, StationSelectionActivity::class.java)) }
             addView(stationButton, margin(bottom = 14))
             addView(targetCard())
+            addView(quietButton("查看站内地图") {
+                startActivity(Intent(this@IndoorNavigationActivity, StationGuideMapActivity::class.java)
+                    .putExtra(StationGuideMapActivity.EXTRA_STATION, station)
+                    .putExtra(StationGuideMapActivity.EXTRA_TARGET, target)
+                    .putExtra(StationGuideMapActivity.EXTRA_TICKET_ORDER_ID, ticket?.id))
+            }, margin(top = 10))
             addView(text("推荐路线", 18, R.color.text_primary, true), margin(top = 20, bottom = 8))
             planContainer = LinearLayout(this@IndoorNavigationActivity).apply { orientation = LinearLayout.VERTICAL }
             addView(planContainer)

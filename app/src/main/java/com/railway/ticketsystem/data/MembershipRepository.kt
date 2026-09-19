@@ -104,6 +104,7 @@ class MembershipRepository(context: Context) {
         const val EVENT_RECHARGE = "wallet_recharge"
         const val EVENT_WAITLIST = "join_waitlist"
         const val EVENT_CHANGE_TICKET = "change_ticket"
+        const val EVENT_SERVICE_FEEDBACK = "service_feedback"
     }
 
     fun getWalletBalanceCents(userId: String): Long =
@@ -435,6 +436,7 @@ class MembershipRepository(context: Context) {
             EVENT_RECHARGE -> listOf("wallet_recharge")
             EVENT_WAITLIST -> listOf("join_waitlist")
             EVENT_CHANGE_TICKET -> listOf("change_ticket")
+            EVENT_SERVICE_FEEDBACK -> listOf("service_feedback")
             else -> emptyList()
         }
         if (ids.isEmpty()) return
@@ -489,6 +491,7 @@ class MembershipRepository(context: Context) {
         eventKey.startsWith("coupon_redeem:") -> "兑换会员权益券"
         eventKey.startsWith("task_reward:") -> "任务中心奖励"
         eventKey.startsWith("checkin_streak:") -> "连续签到加赠"
+        eventKey.startsWith("service_feedback:") -> "服务评价奖励"
         else -> if (delta > 0) "会员积分奖励" else "会员积分扣减"
     }
 
@@ -499,7 +502,8 @@ class MembershipRepository(context: Context) {
         TaskDefinition("wallet_recharge", "钱包体验官", "完成一次充值", 1, 12),
         TaskDefinition("pay_ticket", "完成一次购票", "支付一笔订单或候补兑现，积累会员成长", 1, 35),
         TaskDefinition("join_waitlist", "候补守望者", "提交 1 次候补，关注系统处理结果", 1, 16),
-        TaskDefinition("change_ticket", "行程调度员", "完成 1 次改签，掌握灵活出行", 1, 22)
+        TaskDefinition("change_ticket", "行程调度员", "完成 1 次改签，掌握灵活出行", 1, 22),
+        TaskDefinition("service_feedback", "服务体验官", "完成 2 次车站或车厢服务评价", 2, 20)
     )
 
     private fun couponOffers() = mapOf(

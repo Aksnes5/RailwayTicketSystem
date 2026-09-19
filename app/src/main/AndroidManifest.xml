@@ -170,6 +170,11 @@
             android:exported="false"
             android:theme="@style/Theme.RailwayTicketSystem" />
 
+
+        <activity
+            android:name=".activity.StationGuideMapActivity"
+            android:exported="false"
+            android:theme="@style/Theme.RailwayTicketSystem" />
         <activity
             android:name=".activity.IndoorNavigationActivity"
             android:exported="false"
