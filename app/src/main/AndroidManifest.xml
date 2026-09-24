@@ -204,6 +204,10 @@
             android:exported="false"
             android:theme="@style/Theme.RailwayTicketSystem" />
         <activity
+            android:name=".activity.StationServiceDetailActivity"
+            android:exported="false"
+            android:theme="@style/Theme.RailwayTicketSystem" />
+        <activity
             android:name=".activity.TravelExpenseCenterActivity"
             android:exported="false"
             android:theme="@style/Theme.RailwayTicketSystem" />
@@ -238,3 +242,5 @@
     </application>
 
 </manifest>
+
+
