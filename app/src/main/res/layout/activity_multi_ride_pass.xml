@@ -46,9 +46,45 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:orientation="horizontal">
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnPassModePair"
+                    style="@style/App.Button.Quiet"
+                    android:layout_width="0dp"
+                    android:layout_height="44dp"
+                    android:layout_marginEnd="6dp"
+                    android:layout_weight="1"
+                    android:text="自选两站"
+                    app:cornerRadius="@dimen/corner_large" />
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnPassModeLine"
+                    style="@style/App.Button.Quiet"
+                    android:layout_width="0dp"
+                    android:layout_height="44dp"
+                    android:layout_marginStart="6dp"
+                    android:layout_weight="1"
+                    android:text="线路产品"
+                    app:cornerRadius="@dimen/corner_large" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tvPassLine"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:text="自选两座车站，适合固定区间通勤。"
+                android:textColor="@color/text_secondary"
+                android:textSize="13sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:background="@drawable/bg_glass_tint"
                 android:orientation="vertical"
                 android:padding="16dp">
+
+
 
                 <com.google.android.material.textfield.TextInputLayout
                     style="@style/App.TextInput.Rounded"

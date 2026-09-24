@@ -169,6 +169,22 @@
             android:name=".activity.HotelOrdersActivity"
             android:exported="false"
             android:theme="@style/Theme.RailwayTicketSystem" />
+        <activity
+            android:name=".activity.OperationsCenterActivity"
+            android:exported="false"
+            android:theme="@style/Theme.RailwayTicketSystem" />
+        <activity
+            android:name=".activity.TravelProtectionActivity"
+            android:exported="false"
+            android:theme="@style/Theme.RailwayTicketSystem" />
+        <activity
+            android:name=".activity.StationFacilityActivity"
+            android:exported="false"
+            android:theme="@style/Theme.RailwayTicketSystem" />
+        <activity
+            android:name=".activity.MemberGrowthActivity"
+            android:exported="false"
+            android:theme="@style/Theme.RailwayTicketSystem" />
 
 
         <activity

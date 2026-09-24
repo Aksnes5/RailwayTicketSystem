@@ -1,6 +1,7 @@
 package com.railway.ticketsystem.activity
 
 import android.content.Intent
+import android.app.AlertDialog
 import android.content.res.ColorStateList
 import android.os.Bundle
 import android.widget.Toast
@@ -39,6 +40,9 @@ class MultiRidePassActivity : ImmersiveActivity() {
     private var validityDays = 30
     private var rides = 10
     private var pickingField = StationField.DEPARTURE
+    private var lineMode = false
+    private var selectedLineName = ""
+    private var selectedLineStations: List<String> = emptyList()
     private val stationPicker = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         val station = result.data?.getSerializableExtra("selectedStation") as? Station
         if (result.resultCode == RESULT_OK && station != null) {
@@ -48,7 +52,8 @@ class MultiRidePassActivity : ImmersiveActivity() {
             }
             referencePriceCents = 0L
             binding.tvPassReference.text = "已选择区间，请查询参考票价"
-            updateQuote()
+            setLineMode(false)
+        updateQuote()
         }
     }
 
@@ -65,6 +70,8 @@ class MultiRidePassActivity : ImmersiveActivity() {
         binding.actPassDeparture.setText(stationNames.firstOrNull { it == "北京南" } ?: stationNames.firstOrNull().orEmpty())
         binding.actPassArrival.setText(stationNames.firstOrNull { it == "上海虹桥" } ?: stationNames.drop(1).firstOrNull().orEmpty())
         binding.actPassDeparture.setOnClickListener { openStationSelection(StationField.DEPARTURE) }
+        binding.btnPassModePair.setOnClickListener { setLineMode(false) }
+        binding.btnPassModeLine.setOnClickListener { chooseLineProduct() }
         binding.actPassArrival.setOnClickListener { openStationSelection(StationField.ARRIVAL) }
         binding.btnPassCalculate.setOnClickListener { calculateReferencePrice() }
         binding.btnPass30Days.setOnClickListener { validityDays = 30; updateQuote() }
@@ -73,13 +80,36 @@ class MultiRidePassActivity : ImmersiveActivity() {
         binding.btnPass20Rides.setOnClickListener { rides = 20; updateQuote() }
         binding.btnPass30Rides.setOnClickListener { rides = 30; updateQuote() }
         binding.btnBuyPass.setOnClickListener { buyPass() }
+        setLineMode(false)
         updateQuote()
         renderPassRecords()
     }
 
     private fun openStationSelection(field: StationField) {
         pickingField = field
-        stationPicker.launch(Intent(this, StationSelectionActivity::class.java))
+        if (lineMode && selectedLineStations.isNotEmpty()) {
+            AlertDialog.Builder(this).setTitle(if (field == StationField.DEPARTURE) "选择出发站" else "选择到达站")
+                .setItems(selectedLineStations.toTypedArray()) { _, which ->
+                    if (field == StationField.DEPARTURE) binding.actPassDeparture.setText(selectedLineStations[which]) else binding.actPassArrival.setText(selectedLineStations[which])
+                    referencePriceCents = 0L; binding.tvPassReference.text = "已选择 $selectedLineName 区间，请查询参考票价"; updateQuote()
+                }.show()
+        } else stationPicker.launch(Intent(this, StationSelectionActivity::class.java))
+    }
+
+    private fun setLineMode(enabled: Boolean) {
+        lineMode = enabled
+        toggle(binding.btnPassModePair, !enabled); toggle(binding.btnPassModeLine, enabled)
+        binding.tvPassLine.text = if (enabled && selectedLineName.isNotBlank()) "线路产品 · $selectedLineName\n仅可选择该线路上的任意两站。" else "自选两座车站，适合固定区间通勤。"
+    }
+
+    private fun chooseLineProduct() {
+        val routes = RailwayData.getAllRoutes().filter { it.stations.size >= 2 }.sortedBy { it.routeName }
+        AlertDialog.Builder(this).setTitle("选择线路产品")
+            .setItems(routes.map { "${it.routeName} · ${it.stations.size}站" }.toTypedArray()) { _, which ->
+                val route = routes[which]; selectedLineName = route.routeName; selectedLineStations = route.stations.map { it.name }.distinct()
+                binding.actPassDeparture.setText(selectedLineStations.first()); binding.actPassArrival.setText(selectedLineStations.last())
+                referencePriceCents = 0L; binding.tvPassReference.text = "已选择 $selectedLineName，请选择线路内区间并查询票价"; setLineMode(true); updateQuote()
+            }.show()
     }
 
     private fun calculateReferencePrice() {
@@ -104,6 +134,7 @@ class MultiRidePassActivity : ImmersiveActivity() {
             else -> MultiRidePassPricing.fallbackPriceCents(from, to)
         }
         binding.tvPassReference.text = "${from} → ${to} · 参考单程 ${money(referencePriceCents)}"
+        setLineMode(false)
         updateQuote()
     }
 

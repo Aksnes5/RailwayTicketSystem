@@ -23,6 +23,8 @@ import com.railway.ticketsystem.activity.TravelExpenseCenterActivity
 import com.railway.ticketsystem.activity.FamilyAccountActivity
 import com.railway.ticketsystem.activity.OfflineTravelPackActivity
 import com.railway.ticketsystem.activity.AccessibilitySettingsActivity
+import com.railway.ticketsystem.activity.OperationsCenterActivity
+import com.railway.ticketsystem.activity.TravelProtectionActivity
 import com.railway.ticketsystem.data.MessageRepository
 import com.railway.ticketsystem.data.PassengerRepository
 import com.railway.ticketsystem.data.UserRepository
@@ -227,6 +229,13 @@ class ProfileFragmentWithSafeSave : Fragment() {
                 startActivity(Intent(requireContext(), AccessibilitySettingsActivity::class.java))
             }
 
+            binding.btnOperationsCenter.setOnClickListener {
+                startActivity(Intent(requireContext(), OperationsCenterActivity::class.java))
+            }
+
+            binding.btnTravelProtection.setOnClickListener {
+                startActivity(Intent(requireContext(), TravelProtectionActivity::class.java))
+            }
             // 头像选择功能
             binding.cardAvatar.setOnClickListener {
                 showAvatarSelectionDialog()

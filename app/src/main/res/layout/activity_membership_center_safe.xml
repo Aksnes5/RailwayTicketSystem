@@ -139,10 +139,14 @@
 
         <!-- 年度出行数据：所有数值从已保存的订单和会员成长记录汇总。 -->
         <LinearLayout
+            android:id="@+id/cardTravelGrowth"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="14dp"
             android:background="@drawable/bg_membership_growth_blue"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="@drawable/ripple_glass"
             android:orientation="vertical"
             android:padding="16dp">
 

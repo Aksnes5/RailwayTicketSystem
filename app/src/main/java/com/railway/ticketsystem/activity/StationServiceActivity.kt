@@ -56,6 +56,11 @@ class StationServiceActivity : ImmersiveActivity() {
         binding.cardLounge.setOnClickListener { selectService(LOUNGE) }
         binding.cardLuggageConsignment.setOnClickListener { selectService(LUGGAGE_CONSIGNMENT) }
         binding.cardLuggageDelivery.setOnClickListener { selectService(LUGGAGE_DELIVERY) }
+        binding.cardStationLiveService.setOnClickListener {
+            startActivity(Intent(this, StationFacilityActivity::class.java)
+                .putExtra(StationFacilityActivity.EXTRA_STATION, binding.actServiceStation.text?.toString()?.trim().orEmpty())
+                .putExtra(StationFacilityActivity.EXTRA_TICKET_ORDER_ID, intent.getStringExtra(EXTRA_TICKET_ORDER_ID)))
+        }
 
         binding.actServiceStation.setText(intent.getStringExtra(EXTRA_STATION).orEmpty())
         val user = userRepository.getCurrentUser()

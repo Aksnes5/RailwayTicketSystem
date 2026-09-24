@@ -47,6 +47,23 @@
                 android:textColor="@color/text_primary"
                 android:textSize="17sp"
                 android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/btnMapBase"
+                android:layout_width="64dp"
+                android:layout_height="36dp"
+                android:layout_gravity="end|center_vertical"
+                android:layout_marginEnd="10dp"
+                android:background="@drawable/bg_glass_control"
+                android:clickable="true"
+                android:contentDescription="切换高清卫星影像"
+                android:focusable="true"
+                android:foreground="@drawable/ripple_glass"
+                android:gravity="center"
+                android:text="卫星"
+                android:textColor="@color/railway_blue_deep"
+                android:textSize="13sp"
+                android:textStyle="bold" />
         </FrameLayout>
     </com.google.android.material.card.MaterialCardView>
 

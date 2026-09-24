@@ -121,7 +121,7 @@
                     android:text="账户信息"
                     android:textSize="18sp"
                     android:textStyle="bold"
-                    android:textColor="@color/gray_dark"
+                    android:textColor="@color/text_primary"
                     android:layout_marginBottom="16dp" />
 
                 <LinearLayout
@@ -144,7 +144,7 @@
                         android:layout_weight="1"
                         android:text="张三"
                         android:textSize="14sp"
-                        android:textColor="@color/black" />
+                        android:textColor="@color/text_primary" />
 
                 </LinearLayout>
 
@@ -168,7 +168,7 @@
                         android:layout_weight="1"
                         android:text="138****8888"
                         android:textSize="14sp"
-                        android:textColor="@color/black" />
+                        android:textColor="@color/text_primary" />
 
                 </LinearLayout>
 
@@ -192,7 +192,7 @@
                         android:layout_weight="1"
                         android:text="2024-01-01"
                         android:textSize="14sp"
-                        android:textColor="@color/black" />
+                        android:textColor="@color/text_primary" />
 
                 </LinearLayout>
 
@@ -238,7 +238,7 @@
                         android:text="乘客管理"
                         android:textSize="18sp"
                         android:textStyle="bold"
-                        android:textColor="@color/gray_dark" />
+                        android:textColor="@color/text_primary" />
 
                     <TextView
                         android:id="@+id/tvPassengerCount"
@@ -337,6 +337,25 @@
                     android:text="可访问性与性能"
                     android:textSize="16sp"
                     app:cornerRadius="@dimen/corner_large" />
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnOperationsCenter"
+                    style="@style/App.Button.Quiet"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:layout_marginTop="8dp"
+                    android:text="运营动态中心"
+                    android:textSize="16sp"
+                    app:cornerRadius="@dimen/corner_large" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnTravelProtection"
+                    style="@style/App.Button.Quiet"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:layout_marginTop="8dp"
+                    android:text="异常保障中心"
+                    android:textSize="16sp"
+                    app:cornerRadius="@dimen/corner_large" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
         <!-- 消息与提醒 -->
@@ -367,7 +386,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="消息与提醒"
-                        android:textColor="@color/gray_dark"
+                        android:textColor="@color/text_primary"
                         android:textSize="18sp"
                         android:textStyle="bold" />
 

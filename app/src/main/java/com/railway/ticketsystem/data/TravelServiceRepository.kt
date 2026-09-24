@@ -134,7 +134,7 @@ object StationBoardGenerator {
             // This is intentionally the same catalog reached from RailwayData
             // ticket searches. It also reuses an already-created search result
             // if the user has queried the identical station pair beforehand.
-            ServiceSeparatedTrainCatalog.find(query.from, query.to, query.routeType)
+            RailwayData.getTrainsSortedByTime(query.from, query.to)
                 .asSequence()
                 .take(TRAINS_PER_QUERY)
                 .mapNotNull { train -> entryFor(station, date, query, train) }

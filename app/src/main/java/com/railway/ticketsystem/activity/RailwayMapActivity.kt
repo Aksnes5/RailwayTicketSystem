@@ -17,6 +17,7 @@ import androidx.core.view.WindowInsetsControllerCompat
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.railway.ticketsystem.data.PhysicalRailCorridorResolver
+import com.railway.ticketsystem.data.MapRailNetwork
 import com.railway.ticketsystem.data.StationCoordinateCatalog
 import com.railway.ticketsystem.data.OfflineTravelRepository
 import com.railway.ticketsystem.data.AccessibilityPreferences
@@ -40,6 +41,7 @@ class RailwayMapActivity : AccessibleActivity() {
     private val gson = Gson()
     private var mapReady = false
     private lateinit var payload: RailwayMapPayload
+    private var satelliteBase = false
     private val positionTicker = object : Runnable {
         override fun run() {
             updateLivePosition()
@@ -56,7 +58,10 @@ class RailwayMapActivity : AccessibleActivity() {
         val requestedRouteStations = normalizeStations(
             intent.getStringArrayListExtra(EXTRA_ROUTE_STATIONS).orEmpty()
         )
-        val resolvedRoute = PhysicalRailCorridorResolver.resolveForMap(requestedRouteStations)
+        val network = intent.getStringExtra(EXTRA_NETWORK)
+            ?.let { runCatching { MapRailNetwork.valueOf(it) }.getOrNull() }
+            ?: inferNetwork(intent.getStringExtra(EXTRA_TRAIN_NUMBER).orEmpty())
+        val resolvedRoute = PhysicalRailCorridorResolver.resolveForMap(requestedRouteStations, network)
         val routeStationNames = resolvedRoute.stationNames
         val callingStationNames = normalizeStations(
             intent.getStringArrayListExtra(EXTRA_CALLING_STATIONS).orEmpty()
@@ -84,12 +89,14 @@ class RailwayMapActivity : AccessibleActivity() {
                 }
             ),
             routeCorridorHints = resolvedRoute.legCorridorHints,
+            network = network.name,
             callingStations = callingStationNames,
             departureDate = departureDate,
             timetableStops = timetableStops
         )
 
         binding.btnMapBack.setOnClickListener { finish() }
+        binding.btnMapBase.setOnClickListener { toggleMapBase() }
         binding.tvMapTitle.text = if (trainNumber.isBlank()) "线路地图" else "$trainNumber 线路地图"
         binding.tvMapRoute.text = listOfNotNull(
             routeStationNames.firstOrNull(), routeStationNames.lastOrNull()
@@ -166,10 +173,19 @@ class RailwayMapActivity : AccessibleActivity() {
         }
     }
 
+    private fun toggleMapBase() {
+        satelliteBase = !satelliteBase
+        binding.btnMapBase.text = if (satelliteBase) "标准" else "卫星"
+        binding.btnMapBase.contentDescription = if (satelliteBase) "切换回标准地图" else "切换到高清卫星影像"
+        val base = if (satelliteBase) "satellite" else "standard"
+        if (mapReady) binding.webRailwayMap.evaluateJavascript("window.switchMapBase('$base');", null)
+    }
+
     private fun renderRoute() {
         if (!mapReady) return
+        val base = if (satelliteBase) "satellite" else "standard"
         binding.webRailwayMap.evaluateJavascript(
-            "window.renderRailwayRoute(${gson.toJson(payload)});",
+            "window.renderRailwayRoute(${gson.toJson(payload)});window.switchMapBase('$base');",
             null
         )
     }
@@ -217,6 +233,7 @@ class RailwayMapActivity : AccessibleActivity() {
         val callingStations: List<String>,
         /** Physical OSM corridor for every line segment, used to avoid parallel-line jumps. */
         val routeCorridorHints: List<String?>,
+        val network: String,
         val departureDate: String,
         val timetableStops: List<RailwayMapTimetableStop>
     )
@@ -292,6 +309,7 @@ class RailwayMapActivity : AccessibleActivity() {
         private const val EXTRA_ALIGHTING = "route_map_alighting"
         private const val EXTRA_DEPARTURE_DATE = "route_map_departure_date"
         private const val EXTRA_TIMETABLE_STOPS_JSON = "route_map_timetable_stops_json"
+        private const val EXTRA_NETWORK = "route_map_network"
         private const val LIVE_POSITION_REFRESH_MILLIS = 1_000L
 
         fun intent(
@@ -302,7 +320,8 @@ class RailwayMapActivity : AccessibleActivity() {
             boardingStation: String,
             alightingStation: String,
             departureDate: String,
-            timetableStops: List<RailwayMapTimetableStop>
+            timetableStops: List<RailwayMapTimetableStop>,
+            network: MapRailNetwork? = null
         ): Intent = Intent(context, RailwayMapActivity::class.java).apply {
             putStringArrayListExtra(EXTRA_ROUTE_STATIONS, ArrayList(routeStations))
             putStringArrayListExtra(EXTRA_CALLING_STATIONS, ArrayList(callingStations))
@@ -311,8 +330,13 @@ class RailwayMapActivity : AccessibleActivity() {
             putExtra(EXTRA_ALIGHTING, alightingStation)
             putExtra(EXTRA_DEPARTURE_DATE, departureDate)
             putExtra(EXTRA_TIMETABLE_STOPS_JSON, Gson().toJson(timetableStops))
+            network?.let { putExtra(EXTRA_NETWORK, it.name) }
         }
 
+        private fun inferNetwork(trainNumber: String): MapRailNetwork {
+            val prefix = trainNumber.trim().firstOrNull()?.uppercaseChar()
+            return if (prefix in setOf('K', 'T', 'Z', 'Y', 'S', 'L')) MapRailNetwork.CONVENTIONAL else MapRailNetwork.HIGH_SPEED
+        }
         private fun normalizeStations(stations: List<String>): List<String> =
             stations.asSequence()
                 .map(String::trim)

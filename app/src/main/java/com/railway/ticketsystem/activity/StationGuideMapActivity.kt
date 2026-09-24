@@ -37,7 +37,7 @@ class StationGuideMapActivity : ImmersiveActivity() {
         addView(LinearLayout(this@StationGuideMapActivity).apply {
             orientation = LinearLayout.VERTICAL; setPadding(dp(18), dp(14), dp(18), dp(30))
             addView(header())
-            addView(text("${station.ifBlank { "当前" }}站 · 简化站内平面图", 15, R.color.text_secondary, false), margin(top = 2, bottom = 16))
+            addView(text("${station.ifBlank { "当前" }}站 · 站内服务导览图", 15, R.color.text_secondary, false), margin(top = 2, bottom = 16))
             val gate = ticket?.let { TicketTravelUpdates.getGate(this@StationGuideMapActivity, it) } ?: "请以现场为准"
             addView(card().apply {
                 addView(LinearLayout(this@StationGuideMapActivity).apply {

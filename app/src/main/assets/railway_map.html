@@ -38,6 +38,9 @@
     let routeLayer;
     let stationLayer;
     let liveTrainLayer;
+    let standardLayer;
+    let satelliteLayer;
+    let activeBase = 'standard';
     let activePayload;
     const message = document.getElementById('message');
     const DAY_MILLIS = 24 * 60 * 60 * 1000;
@@ -51,15 +54,25 @@
       // Do not leave Leaflet's default attribution plaque floating over the route.
       map = L.map('map', { zoomControl: false, attributionControl: false }).setView([35.86, 104.20], 4);
       L.control.zoom({ position: 'bottomright' }).addTo(map);
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        minZoom: 3,
-        detectRetina: true,
-        crossOrigin: true
-      }).addTo(map);
+      standardLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19, minZoom: 3, detectRetina: true, crossOrigin: true
+      });
+      satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+        maxZoom: 19, maxNativeZoom: 19, minZoom: 3, detectRetina: true, crossOrigin: true
+      });
+      standardLayer.addTo(map);
       message.style.display = 'none';
     }
 
+    window.switchMapBase = function(nextBase) {
+      if (!map || !standardLayer || !satelliteLayer) return activeBase;
+      const target = nextBase === 'satellite' ? 'satellite' : 'standard';
+      if (target === activeBase) return activeBase;
+      map.removeLayer(activeBase === 'satellite' ? satelliteLayer : standardLayer);
+      (target === 'satellite' ? satelliteLayer : standardLayer).addTo(map);
+      activeBase = target;
+      return activeBase;
+    };
     function markerStyle(station, payload) {
       if (station.name === payload.boardingStation) return { color: '#ffffff', fillColor: '#3b99fc', fillOpacity: 1, radius: 8, weight: 3 };
       if (station.name === payload.alightingStation) return { color: '#ffffff', fillColor: '#e64a19', fillOpacity: 1, radius: 8, weight: 3 };
@@ -444,7 +457,12 @@
      * station can be close to several parallel railways; retaining a few
      * choices lets a consecutive pair select the one that actually joins it.
      */
-    function nearestNodesByLine(latitude, longitude, maxKm) {
+    function networkAllowsLine(line, network) {
+      const highSpeed = /(高铁|高速|客专|城际|动车|武九客专|宁蓉铁路|昌福铁路|秦沈客专|厦深铁路)/.test(line || '');
+      return network === 'CONVENTIONAL' ? !highSpeed : highSpeed;
+    }
+
+    function nearestNodesByLine(latitude, longitude, maxKm, network) {
       const limit = maxKm || MAX_SNAP_KM;
       const cosLat = Math.cos(latitude * Math.PI / 180);
       const bestByLine = new Map();
@@ -454,6 +472,7 @@
         const km = Math.hypot(dx, dy);
         if (km > limit || networkComponentSize[networkComponent[n]] < MIN_COMPONENT_NODES) continue;
         const line = networkNodeLine[n];
+        if (!networkAllowsLine(line, network)) continue;
         const existing = bestByLine.get(line);
         if (!existing || km < existing.km) bestByLine.set(line, { id: n, km, line });
       }
@@ -614,7 +633,8 @@
       // Kotlin supplies a physical-corridor hint for shared/continued lines.
       // The hint is intentionally optional: imported routes that do not need
       // alias resolution retain the conservative same-corridor behaviour.
-      const allowedCorridors = new Set((corridorHints || []).filter(Boolean));
+      const allowedCorridors = new Set((corridorHints || []).filter(hint => hint && hint !== "__manual_physical_alignment__"));
+      if ((corridorHints || []).includes("__manual_physical_alignment__")) return null;
       let best = null;
       for (const from of fromCandidates) {
         for (const to of toCandidates) {
@@ -653,7 +673,7 @@
       for (const radius of ANCHOR_RADII) {
         candidates = stations.map(station =>
           station.exactStation && !station.estimated
-            ? nearestNodesByLine(station.latitude, station.longitude, radius)
+            ? nearestNodesByLine(station.latitude, station.longitude, radius, activePayload && activePayload.network)
             : []);
         anchors = candidates.map((choices, index) => choices.length ? index : -1).filter(index => index >= 0);
         if (anchors.length >= 2) break;

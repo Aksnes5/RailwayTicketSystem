@@ -1,162 +1,92 @@
 package com.railway.ticketsystem.data
 
 /**
- * Resolves a train's logical stop sequence into the physical railway corridor
- * used by the route map.
+ * Converts a logical passenger service into physical railway sections for the route map.
+ * It is map-only: the order's published calls and timetable never change here.
  *
- * Railway service names do not always match the civil-engineering corridor
- * name.  For example, the 汉十 services enter Wuhan through the 汉孝城际
- * section; a legacy service can therefore only carry `汉口 → 孝感东`, even
- * though the map has to draw every physical section in between.  Keeping this
- * translation here prevents a map-only one-off for each such relationship.
- *
- * The resolver deliberately changes neither a ticket's calls nor its timetable.
- * It only supplies non-call physical stations and a corridor hint for map
- * snapping.  Call markers continue to come exclusively from the timetable.
+ * High-speed/city rail and conventional rail are separate networks.  Parallel lines that
+ * share a city name are never allowed to borrow one another's geometry.
  */
+enum class MapRailNetwork { HIGH_SPEED, CONVENTIONAL }
+
 object PhysicalRailCorridorResolver {
     data class ResolvedRoute(
         val stationNames: List<String>,
-        /** One OSM corridor label for each adjacent pair in [stationNames]. */
         val legCorridorHints: List<String?>
     )
 
     private data class Corridor(
         val id: String,
-        /** `corridor` value in railway_network.js, not a user-facing line name. */
-        val mapCorridor: String,
-        val stationNames: List<String>,
-        /** Service names that use, share, or continue on this physical alignment. */
-        val serviceAliases: Set<String>
+        val network: MapRailNetwork,
+        val mapCorridor: String?,
+        val stationNames: List<String>
     ) {
         fun sectionBetween(from: String, to: String): List<String>? {
-            val fromIndex = stationNames.indexOf(from)
-            val toIndex = stationNames.indexOf(to)
-            if (fromIndex < 0 || toIndex < 0 || fromIndex == toIndex) return null
-            return if (fromIndex < toIndex) {
-                stationNames.subList(fromIndex, toIndex + 1)
-            } else {
-                stationNames.subList(toIndex, fromIndex + 1).asReversed()
-            }
+            val first = stationNames.indexOf(from)
+            val second = stationNames.indexOf(to)
+            if (first < 0 || second < 0 || first == second) return null
+            return if (first < second) stationNames.subList(first, second + 1)
+            else stationNames.subList(second, first + 1).asReversed()
         }
-
-        fun containsLeg(from: String, to: String): Boolean =
-            sectionBetween(from, to)?.size == 2
+        fun containsLeg(from: String, to: String): Boolean = sectionBetween(from, to)?.size == 2
     }
 
-    /**
-     * Each entry represents a verified shared/coupled passenger corridor.  A
-     * logical route can skip these stations but the track itself cannot, so it
-     * is safe to insert them only for its map geometry.
-     */
+    /** No matching OSM way is bundled yet: retain the actual station chain, never snap to a parallel line. */
+    private const val MANUAL_ALIGNMENT = "__manual_physical_alignment__"
+
     private val corridors = listOf(
-        Corridor(
-            id = "wuhan-hub-connector",
-            mapCorridor = "武汉枢纽连接线",
-            // 枢纽内既有客车联络段：它不是在建的“武汉枢纽直通线”主工程，
-            // 但确实承担武汉、汉口、武昌、武汉东之间的接续走行。
-            stationNames = listOf("武汉", "汉口", "武昌", "武汉东"),
-            serviceAliases = setOf("武汉枢纽连接线", "武汉枢纽联络线")
-        ),
-        Corridor(
-            id = "wuyi-hanyi-connectors",
-            mapCorridor = "武宜高铁",
-            // 武宜正线及宜昌北—宜昌东的既有接续段。站序仅用于把地图
-            // 锚定到轨道；中间站是否办理客运仍由列车实际时刻表决定。
-            stationNames = listOf(
-                "汉口", "汉川北", "天门", "京山南", "钟祥南", "荆门西", "当阳西", "宜昌北", "宜昌东"
-            ),
-            serviceAliases = setOf("武宜高铁", "汉宜铁路", "宁蓉铁路")
-        ),
-        Corridor(
-            id = "hanxiao-hanshi",
-            mapCorridor = "汉十高铁",
-            stationNames = listOf(
-                "汉口", "后湖", "金银潭", "天河机场", "天河街", "闵集", "毛陈", "槐荫", "孝感东",
-                "云梦东", "安陆西", "随州南", "随县", "枣阳", "襄阳东", "隆中", "谷城北",
-                "丹江口南", "武当山西", "十堰东"
-            ),
-            serviceAliases = setOf("汉十高铁", "武孝城际铁路")
-        ),
-        Corridor(
-            id = "wuhuang-wujiu",
-            mapCorridor = "武九客专",
-            stationNames = listOf(
-                "武汉", "葛店南", "华容南", "鄂州", "鄂州东", "花湖", "黄石北", "大冶北",
-                "白沙铺", "阳新", "枫林", "瑞昌西", "柴桑", "庐山", "九江"
-            ),
-            serviceAliases = setOf("武黄城际铁路", "武九客专")
-        ),
-        Corridor(
-            id = "hanyi-ningrong",
-            mapCorridor = "宁蓉铁路",
-            stationNames = listOf(
-                "汉口", "汉川", "天门南", "仙桃西", "潜江", "荆州", "枝江北", "宜昌东"
-            ),
-            serviceAliases = setOf("汉宜铁路", "宁蓉铁路")
-        ),
-        Corridor(
-            id = "changfu-railway",
-            mapCorridor = "昌福铁路",
-            // 昌福正线完整客运站序。无论车次实际跨越多少中间站，地图都可沿
-            // 同一条物理走廊描边；时刻表和停站标记仍仅使用车次真实办理站。
-            stationNames = listOf(
-                "南昌西", "抚州", "南城", "南丰", "建宁县北", "泰宁", "将乐",
-                "三明北", "尤溪", "永泰", "福州"
-            ),
-            serviceAliases = setOf("昌福铁路", "京福高铁", "合福高铁")
-        ),
-        Corridor(
-            id = "qinshen-jingha",
-            mapCorridor = "秦沈客专",
-            stationNames = listOf(
-                "秦皇岛", "山海关", "东戴河", "绥中北", "兴城西", "葫芦岛北", "锦州南",
-                "凌海南", "盘锦北", "台安", "辽中", "沈阳北"
-            ),
-            serviceAliases = setOf("秦沈客专", "京哈高铁", "京哈高铁京沈段")
-        )
+        Corridor("wuhan-hub", MapRailNetwork.HIGH_SPEED, "武汉枢纽连接线", listOf("武汉", "汉口", "武昌", "武汉东")),
+        Corridor("wuyi-hanyi", MapRailNetwork.HIGH_SPEED, "武宜高铁", listOf("汉口", "汉川北", "天门", "京山南", "钟祥南", "荆门西", "当阳西", "宜昌北", "宜昌东")),
+        Corridor("hanxiao-hanshi", MapRailNetwork.HIGH_SPEED, "汉十高铁", listOf("汉口", "后湖", "金银潭", "天河机场", "天河街", "闵集", "毛陈", "槐荫", "孝感东", "云梦东", "安陆西", "随州南", "随县", "枣阳", "襄阳东", "隆中", "谷城北", "丹江口南", "武当山西", "十堰东")),
+        Corridor("wuhuang-wujiu", MapRailNetwork.HIGH_SPEED, "武九客专", listOf("武汉", "葛店南", "华容南", "鄂州", "鄂州东", "花湖", "黄石北", "大冶北", "白沙铺", "阳新", "枫林", "瑞昌西", "柴桑", "庐山", "九江")),
+        Corridor("hanyi-ningrong", MapRailNetwork.HIGH_SPEED, "宁蓉铁路", listOf("汉口", "汉川", "天门南", "仙桃西", "潜江", "荆州", "枝江北", "宜昌东")),
+        Corridor("jingguang-hsr", MapRailNetwork.HIGH_SPEED, "京广高铁", listOf("北京西", "涿州东", "高碑店东", "保定东", "石家庄", "邯郸东", "安阳东", "鹤壁东", "郑州东", "许昌东", "漯河西", "驻马店西", "信阳东", "孝感北", "武汉", "岳阳东", "长沙南", "衡阳东", "郴州西", "韶关", "广州南")),
+        Corridor("changfu-main", MapRailNetwork.HIGH_SPEED, "昌福铁路", listOf("南昌西", "抚州", "南城", "南丰", "建宁县北", "泰宁", "将乐", "三明北", "尤溪", "永泰", "福州")),
+        // 尤溪往厦门方向经永泰接入永莆、福厦方向，不会先画到福州再折返。
+        Corridor("yongpu-branch", MapRailNetwork.HIGH_SPEED, MANUAL_ALIGNMENT, listOf("永泰", "莆田")),
+        Corridor("fuxia-main", MapRailNetwork.HIGH_SPEED, MANUAL_ALIGNMENT, listOf("福州", "福州南", "福清", "莆田", "仙游", "泉州", "晋江", "厦门北", "厦门")),
+        Corridor("qinshen-jingha", MapRailNetwork.HIGH_SPEED, "秦沈客专", listOf("秦皇岛", "山海关", "东戴河", "绥中北", "兴城西", "葫芦岛北", "锦州南", "凌海南", "盘锦北", "台安", "辽中", "沈阳北")),
+
+        // Conventional trunk lines intentionally do not use high-speed corridor hints.
+        Corridor("jingguang-conventional", MapRailNetwork.CONVENTIONAL, null, listOf("北京", "保定", "石家庄", "邯郸", "安阳", "新乡", "郑州", "漯河", "驻马店", "信阳", "孝感", "武昌", "岳阳", "长沙", "株洲", "衡阳", "郴州", "韶关东", "广州")),
+        Corridor("jinghu-conventional", MapRailNetwork.CONVENTIONAL, null, listOf("北京", "廊坊北", "天津", "静海", "沧州", "德州", "济南", "泰山", "兖州", "枣庄西", "徐州", "宿州", "蚌埠", "滁州北", "南京", "镇江", "常州", "无锡", "苏州", "昆山", "上海")),
+        Corridor("hukun-conventional", MapRailNetwork.CONVENTIONAL, null, listOf("上海", "嘉兴", "杭州", "金华", "上饶", "鹰潭", "南昌", "萍乡", "株洲", "湘潭", "娄底", "怀化", "玉屏", "凯里", "贵阳", "安顺", "六盘水", "宣威", "曲靖", "昆明")),
+        Corridor("longhai-conventional", MapRailNetwork.CONVENTIONAL, null, listOf("连云港东", "徐州", "商丘", "开封", "郑州", "洛阳", "三门峡", "灵宝", "华山", "渭南", "西安", "宝鸡", "天水", "甘谷", "陇西", "定西", "兰州"))
     )
 
-    /**
-     * Inserts a known physical section only when a legacy route puts both ends
-     * next to each other.  This is idempotent: after expansion every inserted
-     * leg is adjacent and will not be expanded again.
-     */
-    fun resolveForMap(rawStations: List<String>): ResolvedRoute {
-        val stations = rawStations.asSequence()
-            .map(String::trim)
-            .filter(String::isNotBlank)
-            .fold(mutableListOf<String>()) { result, station ->
-                if (result.lastOrNull() != station) result.add(station)
-                result
-            }
+    fun resolveForMap(rawStations: List<String>, network: MapRailNetwork = MapRailNetwork.HIGH_SPEED): ResolvedRoute {
+        val stations = rawStations.asSequence().map(String::trim).filter(String::isNotBlank)
+            .fold(mutableListOf<String>()) { result, station -> if (result.lastOrNull() != station) result.add(station); result }
         if (stations.size < 2) return ResolvedRoute(stations, emptyList())
-
+        val scoped = corridors.filter { it.network == network }
         var index = 0
         while (index < stations.lastIndex) {
             val from = stations[index]
             val to = stations[index + 1]
-            val replacement = corridors.asSequence()
-                .mapNotNull { corridor ->
-                    corridor.sectionBetween(from, to)
-                        ?.takeIf { it.size > 2 }
-                        ?.let { section -> corridor to section }
-                }
-                // Prefer the shortest verified physical section if multiple
-                // corridors share a pair of named stations.
-                .minByOrNull { (_, section) -> section.size }
-                ?.second
-            if (replacement == null) {
-                index++
-            } else {
-                stations.addAll(index + 1, replacement.drop(1))
-                index += replacement.lastIndex
-            }
+            val direct = scoped.asSequence().mapNotNull { it.sectionBetween(from, to)?.takeIf { section -> section.size > 2 } }
+                .minByOrNull { it.size }
+            val replacement = direct ?: findConnectedSection(from, to, scoped)
+            if (replacement == null || replacement.size <= 2) index++
+            else { stations.addAll(index + 1, replacement.drop(1)); index += replacement.lastIndex }
         }
+        return ResolvedRoute(stations, stations.zipWithNext { from, to -> scoped.firstOrNull { it.containsLeg(from, to) }?.mapCorridor })
+    }
 
-        val hints = stations.zipWithNext { from, to ->
-            corridors.firstOrNull { it.containsLeg(from, to) }?.mapCorridor
+    /** Follows only explicit shared endpoints, preserving real junctions and registered connectors. */
+    private fun findConnectedSection(from: String, to: String, scoped: List<Corridor>): List<String>? {
+        val links = mutableMapOf<String, MutableSet<String>>()
+        scoped.forEach { corridor -> corridor.stationNames.zipWithNext { first, second ->
+            links.getOrPut(first) { linkedSetOf() }.add(second)
+            links.getOrPut(second) { linkedSetOf() }.add(first)
+        } }
+        if (from !in links || to !in links) return null
+        val queue = ArrayDeque<List<String>>().apply { add(listOf(from)) }
+        val visited = mutableSetOf(from)
+        while (queue.isNotEmpty()) {
+            val path = queue.removeFirst()
+            if (path.last() == to) return path.takeIf { it.size <= 40 }
+            links[path.last()].orEmpty().forEach { next -> if (visited.add(next)) queue.add(path + next) }
         }
-        return ResolvedRoute(stations, hints)
+        return null
     }
 }

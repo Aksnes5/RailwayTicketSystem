@@ -65,14 +65,14 @@
         <item name="strokeWidth">1dp</item>
     </style>
 
-    <!-- Soft filled fields deliberately avoid the default Android outlined-box treatment. -->
-    <style name="App.TextInput.Rounded" parent="Widget.Material3.TextInputLayout.FilledBox">
+    <!-- Liquid outlined fields avoid the Material filled-box underline on every form. -->
+    <style name="App.TextInput.Rounded" parent="Widget.Material3.TextInputLayout.OutlinedBox">
         <item name="boxCornerRadiusTopStart">@dimen/corner_large</item>
         <item name="boxCornerRadiusTopEnd">@dimen/corner_large</item>
         <item name="boxCornerRadiusBottomStart">@dimen/corner_large</item>
         <item name="boxCornerRadiusBottomEnd">@dimen/corner_large</item>
         <item name="boxBackgroundColor">#A8FFFFFF</item>
-        <item name="boxStrokeColor">#80FFFFFF</item>
+        <item name="boxStrokeColor">@color/button_stroke</item>
         <item name="boxStrokeWidth">1dp</item>
         <item name="boxStrokeWidthFocused">1dp</item>
         <item name="hintTextColor">@color/text_secondary</item>

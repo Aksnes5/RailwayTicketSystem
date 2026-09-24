@@ -1,6 +1,7 @@
 package com.railway.ticketsystem.fragment
 
 import android.app.AlertDialog
+import android.content.Intent
 import android.content.res.ColorStateList
 import android.os.Bundle
 import android.util.Log
@@ -14,6 +15,7 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.google.android.material.button.MaterialButton
 import com.railway.ticketsystem.R
+import com.railway.ticketsystem.activity.MemberGrowthActivity
 import com.railway.ticketsystem.data.MemberCoupon
 import com.railway.ticketsystem.data.MemberTravelSnapshot
 import com.railway.ticketsystem.data.MembershipRepository
@@ -48,6 +50,9 @@ class MembershipCenterFragment : Fragment() {
         // The dedicated 去充值 button is hidden; tapping the balance block opens the same dialog.
         binding.llWalletBalance.setOnClickListener {
             if (repositoriesReady) showRechargeDialog() else showMembershipUnavailable()
+        }
+        binding.cardTravelGrowth.setOnClickListener {
+            startActivity(Intent(requireContext(), MemberGrowthActivity::class.java))
         }
         binding.btnCheckIn.setOnClickListener {
             if (!repositoriesReady) {
@@ -359,16 +364,11 @@ class MembershipCenterFragment : Fragment() {
 
     private fun renderLedgers() {
         val points = membership.getPointLedger(userId).take(8)
-        binding.tvPointLedger.text = if (points.isEmpty()) "暂无积分流水，完成购票、候补兑现或任务即可获得积分。" else
-            "积分流水\n" + points.joinToString("\n") {
-                it.createdAt + "  " + cleanLegacyLabel(it.title) + "  " + String.format(Locale.CHINA, "%+d", it.delta)
-            }
+        binding.tvPointLedger.text = if (points.isEmpty()) "积分明细\n暂无流水 · 购票、候补兑现和完成任务后会在这里出现。" else
+            "积分明细\n" + points.joinToString("\n\n") { "${cleanLegacyLabel(it.title)}   ${String.format(Locale.CHINA, "%+d", it.delta)} 积分\n${it.createdAt}" }
         val wallet = membership.getWalletLedger(userId).take(6)
-        binding.tvWalletLedger.text = if (wallet.isEmpty()) "暂无钱包流水，充值后可用余额支付车票。" else
-            "钱包流水\n" + wallet.joinToString("\n") {
-                it.createdAt + "  " + cleanLegacyLabel(it.title) + "  " +
-                    String.format(Locale.CHINA, "%+.2f", it.amountCents / 100.0)
-            }
+        binding.tvWalletLedger.text = if (wallet.isEmpty()) "钱包明细\n暂无流水 · 充值后可使用余额支付。" else
+            "钱包明细\n" + wallet.joinToString("\n\n") { "${cleanLegacyLabel(it.title)}   ${String.format(Locale.CHINA, "%+.2f", it.amountCents / 100.0)}\n${it.createdAt} · 余额 ${String.format(Locale.CHINA, "%.2f", it.balanceCents / 100.0)}" }
     }
 
     private fun showRechargeDialog() {
@@ -413,7 +413,7 @@ class MembershipCenterFragment : Fragment() {
     }
 
     private fun memberRights(points: Int): String = when {
-        points >= 3_000 -> "铂金权益：专属客服标识 · 积分兑换优先 · 出行任务奖励展示"
+        points >= 3_000 -> "铂金权益：专属客服标识 · 积分兑换优先 · 成长权益"
         points >= 1_000 -> "金卡权益：兑换权益包 · 钱包快捷支付 · 丰富成长任务"
         points >= 300 -> "银卡权益：每日任务加速 · 优先解锁升座与改签权益"
         else -> "会员权益：每日签到、任务积分、权益兑换和铁路钱包。累计 300 分升级银卡。"

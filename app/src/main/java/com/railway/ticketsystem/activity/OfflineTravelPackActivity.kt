@@ -32,6 +32,7 @@ class OfflineTravelPackActivity : ImmersiveActivity() {
     private lateinit var switchAuto: SwitchMaterial
     private lateinit var btnPrepare: MaterialButton
     private lateinit var btnMap: MaterialButton
+    private lateinit var btnSatellite: MaterialButton
     private val executor: ExecutorService = Executors.newSingleThreadExecutor()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -86,23 +87,25 @@ class OfflineTravelPackActivity : ImmersiveActivity() {
             addView(text("行程包会保留已支付/已完成车票的座席、路线和经停时刻，以及已保存的酒店、电子凭证记录。", 13, R.color.text_secondary, false), margin(top = 6))
             btnPrepare = button("下载 / 更新本次行程") { prepare(includeMap = false) }
             addView(btnPrepare, margin(top = 14))
-            btnMap = quietButton("下载全国高清铁路地图（约 5–30 MB）") { prepare(includeMap = true) }
+            btnMap = quietButton("下载全国铁路地图") { prepare(includeMap = true) }
             addView(btnMap, margin(top = 8))
-            addView(text("地图覆盖全国范围 5–7 级高清底图与铁路矢量网络。下载完成后，线路地图无网络也可查看并缩放。", 13, R.color.railway_blue_deep, false), margin(top = 10))
+            btnSatellite = quietButton("下载高清卫星影像离线包") { prepare(includeSatellite = true) }
+            addView(btnSatellite, margin(top = 8))
+            addView(text("卫星包下载全国概览，并额外缓存已保存行程站点周边 15–16 级高清影像；避免一次下载全国最高层级造成超大存储占用。", 13, R.color.railway_blue_deep, false), margin(top = 10))
         })
     }
 
-    private fun prepare(includeMap: Boolean) {
+    private fun prepare(includeMap: Boolean = false, includeSatellite: Boolean = false) {
         val user = userRepository.getCurrentUser()
         if (user == null) { Toast.makeText(this, "请先登录", Toast.LENGTH_SHORT).show(); return }
-        btnPrepare.isEnabled = false; btnMap.isEnabled = false; tvProgress.visibility = View.VISIBLE
+        btnPrepare.isEnabled = false; btnMap.isEnabled = false; btnSatellite.isEnabled = false; tvProgress.visibility = View.VISIBLE
         executor.execute {
             val result = runCatching {
-                repository.prepareForUpcomingTrips(user.id, includeMap) { message -> runOnUiThread { tvProgress.text = message } }
+                repository.prepareForUpcomingTrips(user.id, includeMap, includeSatellite) { message -> runOnUiThread { tvProgress.text = message } }
             }
             runOnUiThread {
-                btnPrepare.isEnabled = true; btnMap.isEnabled = true; tvProgress.visibility = View.GONE
-                result.onSuccess { status -> refresh(status); Toast.makeText(this, if (includeMap) "全国离线地图已下载" else "行程离线包已更新", Toast.LENGTH_LONG).show() }
+                btnPrepare.isEnabled = true; btnMap.isEnabled = true; btnSatellite.isEnabled = true; tvProgress.visibility = View.GONE
+                result.onSuccess { status -> refresh(status); Toast.makeText(this, if (includeSatellite) "高清卫星影像已下载" else if (includeMap) "全国离线地图已下载" else "行程离线包已更新", Toast.LENGTH_LONG).show() }
                     .onFailure { Toast.makeText(this, "离线包下载失败，请检查网络后重试", Toast.LENGTH_LONG).show(); refresh() }
             }
         }
