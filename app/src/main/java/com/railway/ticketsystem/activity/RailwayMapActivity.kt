@@ -41,7 +41,7 @@ class RailwayMapActivity : AccessibleActivity() {
     private val gson = Gson()
     private var mapReady = false
     private lateinit var payload: RailwayMapPayload
-    private var satelliteBase = false
+    private var satelliteBase = true
     private val positionTicker = object : Runnable {
         override fun run() {
             updateLivePosition()

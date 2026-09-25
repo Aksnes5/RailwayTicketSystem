@@ -26,6 +26,17 @@
     /* Railway-first vector base: calm water/terrain cues below the route layer. */
     .railway-design-base { position:absolute; inset:0; z-index:0; width:100%; height:100%; pointer-events:none; }
     .leaflet-map-pane { z-index:1; }
+    .map-context-label, .map-station-label { background: transparent !important; border: 0 !important; white-space: nowrap; pointer-events: none; }
+    /* Geographic names are printed directly on imagery. Only railway stations use labels. */
+    .map-context-label span { display: inline-block; padding: 0; border: 0; border-radius: 0; color: #f8fcff; background: transparent; box-shadow: none;
+      font: 600 12px -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif; letter-spacing: .035em;
+      text-shadow: 0 1px 2px rgba(0,0,0,.94), 0 0 5px rgba(0,0,0,.68); }
+    .map-context-label.context-province span { color: #fff; font-size: 16px; font-weight: 700; letter-spacing: .08em; }
+    .map-context-label.context-county span { font-size: 10px; font-weight: 500; letter-spacing: 0; }
+    .map-station-label span { display: inline-flex; align-items: center; gap: 4px; padding: 3px 6px; border: 1px solid rgba(226,245,255,.72); border-radius: 10px;
+      color: #fff; background: rgba(4,54,93,.74); box-shadow: 0 3px 12px rgba(4,25,44,.30), inset 0 1px 0 rgba(255,255,255,.24);
+      font: 600 11px -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif; text-shadow: 0 1px 2px rgba(0,0,0,.65); backdrop-filter: blur(10px); }
+    .map-station-label i { width: 6px; height: 6px; border: 1.5px solid #fff; border-radius: 50%; background: #57b6ff; box-shadow: 0 0 0 2px rgba(87,182,255,.32); }
   </style>
 </head>
 <body>
@@ -47,7 +58,9 @@
     let liveTrainLayer;
     let standardLayer;
     let satelliteLayer;
-    let activeBase = 'standard';
+    let geographicLabelLayer;
+    let routeStationNameLayer;
+    let activeBase = 'satellite';
     let activePayload;
     let fallbackMode = false;
     const message = document.getElementById('message');
@@ -158,11 +171,17 @@
       // Do not leave Leaflet's default attribution plaque floating over the route.
       map = L.map('map', { zoomControl: false, attributionControl: false }).setView([35.86, 104.20], 4);
       L.control.zoom({ position: 'bottomright' }).addTo(map);
-      standardLayer = createRailwayDesignBase();
+      // Standard restores the familiar labelled OpenStreetMap base. The custom
+      // railway canvas remains bundled above for recovery, but is not exposed as
+      // a selectable base map.
+      standardLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19, minZoom: 3, detectRetina: true, crossOrigin: true
+      });
       satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
         maxZoom: 19, maxNativeZoom: 19, minZoom: 3, detectRetina: true, crossOrigin: true
       });
-      standardLayer.addTo(map);
+      satelliteLayer.addTo(map);
+      map.on('moveend zoomend', refreshSatelliteLabels);
       message.style.display = 'none';
     }
 
@@ -174,13 +193,79 @@
       if (!map || !standardLayer || !satelliteLayer) return activeBase;
       const target = nextBase === 'satellite' ? 'satellite' : 'standard';
       if (target === activeBase) return activeBase;
-      // Keep the custom railway base mounted under imagery, avoiding a white flash
-      // while satellite tiles load or when an offline tile is unavailable.
-      if (target === 'satellite') satelliteLayer.addTo(map);
-      else map.removeLayer(satelliteLayer);
+      if (target === 'satellite') {
+        map.removeLayer(standardLayer);
+        satelliteLayer.addTo(map);
+      } else {
+        map.removeLayer(satelliteLayer);
+        standardLayer.addTo(map);
+      }
       activeBase = target;
+      refreshSatelliteLabels();
+      refreshRouteStationLabels();
       return activeBase;
     };
+
+    function escapeLabel(value) {
+      return String(value || '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]);
+    }
+
+    function addContextLabel(layer, record, className) {
+      if (!record || !Number.isFinite(Number(record.latitude)) || !Number.isFinite(Number(record.longitude))) return;
+      const icon = L.divIcon({
+        className: `map-context-label ${className}`,
+        html: `<span>${escapeLabel(record.name)}</span>`,
+        iconSize: null,
+        iconAnchor: [0, 0]
+      });
+      L.marker([Number(record.latitude), Number(record.longitude)], { icon, interactive: false, keyboard: false }).addTo(layer);
+    }
+
+    function nearbyContextRecords(records, limit) {
+      if (!map || !Array.isArray(records)) return [];
+      const bounds = map.getBounds().pad(.08);
+      const center = map.getCenter();
+      return records
+        .filter(record => bounds.contains([Number(record.latitude), Number(record.longitude)]))
+        .sort((first, second) => map.distance(center, [Number(first.latitude), Number(first.longitude)]) - map.distance(center, [Number(second.latitude), Number(second.longitude)]))
+        .slice(0, limit);
+    }
+
+    function refreshSatelliteLabels() {
+      if (!map) return;
+      if (geographicLabelLayer) map.removeLayer(geographicLabelLayer);
+      geographicLabelLayer = null;
+      if (activeBase !== 'satellite') return;
+      const base = window.railwayMapBase || {};
+      const zoom = map.getZoom();
+      const layer = L.layerGroup().addTo(map);
+      if (zoom <= 5.5) nearbyContextRecords(base.provinces || [], 12).forEach(record => addContextLabel(layer, record, 'context-province'));
+      if (zoom >= 4.5) nearbyContextRecords(base.cities || [], zoom >= 7 ? 22 : 12).forEach(record => addContextLabel(layer, record, 'context-city'));
+      if (zoom >= 7) nearbyContextRecords(base.counties || [], zoom >= 9 ? 28 : 15).forEach(record => addContextLabel(layer, record, 'context-county'));
+      geographicLabelLayer = layer;
+    }
+
+    function refreshRouteStationLabels() {
+      if (!map) return;
+      if (routeStationNameLayer) map.removeLayer(routeStationNameLayer);
+      routeStationNameLayer = null;
+      if (activeBase !== 'satellite' || !activePayload) return;
+      const layer = L.layerGroup().addTo(map);
+      const bounds = map.getBounds().pad(.04);
+      (activePayload.routeStations || []).forEach((station, index) => {
+        const point = alignedStationPoints[index] || (Number.isFinite(Number(station.latitude)) && Number.isFinite(Number(station.longitude)) ? [Number(station.latitude), Number(station.longitude)] : null);
+        if (!point || !bounds.contains(point)) return;
+        const icon = L.divIcon({
+          className: 'map-station-label',
+          html: `<span><i></i>${escapeLabel(station.name)}</span>`,
+          iconSize: null,
+          iconAnchor: [-8, 7]
+        });
+        L.marker(point, { icon, interactive: false, keyboard: false }).addTo(layer);
+      });
+      routeStationNameLayer = layer;
+    }
+
     function markerStyle(station, payload) {
       if (station.name === payload.boardingStation) return { color: '#ffffff', fillColor: '#3b99fc', fillOpacity: 1, radius: 8, weight: 3 };
       if (station.name === payload.alightingStation) return { color: '#ffffff', fillColor: '#e64a19', fillOpacity: 1, radius: 8, weight: 3 };
@@ -190,6 +275,8 @@
     function clearRoute() {
       if (routeLayer) map.removeLayer(routeLayer);
       if (stationLayer) map.removeLayer(stationLayer);
+      if (routeStationNameLayer) map.removeLayer(routeStationNameLayer);
+      routeStationNameLayer = null;
       if (liveTrainLayer) map.removeLayer(liveTrainLayer);
       liveTrainLayer = null;
       legPaths = [];
@@ -908,6 +995,8 @@
       const bounds = routeLayer.getBounds();
       // Fit to the visible map area: native cards cover the top and bottom of the WebView.
       if (bounds.isValid()) map.fitBounds(bounds, { paddingTopLeft: [42, 154], paddingBottomRight: [42, 150], maxZoom: 7 });
+      refreshSatelliteLabels();
+      refreshRouteStationLabels();
       renderLiveTrain(Date.now());
     };
 

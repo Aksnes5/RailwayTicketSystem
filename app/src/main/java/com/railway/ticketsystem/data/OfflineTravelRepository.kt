@@ -92,7 +92,6 @@ class OfflineTravelRepository(context: Context) {
         val html = appContext.assets.open("railway_map.html").bufferedReader().use { it.readText() }
             .replace("https://unpkg.com/leaflet@1.9.4/dist/leaflet.css", "leaflet.css")
             .replace("https://unpkg.com/leaflet@1.9.4/dist/leaflet.js", "leaflet.js")
-            .replace("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", "tiles/{z}/{x}/{y}.png")
             .replace("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}", "../satellite_atlas/{z}/{y}/{x}.jpg")
             .replace("maxZoom: 19, minZoom: 3", "maxZoom: 10, maxNativeZoom: 7, minZoom: 3")
         File(map, "railway_map.html").writeText(html)
@@ -150,6 +149,6 @@ class OfflineTravelRepository(context: Context) {
         const val KEY_AUTO = "auto_prepare"
         const val KEY_UPDATED = "last_updated"
         const val MAP_SHELL_REVISION_FILE = ".railway_map_shell_revision"
-        const val MAP_SHELL_REVISION = "2026.09.25-railway-base-1"
+        const val MAP_SHELL_REVISION = "2026.09.25-satellite-labels-1"
     }
 }

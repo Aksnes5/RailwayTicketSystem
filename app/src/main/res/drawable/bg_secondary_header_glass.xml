@@ -1,17 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- A quiet, translucent navigation surface shared by every second-level page. -->
-    <item>
-        <shape android:shape="rectangle">
-            <gradient
-                android:angle="270"
-                android:startColor="#B8FFFFFF"
-                android:endColor="#86DDEFFF" />
-        </shape>
-    </item>
-    <item android:height="1dp" android:gravity="bottom">
-        <shape android:shape="rectangle">
-            <solid android:color="#2451789C" />
-        </shape>
-    </item>
+    <item><shape android:shape="rectangle"><gradient android:angle="270" android:startColor="#F2FFFFFF" android:endColor="#D7EEF9FF" /></shape></item>
+    <item android:height="1dp" android:gravity="bottom"><shape android:shape="rectangle"><solid android:color="#2B8CC9EE" /></shape></item>
+    <item android:height="2dp" android:gravity="top"><shape android:shape="rectangle"><gradient android:angle="0" android:startColor="#00FFFFFF" android:centerColor="#FFFFFFFF" android:endColor="#00FFFFFF" /></shape></item>
 </layer-list>

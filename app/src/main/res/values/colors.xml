@@ -1,38 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- 12306-inspired light-blue service palette: bright, clear and low contrast. -->
-    <color name="railway_blue">#258CF4</color>
-    <color name="railway_blue_light">#E8F4FF</color>
-    <color name="railway_blue_dark">#0F6FC4</color>
-    <color name="railway_blue_deep">#0A5AA8</color>
-    <color name="hero_sky">#BCE4FF</color>
+    <!-- White + iOS-system-blue palette. Blue is reserved for hierarchy and selection. -->
+    <color name="railway_blue">#0A84FF</color>
+    <color name="railway_blue_light">#EAF6FF</color>
+    <color name="railway_blue_dark">#0077ED</color>
+    <color name="railway_blue_deep">#005CC8</color>
+    <color name="hero_sky">#D9F1FF</color>
     <color name="railway_red">#E64A19</color>
     <color name="railway_red_dark">#BF360C</color>
     <color name="railway_orange">#F56A00</color>
-    <color name="surface">#F3F8FD</color>
-    <color name="surface_container">#C4FFFFFF</color>
-    <color name="surface_tint">#DDF8FBFF</color>
-    <color name="divider">#B8C9D8E6</color>
-    <color name="button_stroke">#B9D5EE</color>
-    <color name="action_surface">#E8F3FF</color>
-    <color name="action_surface_pressed">#D7EBFF</color>
-    <color name="text_primary">#182230</color>
-    <color name="text_secondary">#667085</color>
+    <color name="surface">#FBFDFF</color>
+    <color name="surface_container">#E8FFFFFF</color>
+    <color name="surface_tint">#EAF6FF</color>
+    <color name="divider">#73B8DFFF</color>
+    <color name="button_stroke">#94CBE9</color>
+    <color name="action_surface">#EAF6FF</color>
+    <color name="action_surface_pressed">#D8EEFF</color>
+    <color name="text_primary">#13263A</color>
+    <color name="text_secondary">#4D718F</color>
     <color name="success">#16A06A</color>
     <color name="success_container">#E9F8F0</color>
     <color name="white">#FFFFFF</color>
     <color name="black">#000000</color>
-    <color name="gray_light">#F3F8FD</color>
-    <color name="gray_medium">#98A2B3</color>
-    <color name="gray_dark">#344054</color>
+    <!-- Legacy names intentionally stay blue-tinted instead of neutral gray. -->
+    <color name="gray_light">#F5FBFF</color>
+    <color name="gray_medium">#87A9C3</color>
+    <color name="gray_dark">#2B4C66</color>
     <color name="green">#4CAF50</color>
     <color name="green_light">#E9F8F0</color>
     <color name="green_soft">#81C784</color>
     <color name="orange">#FF9800</color>
     <color name="orange_light">#FFF3E0</color>
-    
-    <!-- Material Design colors -->
-    <color name="colorPrimary">#258CF4</color>
-    <color name="colorPrimaryDark">#0F6FC4</color>
-    <color name="colorAccent">#F56A00</color>
+    <color name="colorPrimary">#0A84FF</color>
+    <color name="colorPrimaryDark">#0077ED</color>
+    <color name="colorAccent">#0A84FF</color>
 </resources>

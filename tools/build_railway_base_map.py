@@ -44,6 +44,22 @@ CITY_FALLBACKS = {
 }
 
 
+# Compact provincial anchors for satellite imagery. Administrative borders are not
+# bundled, so names are deliberately a readable overlay rather than a fake boundary.
+PROVINCE_LABELS = [
+    ("北京", 116.40, 39.90), ("天津", 117.20, 39.08), ("河北", 114.50, 38.04),
+    ("山西", 112.55, 37.87), ("内蒙古", 111.75, 40.84), ("辽宁", 123.43, 41.81),
+    ("吉林", 125.32, 43.82), ("黑龙江", 126.54, 45.80), ("上海", 121.47, 31.23),
+    ("江苏", 118.80, 32.06), ("浙江", 120.16, 30.27), ("安徽", 117.23, 31.82),
+    ("福建", 119.30, 26.07), ("江西", 115.86, 28.68), ("山东", 116.99, 36.65),
+    ("河南", 113.63, 34.75), ("湖北", 114.31, 30.59), ("湖南", 112.94, 28.23),
+    ("广东", 113.26, 23.13), ("广西", 108.37, 22.82), ("海南", 110.20, 20.04),
+    ("重庆", 106.55, 29.56), ("四川", 104.07, 30.57), ("贵州", 106.63, 26.65),
+    ("云南", 102.83, 24.88), ("西藏", 91.13, 29.66), ("陕西", 108.94, 34.34),
+    ("甘肃", 103.83, 36.06), ("青海", 101.78, 36.62), ("宁夏", 106.23, 38.49),
+    ("新疆", 87.62, 43.83), ("香港", 114.17, 22.32), ("澳门", 113.54, 22.20),
+    ("台湾", 121.57, 25.04),
+]
 def is_major_river(name):
     return name in RIVER_NAMES or name.startswith("长江") or name.startswith("黄河")
 
@@ -71,22 +87,36 @@ def build(source_root):
 
     place_columns = read_dbf(places + ".dbf", ["name", "fclass"])
     cities = []
-    seen = set()
+    counties = []
+    city_seen = set()
+    county_seen = set()
     for index, (longitude, latitude) in read_points(places + ".shp"):
         if index >= len(place_columns["name"]):
             continue
-        name = place_columns["name"][index].strip()
+        raw_name = place_columns["name"][index].strip()
         kind = place_columns["fclass"][index]
-        if name not in CITY_NAMES or kind not in {"city", "national_capital"} or name in seen:
+        # Prefer the first local-language form of multilingual OSM place names.
+        name = raw_name.split(" /")[0].strip()
+        if not name or len(name) > 18:
             continue
-        seen.add(name)
-        cities.append({"name": name, "longitude": round(longitude, 5), "latitude": round(latitude, 5)})
+        record = {"name": name, "longitude": round(longitude, 5), "latitude": round(latitude, 5)}
+        if kind in {"city", "national_capital"} and name not in city_seen:
+            city_seen.add(name)
+            cities.append(record)
+        elif (kind == "county" or (kind == "suburb" and name.endswith(("区", "县", "旗")))) and name not in county_seen:
+            county_seen.add(name)
+            counties.append(record)
 
+    # The free point export omits or renames some provincial capitals; retain
+    # compact vetted anchors for readable nationwide satellite labels.
     for name, (longitude, latitude) in CITY_FALLBACKS.items():
-        if name not in seen:
+        if name not in city_seen:
             cities.append({"name": name, "longitude": longitude, "latitude": latitude})
-    cities.sort(key=lambda city: city["name"] )
-    return {"rivers": rivers, "cities": cities}
+    cities.sort(key=lambda city: city["name"])
+    counties.sort(key=lambda county: county["name"])
+    provinces = [{"name": name, "longitude": longitude, "latitude": latitude}
+                 for name, longitude, latitude in PROVINCE_LABELS]
+    return {"rivers": rivers, "cities": cities, "counties": counties, "provinces": provinces}
 
 
 def main():
