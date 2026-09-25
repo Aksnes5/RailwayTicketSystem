@@ -77,6 +77,7 @@ class OfflineTravelRepository(context: Context) {
         val map = nationalMapDirectory().apply { mkdirs() }
         progress?.invoke("正在准备全国铁路地图…")
         copyAsset("railway_network.js", File(map, "railway_network.js"))
+        copyAsset("railway_map_fallback.js", File(map, "railway_map_fallback.js"))
         val html = appContext.assets.open("railway_map.html").bufferedReader().use { it.readText() }
             .replace("https://unpkg.com/leaflet@1.9.4/dist/leaflet.css", "leaflet.css")
             .replace("https://unpkg.com/leaflet@1.9.4/dist/leaflet.js", "leaflet.js")
