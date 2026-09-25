@@ -68,16 +68,26 @@ class OfflineTravelRepository(context: Context) {
         )
     }
 
-    fun offlineMapHtml(): File? = File(nationalMapDirectory(), "railway_map.html")
-        .takeIf { it.exists() && File(nationalMapDirectory(), "leaflet.js").exists() && countTiles(nationalMapDirectory(), "png") > 0 }
+    /**
+     * An offline tile atlas can survive an APK update, but its HTML shell and rail
+     * geometry cannot: a stale shell may reference assets which no longer exist and
+     * leave the WebView blank. In that case use the current bundled map immediately.
+     */
+    fun offlineMapHtml(): File? {
+        val map = nationalMapDirectory()
+        val html = File(map, "railway_map.html")
+        val complete = html.exists() && File(map, "leaflet.js").exists() && countTiles(map, "png") > 0
+        val revision = File(map, MAP_SHELL_REVISION_FILE).takeIf(File::exists)?.readText()?.trim()
+        return html.takeIf { complete && revision == MAP_SHELL_REVISION }
+    }
 
     fun clear() { packRoot().deleteRecursively(); prefs.edit().remove(KEY_UPDATED).apply() }
 
     private fun copyBundledMapShell(progress: ((String) -> Unit)?) {
         val map = nationalMapDirectory().apply { mkdirs() }
         progress?.invoke("正在准备全国铁路地图…")
-        copyAsset("railway_network.js", File(map, "railway_network.js"))
-        copyAsset("railway_map_fallback.js", File(map, "railway_map_fallback.js"))
+        copyAsset("railway_network.js", File(map, "railway_network.js"), overwrite = true)
+        copyAsset("railway_map_fallback.js", File(map, "railway_map_fallback.js"), overwrite = true)
         val html = appContext.assets.open("railway_map.html").bufferedReader().use { it.readText() }
             .replace("https://unpkg.com/leaflet@1.9.4/dist/leaflet.css", "leaflet.css")
             .replace("https://unpkg.com/leaflet@1.9.4/dist/leaflet.js", "leaflet.js")
@@ -85,6 +95,7 @@ class OfflineTravelRepository(context: Context) {
             .replace("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}", "../satellite_atlas/{z}/{y}/{x}.jpg")
             .replace("maxZoom: 19, minZoom: 3", "maxZoom: 10, maxNativeZoom: 7, minZoom: 3")
         File(map, "railway_map.html").writeText(html)
+        File(map, MAP_SHELL_REVISION_FILE).writeText(MAP_SHELL_REVISION)
     }
 
     /** Nationwide overview plus high-detail (z15–16) tiles around saved trip stations. */
@@ -124,12 +135,22 @@ class OfflineTravelRepository(context: Context) {
     private fun downloadSatellite(root: File, tile: Triple<Int, Int, Int>) { val (z, x, y) = tile; download("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/$z/$y/$x", File(root, "$z/$y/$x.jpg")) }
     private fun countTiles(root: File, extension: String) = root.takeIf(File::exists)?.walkTopDown()?.count { it.isFile && it.extension == extension } ?: 0
     private fun directoryBytes(root: File) = if (root.exists()) root.walkTopDown().filter { it.isFile }.sumOf { it.length() } else 0L
-    private fun copyAsset(name: String, target: File) { if (target.exists() && target.length() > 0) return; target.parentFile?.mkdirs(); appContext.assets.open(name).use { input -> target.outputStream().use(input::copyTo) } }
+    private fun copyAsset(name: String, target: File, overwrite: Boolean = false) {
+        if (!overwrite && target.exists() && target.length() > 0) return
+        target.parentFile?.mkdirs()
+        appContext.assets.open(name).use { input -> target.outputStream().use(input::copyTo) }
+    }
     private fun download(url: String, target: File) { if (target.exists() && target.length() > 200) return; target.parentFile?.mkdirs(); val temp = File(target.parentFile, "${target.name}.part"); runCatching { val c = URL(url).openConnection() as HttpURLConnection; c.connectTimeout = 12_000; c.readTimeout = 20_000; c.setRequestProperty("User-Agent", "RailwayTravelOfflinePack/2.0"); c.inputStream.use { input -> temp.outputStream().use(input::copyTo) }; if (temp.length() > 0) { if (target.exists()) target.delete(); temp.renameTo(target) } }.onFailure { temp.delete() } }
     private fun lonToTile(lon: Double, z: Int) = floor((lon + 180.0) / 360.0 * (1 shl z)).toInt()
     private fun latToTile(lat: Double, z: Int): Int { val r = lat * PI / 180.0; return floor((1.0 - ln(tan(r) + 1.0 / cos(r)) / PI) / 2.0 * (1 shl z)).toInt() }
     private fun packRoot() = File(appContext.filesDir, "offline_travel_pack")
     private fun nationalMapDirectory() = File(packRoot(), "national_hd_map")
     private fun satelliteDirectory() = File(packRoot(), "satellite_atlas")
-    private companion object { const val PREFS = "offline_travel_settings"; const val KEY_AUTO = "auto_prepare"; const val KEY_UPDATED = "last_updated" }
+    private companion object {
+        const val PREFS = "offline_travel_settings"
+        const val KEY_AUTO = "auto_prepare"
+        const val KEY_UPDATED = "last_updated"
+        const val MAP_SHELL_REVISION_FILE = ".railway_map_shell_revision"
+        const val MAP_SHELL_REVISION = "2026.09.25-map-recovery-1"
+    }
 }

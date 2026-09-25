@@ -49,6 +49,26 @@
     const message = document.getElementById('message');
     const DAY_MILLIS = 24 * 60 * 60 * 1000;
 
+    function activateFallback(payload, errorMessage) {
+      if (!window.RailwayMapFallback) {
+        message.textContent = errorMessage || '铁路地图暂不可用';
+        message.style.display = 'block';
+        return;
+      }
+      fallbackMode = true;
+      const safePayload = payload || activePayload;
+      if (!safePayload) return;
+      const offlinePayload = { ...safePayload, routeStations: withNetworkStationPoints(safePayload.routeStations || []) };
+      activePayload = offlinePayload;
+      window.RailwayMapFallback.initialize(message);
+      window.RailwayMapFallback.render(offlinePayload);
+    }
+
+    // A malformed or stale local map package must never leave the activity blank.
+    window.addEventListener('error', function(event) {
+      if (!fallbackMode && activePayload) activateFallback(activePayload, event.message || '铁路地图加载异常');
+    });
+
     function initialize() {
       if (!window.L) {
         fallbackMode = true;
@@ -747,16 +767,21 @@
     }
 
     window.renderRailwayRoute = function(payload) {
-      if (fallbackMode && window.RailwayMapFallback) {
-        // Keep exact OSM station pins in offline canvas mode too. A network
-        // outage must not turn a station such as 汉川 into its city-centre point.
-        const offlinePayload = { ...payload, routeStations: withNetworkStationPoints(payload.routeStations || []) };
-        activePayload = offlinePayload;
-        window.RailwayMapFallback.render(offlinePayload);
+      // Save the payload first so any routing error can still render the bundled canvas map.
+      activePayload = payload;
+      if (fallbackMode) {
+        activateFallback(payload);
         return;
       }
       if (!map) initialize();
-      if (!map) return;
+      if (fallbackMode) {
+        activateFallback(payload);
+        return;
+      }
+      if (!map) {
+        activateFallback(payload, '铁路地图引擎未初始化');
+        return;
+      }
       clearRoute();
       const routeStations = withNetworkStationPoints(payload.routeStations || [])
         .filter(s => Number.isFinite(s.latitude) && Number.isFinite(s.longitude));
