@@ -89,6 +89,16 @@ object PhysicalRailCorridorResolver {
      * back to a same-line OSM match if a particular imported corridor is not
      * part of the bundled geometry yet.
      */
+    // Some catalog services are commercial names for a physical trunk whose
+    // OSM geometry is stored under the operational line name. Keep this map
+    // deliberately small and evidence-based; a fuzzy match could put a
+    // service on a parallel railway.
+    private val mapCorridorAliases = mapOf(
+        "贵昆铁路" to "沪昆铁路",
+        "兰张高铁" to "兰新高铁",
+        "合安高铁" to "京港高铁"
+    )
+
     private fun catalogCorridors(network: MapRailNetwork): List<Corridor> =
         RailwayRouteManager.getAllRoutes().asSequence()
             .filter { route ->
@@ -103,7 +113,7 @@ object PhysicalRailCorridorResolver {
                 Corridor(
                     id = "catalog:${route.routeId}",
                     network = network,
-                    mapCorridor = route.routeName,
+                    mapCorridor = mapCorridorAliases[route.routeName] ?: route.routeName,
                     stationNames = route.stations.map { it.name }
                 )
             }
