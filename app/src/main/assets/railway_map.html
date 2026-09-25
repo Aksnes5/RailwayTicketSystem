@@ -640,30 +640,32 @@
     function pathForAnchorPair(fromStation, toStation, fromCandidates, toCandidates, corridorHints) {
       const direct = segmentLengthKm(fromStation, toStation);
       if (direct <= 0) return null;
-      // Kotlin supplies a physical-corridor hint for shared/continued lines.
-      // The hint is intentionally optional: imported routes that do not need
-      // alias resolution retain the conservative same-corridor behaviour.
+      // A manual alignment intentionally stays unsnapped. For every other
+      // hint, first prefer the declared corridor, then safely retry a shared
+      // OSM line when that corridor is not bundled locally yet.
       const allowedCorridors = new Set((corridorHints || []).filter(hint => hint && hint !== "__manual_physical_alignment__"));
       if ((corridorHints || []).includes("__manual_physical_alignment__")) return null;
-      let best = null;
-      for (const from of fromCandidates) {
-        for (const to of toCandidates) {
-          if (allowedCorridors.size > 0) {
-            if (!allowedCorridors.has(from.line) || !allowedCorridors.has(to.line)) continue;
-          } else if (from.line !== to.line) {
-            continue;
+      const findBest = (requireHint) => {
+        let best = null;
+        for (const from of fromCandidates) {
+          for (const to of toCandidates) {
+            if (requireHint) {
+              if (!allowedCorridors.has(from.line) || !allowedCorridors.has(to.line)) continue;
+            } else if (from.line !== to.line) {
+              continue;
+            }
+            const path = routeBetween(from.id, to.id);
+            if (!path || path.length < 2) continue;
+            const length = pathLengthKm(path);
+            if (length > direct * MAX_DETOUR_RATIO) continue;
+            const score = length / direct + (from.km + to.km) / Math.max(direct, 1);
+            if (!best || score < best.score) best = { path, length, score };
           }
-          const path = routeBetween(from.id, to.id);
-          if (!path || path.length < 2) continue;
-          const length = pathLengthKm(path);
-          if (length > direct * MAX_DETOUR_RATIO) continue;
-          const score = length / direct + (from.km + to.km) / Math.max(direct, 1);
-          if (!best || score < best.score) best = { path, length, score };
         }
-      }
-      return best;
+        return best;
+      };
+      return (allowedCorridors.size > 0 ? findBest(true) : null) || findBest(false);
     }
-
     /**
      * Snaps only reliable station anchors to the rails.
      *
@@ -738,8 +740,11 @@
 
     window.renderRailwayRoute = function(payload) {
       if (fallbackMode && window.RailwayMapFallback) {
-        activePayload = payload;
-        window.RailwayMapFallback.render(payload);
+        // Keep exact OSM station pins in offline canvas mode too. A network
+        // outage must not turn a station such as 汉川 into its city-centre point.
+        const offlinePayload = { ...payload, routeStations: withNetworkStationPoints(payload.routeStations || []) };
+        activePayload = offlinePayload;
+        window.RailwayMapFallback.render(offlinePayload);
         return;
       }
       if (!map) initialize();

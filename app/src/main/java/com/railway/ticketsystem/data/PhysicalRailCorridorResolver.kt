@@ -1,5 +1,8 @@
 package com.railway.ticketsystem.data
 
+import com.railway.ticketsystem.model.RailwayRouteManager
+import com.railway.ticketsystem.model.RouteType
+
 /**
  * Converts a logical passenger service into physical railway sections for the route map.
  * It is map-only: the order's published calls and timetable never change here.
@@ -34,7 +37,7 @@ object PhysicalRailCorridorResolver {
     /** No matching OSM way is bundled yet: retain the actual station chain, never snap to a parallel line. */
     private const val MANUAL_ALIGNMENT = "__manual_physical_alignment__"
 
-    private val corridors = listOf(
+    private val baseCorridors = listOf(
         Corridor("wuhan-hub", MapRailNetwork.HIGH_SPEED, "武汉枢纽连接线", listOf("武汉", "汉口", "武昌", "武汉东")),
         Corridor("wuyi-hanyi", MapRailNetwork.HIGH_SPEED, "武宜高铁", listOf("汉口", "汉川北", "天门", "京山南", "钟祥南", "荆门西", "当阳西", "宜昌北", "宜昌东")),
         Corridor("hanxiao-hanshi", MapRailNetwork.HIGH_SPEED, "汉十高铁", listOf("汉口", "后湖", "金银潭", "天河机场", "天河街", "闵集", "毛陈", "槐荫", "孝感东", "云梦东", "安陆西", "随州南", "随县", "枣阳", "襄阳东", "隆中", "谷城北", "丹江口南", "武当山西", "十堰东")),
@@ -58,19 +61,53 @@ object PhysicalRailCorridorResolver {
         val stations = rawStations.asSequence().map(String::trim).filter(String::isNotBlank)
             .fold(mutableListOf<String>()) { result, station -> if (result.lastOrNull() != station) result.add(station); result }
         if (stations.size < 2) return ResolvedRoute(stations, emptyList())
-        val scoped = corridors.filter { it.network == network }
+        // The static list preserves known alias and hub connectors. The route
+        // catalogue then contributes every installed passenger line as a
+        // physical station chain, so newly imported routes are not reduced to
+        // a single city-to-city chord on the map.
+        val staticScoped = baseCorridors.filter { it.network == network }
+        val scoped = staticScoped + catalogCorridors(network)
         var index = 0
         while (index < stations.lastIndex) {
             val from = stations[index]
             val to = stations[index + 1]
             val direct = scoped.asSequence().mapNotNull { it.sectionBetween(from, to)?.takeIf { section -> section.size > 2 } }
                 .minByOrNull { it.size }
-            val replacement = direct ?: findConnectedSection(from, to, scoped)
+            val replacement = direct ?: findConnectedSection(from, to, staticScoped)
             if (replacement == null || replacement.size <= 2) index++
             else { stations.addAll(index + 1, replacement.drop(1)); index += replacement.lastIndex }
         }
         return ResolvedRoute(stations, stations.zipWithNext { from, to -> scoped.firstOrNull { it.containsLeg(from, to) }?.mapCorridor })
     }
+
+    /**
+     * Routes are registered before any search result can be opened. Reusing
+     * that one catalogue keeps new lines (including 沈白、广湛等) mapped
+     * without maintaining a second, error-prone station list.
+     *
+     * The preferred corridor name is deliberately soft: the web map falls
+     * back to a same-line OSM match if a particular imported corridor is not
+     * part of the bundled geometry yet.
+     */
+    private fun catalogCorridors(network: MapRailNetwork): List<Corridor> =
+        RailwayRouteManager.getAllRoutes().asSequence()
+            .filter { route ->
+                val samePhysicalNetwork = if (network == MapRailNetwork.CONVENTIONAL) {
+                    route.routeType == RouteType.CONVENTIONAL
+                } else {
+                    route.routeType != RouteType.CONVENTIONAL
+                }
+                samePhysicalNetwork && route.stations.size > 1
+            }
+            .map { route ->
+                Corridor(
+                    id = "catalog:${route.routeId}",
+                    network = network,
+                    mapCorridor = route.routeName,
+                    stationNames = route.stations.map { it.name }
+                )
+            }
+            .toList()
 
     /** Follows only explicit shared endpoints, preserving real junctions and registered connectors. */
     private fun findConnectedSection(from: String, to: String, scoped: List<Corridor>): List<String>? {

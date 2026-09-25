@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.railway.ticketsystem.R
 import com.railway.ticketsystem.adapter.TrainStopScheduleAdapter
 import com.railway.ticketsystem.data.RailwayData
+import com.railway.ticketsystem.data.MapRailNetwork
 import com.railway.ticketsystem.data.RoutePresentationPlanner
 import com.railway.ticketsystem.data.TrainSetResolver
 import com.railway.ticketsystem.data.TrainStopSchedulePlanner
@@ -14,6 +15,7 @@ import com.railway.ticketsystem.data.TimetableStopStatusResolver
 import com.railway.ticketsystem.data.TrainStopSchedule
 import com.railway.ticketsystem.databinding.ActivityTrainDetailBinding
 import com.railway.ticketsystem.model.Train
+import com.railway.ticketsystem.model.RouteType
 
 class TrainDetailActivity : ImmersiveActivity() {
     
@@ -104,7 +106,12 @@ class TrainDetailActivity : ImmersiveActivity() {
                     boardingStation = train.departureStation,
                     alightingStation = train.arrivalStation,
                     departureDate = departureDate,
-                    timetableStops = mapTimetable
+                    timetableStops = mapTimetable,
+                    network = if (train.routeType == RouteType.CONVENTIONAL) {
+                        MapRailNetwork.CONVENTIONAL
+                    } else {
+                        MapRailNetwork.HIGH_SPEED
+                    }
                 )
             )
         }
