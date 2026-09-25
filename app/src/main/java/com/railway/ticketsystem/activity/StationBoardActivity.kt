@@ -102,6 +102,10 @@ class StationBoardActivity : ImmersiveActivity() {
             setCardBackgroundColor(Color.parseColor("#B8FFFFFF"))
             strokeWidth = dp(1)
             strokeColor = Color.parseColor("#BFFFFFFF")
+            isClickable = true
+            isFocusable = true
+            foreground = ContextCompat.getDrawable(this@StationBoardActivity, R.drawable.ripple_glass)
+            setOnClickListener { openTrainDetail(entry) }
             layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
                 topMargin = dp(6)
             }
@@ -116,6 +120,12 @@ class StationBoardActivity : ImmersiveActivity() {
         row.addView(column("${entry.platform}\n${entry.status}", .8f, android.view.Gravity.END, if (entry.status == "正点") R.color.success else R.color.railway_blue, false))
         card.addView(row)
         return card
+    }
+
+    private fun openTrainDetail(entry: com.railway.ticketsystem.data.StationBoardEntry) {
+        startActivity(Intent(this, TrainDetailActivity::class.java)
+            .putExtra("train", entry.train)
+            .putExtra("departureDate", todayDate()))
     }
 
     private fun column(text: String, weight: Float, gravity: Int, color: Int, bold: Boolean) = TextView(this).apply {

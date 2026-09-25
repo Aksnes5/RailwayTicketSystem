@@ -90,6 +90,8 @@ class MealOrderRepository(context: Context) {
 }
 
 data class StationBoardEntry(
+    /** The same generated service opens the normal purchase/detail screen. */
+    val train: Train,
     val trainNumber: String,
     val direction: String,
     val terminal: String,
@@ -108,9 +110,10 @@ data class StationBoardEntry(
  * [TrainGenerator] through [ServiceSeparatedTrainCatalog].
  */
 object StationBoardGenerator {
-    private const val QUERIES_PER_DIRECTION = 3
-    private const val TRAINS_PER_QUERY = 8
-    private const val MAX_ENTRIES = 18
+    // Hubs may connect many corridors; do not collapse the board to only three directions.
+    private const val QUERIES_PER_DIRECTION = 8
+    private const val TRAINS_PER_QUERY = 10
+    private const val MAX_ENTRIES = 80
 
     private enum class BoardDirection(val label: String) {
         DEPARTURE("开往"),
@@ -211,6 +214,7 @@ object StationBoardGenerator {
         if (terminal.isBlank() || terminal == station) return null
 
         return StationBoardEntry(
+            train = train,
             trainNumber = train.number,
             direction = query.direction.label,
             terminal = terminal,
