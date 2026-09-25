@@ -149,6 +149,6 @@ class OfflineTravelRepository(context: Context) {
         const val KEY_AUTO = "auto_prepare"
         const val KEY_UPDATED = "last_updated"
         const val MAP_SHELL_REVISION_FILE = ".railway_map_shell_revision"
-        const val MAP_SHELL_REVISION = "2026.09.25-satellite-labels-3"
+        const val MAP_SHELL_REVISION = "2026.09.25-satellite-labels-4"
     }
 }

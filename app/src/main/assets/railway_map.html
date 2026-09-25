@@ -228,27 +228,23 @@
       L.marker([Number(record.latitude), Number(record.longitude)], { icon, interactive: false, keyboard: false }).addTo(layer);
     }
 
-    function nearbyContextRecords(records, limit) {
+    function visibleContextRecords(records) {
       if (!map || !Array.isArray(records)) return [];
       const bounds = map.getBounds().pad(.08);
-      const center = map.getCenter();
-      // Keep a small reserve: close names can be discarded before the visible quota is filled.
-      return records
-        .filter(record => bounds.contains([Number(record.latitude), Number(record.longitude)]))
-        .sort((first, second) => map.distance(center, [Number(first.latitude), Number(first.longitude)]) - map.distance(center, [Number(second.latitude), Number(second.longitude)]))
-        .slice(0, Math.max(limit * 6, limit));
+      // Every eligible name in the visible map frame participates. This must not
+      // depend on the viewport centre, otherwise panning silently drops labels.
+      return records.filter(record => bounds.contains([Number(record.latitude), Number(record.longitude)]));
     }
 
-    function addDistinctContextLabels(layer, records, limit, className, occupied, minimumDistanceKm) {
-      let added = 0;
-      nearbyContextRecords(records, limit).forEach(record => {
-        if (added >= limit) return;
+    function addDistinctContextLabels(layer, records, className, occupied, minimumDistanceKm) {
+      visibleContextRecords(records).forEach(record => {
         const candidate = [Number(record.latitude), Number(record.longitude)];
+        // Remove true duplicates / overlapping small labels, not a broad area of
+        // valid place names elsewhere in the same frame.
         const conflicts = occupied.some(existing => existing.name === record.name || map.distance(candidate, existing.point) < minimumDistanceKm * 1000);
         if (conflicts) return;
         addContextLabel(layer, record, className);
         occupied.push({ name: record.name, point: candidate });
-        added++;
       });
     }
 
@@ -261,9 +257,9 @@
       const zoom = map.getZoom();
       const layer = L.layerGroup().addTo(map);
       const occupied = [];
-      if (zoom <= 5.5) addDistinctContextLabels(layer, base.provinces || [], 12, 'context-province', occupied, 60);
-      if (zoom >= 4.5) addDistinctContextLabels(layer, base.cities || [], zoom >= 7 ? 22 : 12, 'context-city', occupied, zoom >= 7 ? 22 : 85);
-      if (zoom >= 7) addDistinctContextLabels(layer, base.counties || [], zoom >= 9 ? 28 : 15, 'context-county', occupied, zoom >= 9 ? 8 : 18);
+      if (zoom <= 5.5) addDistinctContextLabels(layer, base.provinces || [], 'context-province', occupied, 18);
+      if (zoom >= 4.5) addDistinctContextLabels(layer, base.cities || [], 'context-city', occupied, zoom >= 7 ? 8 : 18);
+      if (zoom >= 7) addDistinctContextLabels(layer, base.counties || [], 'context-county', occupied, zoom >= 9 ? 3 : 7);
       geographicLabelLayer = layer;
     }
 
