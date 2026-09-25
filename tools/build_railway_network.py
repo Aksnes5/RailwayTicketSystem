@@ -88,6 +88,72 @@ CORRIDOR_ALIASES = {
     "池黄高铁": ["池黄"],
 }
 
+# NationalPassengerRailCatalog and the conventional graph already expose these
+# passenger corridors to search. They must be selected from the supplied OSM
+# extract too; otherwise their detail maps degrade to city-to-city chords.
+# Keys mirror routeName exactly so PhysicalRailCorridorResolver can prefer the
+# same named geometry. Values are the OSM operational-name substrings.
+NATIONAL_CORRIDOR_ALIASES = {
+    # High-speed and intercity passenger corridors.
+    "京津城际铁路": ["京津城际"], "京张高铁": ["京张"], "京雄城际铁路": ["京雄"],
+    "京唐城际铁路": ["京唐"], "津兴城际铁路": ["津兴"], "大张高铁": ["大张"],
+    "石太客专": ["石太"], "大西高铁": ["大西"], "郑太高铁": ["郑太"],
+    "郑济高铁": ["郑济"], "郑阜高铁": ["郑阜"], "商杭高铁": ["商合杭", "商杭"],
+    "合蚌高铁": ["合蚌"], "合安高铁": ["合安"], "宁杭高铁": ["宁杭"],
+    "杭甬高铁": ["杭甬"], "甬台温铁路": ["甬台温"], "温福铁路": ["温福"],
+    "福厦高铁": ["福厦"], "金温铁路": ["金温"], "金台铁路": ["金台"],
+    "衢宁铁路": ["衢宁"], "昌景黄高铁": ["昌景黄"], "赣瑞龙铁路": ["赣瑞龙"],
+    "南龙铁路": ["南龙"], "济青高铁": ["济青"], "青荣城际铁路": ["青荣"],
+    "潍莱高铁": ["潍莱"], "日兰高铁": ["日兰"], "青盐铁路": ["青盐"],
+    "连镇高铁": ["连镇"], "徐盐高铁": ["徐盐"], "盐通高铁": ["盐通"],
+    "沪苏通铁路": ["沪苏通"], "沪苏湖高铁": ["沪苏湖"], "南沿江城际铁路": ["南沿江"],
+    "宁启铁路": ["宁启"], "张吉怀高铁": ["张吉怀"], "黔张常铁路": ["黔张常"],
+    "怀邵衡铁路": ["怀邵衡"], "长株潭城际铁路": ["长株潭"], "荆荆高铁": ["荆荆"],
+    "黄黄高铁": ["黄黄"], "郑开城际铁路": ["郑开"], "武咸城际铁路": ["武咸"],
+    "广汕高铁": ["广汕"], "汕汕高铁": ["汕汕"], "梅汕铁路": ["梅汕"],
+    "深湛铁路江茂段": ["深湛", "江茂"], "南广铁路": ["南广"], "贵南高铁": ["贵南"],
+    "南凭高铁": ["南凭"], "南玉高铁": ["南玉"], "渝贵铁路": ["渝贵"],
+    "成贵高铁": ["成贵"], "成绵乐客专": ["成绵乐"], "成自宜高铁": ["成自宜"],
+    "川南城际铁路": ["川南城际"], "成灌铁路": ["成灌"], "银西高铁": ["银西"],
+    "兰张高铁": ["兰张"], "兰中城际铁路": ["兰中"], "川青铁路": ["川青"],
+    "丽香铁路": ["丽香"], "楚大铁路": ["楚大"], "弥蒙高铁": ["弥蒙"],
+    "哈齐高铁": ["哈齐"], "哈牡高铁": ["哈牡"], "牡佳客专": ["牡佳"],
+    "长珲城际铁路": ["长珲"], "沈丹客专": ["沈丹"], "盘营高铁": ["盘营"],
+    "丹大快速铁路": ["丹大"],
+
+    # Conventional passenger trunk and regional railways.
+    "京广铁路": ["京广线"], "京沪铁路": ["京沪线"], "沪昆铁路": ["沪昆线"],
+    "陇海铁路": ["陇海线"], "京包铁路": ["京包线"], "包兰铁路": ["包兰线"],
+    "沈山铁路": ["沈山线"], "京通铁路": ["京通线"], "滨洲铁路": ["滨洲线"],
+    "滨绥铁路": ["滨绥线"], "图佳铁路": ["图佳线"], "长图铁路": ["长图线"],
+    "梅集铁路": ["梅集线"], "胶济铁路": ["胶济线"], "蓝烟铁路": ["蓝烟线"],
+    "菏兖日铁路": ["菏兖日"], "石德铁路": ["石德线"], "邯长铁路": ["邯长线"],
+    "太焦铁路": ["太焦线"], "侯月铁路": ["侯月线"], "宁西铁路": ["宁西线"],
+    "皖赣铁路": ["皖赣线"], "宣杭铁路": ["宣杭线"], "鹰厦铁路": ["鹰厦线"],
+    "漳龙铁路": ["漳龙线"], "赣龙铁路": ["赣龙线"], "合九铁路": ["合九线"],
+    "青阜铁路": ["青阜线"], "洛湛铁路": ["洛湛线"], "益湛铁路": ["益湛线"],
+    "湘桂铁路": ["湘桂线"], "黔桂铁路": ["黔桂线"], "南昆铁路": ["南昆线"],
+    "贵昆铁路": ["贵昆线"], "川黔铁路": ["川黔线"], "渝怀铁路": ["渝怀线"],
+    "宝成铁路": ["宝成线"], "成昆铁路": ["成昆线"], "阳安铁路": ["阳安线"],
+    "达成铁路": ["达成线"], "内六铁路": ["内六线"], "兰青铁路": ["兰青线"],
+    "干武铁路": ["干武线"], "临哈铁路": ["临哈线"], "南疆铁路": ["南疆线"],
+    "喀和铁路": ["喀和线"],
+}
+
+# Route names alone are not a transport-type signal: several high-speed
+# corridors are officially named “铁路”. Keep this list explicit.
+CONVENTIONAL_CORRIDORS = {
+    "京广铁路", "京沪铁路", "沪昆铁路", "陇海铁路", "京包铁路", "包兰铁路",
+    "沈山铁路", "京通铁路", "滨洲铁路", "滨绥铁路", "图佳铁路", "长图铁路",
+    "梅集铁路", "胶济铁路", "蓝烟铁路", "菏兖日铁路", "石德铁路", "邯长铁路",
+    "太焦铁路", "侯月铁路", "宁西铁路", "皖赣铁路", "宣杭铁路", "鹰厦铁路",
+    "漳龙铁路", "赣龙铁路", "合九铁路", "青阜铁路", "洛湛铁路", "益湛铁路",
+    "湘桂铁路", "黔桂铁路", "南昆铁路", "贵昆铁路", "川黔铁路", "渝怀铁路",
+    "宝成铁路", "成昆铁路", "阳安铁路", "达成铁路", "内六铁路", "兰青铁路",
+    "干武铁路", "临哈铁路", "南疆铁路", "喀和铁路",
+}
+
+CORRIDOR_ALIASES.update(NATIONAL_CORRIDOR_ALIASES)
 TOLERANCE_DEG = 0.0002   # ~22 m; the bundle stays well under 1 MB even at this fidelity
 ROUND_DP = 5             # endpoint key precision for chain merging
 MAX_ALTITUDE = 3000      # sanity bound on latitude
@@ -437,7 +503,7 @@ def main():
     kept_points = sum(len(chain) for _, _, chain in simplified)
 
     features = [
-        {"type": "Feature", "properties": {"name": name, "corridor": corridor},
+        {"type": "Feature", "properties": {"name": name, "corridor": corridor, "network": ("CONVENTIONAL" if corridor in CONVENTIONAL_CORRIDORS else "HIGH_SPEED")},
          "geometry": {"type": "LineString",
                       "coordinates": [[round(x, 5), round(y, 5)] for x, y in chain]}}
         for corridor, name, chain in simplified

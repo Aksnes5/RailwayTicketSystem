@@ -346,7 +346,8 @@
     let networkEdges = null;          // node id -> [neighbour node ids]
     let networkComponent = null;      // node id -> component id
     let networkComponentSize = null;  // component id -> node count
-    let networkNodeLine = null;       // node id -> original OSM railway name
+    let networkNodeLine = null;       // node id -> declared map corridor
+    let networkNodeNetwork = null;    // node id -> HIGH_SPEED / CONVENTIONAL
 
     function nodeKey(longitude, latitude) {
       return longitude.toFixed(NODE_KEY_DP) + ',' + latitude.toFixed(NODE_KEY_DP);
@@ -371,7 +372,8 @@
           // A corridor may contain several raw OSM names (for example a main
           // line plus its city approaches).  It is the safe routing boundary;
           // falling back to the raw name keeps an old asset readable.
-          line: (f.properties && (f.properties.corridor || f.properties.name)) || ''
+          line: (f.properties && (f.properties.corridor || f.properties.name)) || '',
+          network: (f.properties && f.properties.network) || ''
         }))
         .filter(chain => chain.points && chain.points.length >= 2);
       const lookup = new Map();
@@ -379,13 +381,15 @@
       networkNodes = [];
       networkEdges = [];
       networkNodeLine = [];
+      networkNodeNetwork = [];
       const cellKey = (point) => (point[0] / GRID_DEG).toFixed(0) + ',' + (point[1] / GRID_DEG).toFixed(0);
-      const idOf = (point, line) => {
+      const idOf = (point, line, declaredNetwork) => {
         // Never coalesce two differently named railways merely because they
         // run within a few metres in a station throat.  That was creating
         // fictional interchanges and Dijkstra subsequently took a detour onto
         // an unrelated corridor.
-        const exact = line + '|' + nodeKey(point[0], point[1]);
+        const partition = (declaredNetwork || 'UNKNOWN') + '|' + line;
+        const exact = partition + '|' + nodeKey(point[0], point[1]);
         let id = lookup.get(exact);
         if (id !== undefined) return id;
         // Vertices do not always coincide where two mapped ways meet (station throats,
@@ -396,7 +400,7 @@
         const cy = Math.floor(point[1] / GRID_DEG);
         for (let dx = -1; dx <= 1 && id === undefined; dx++) {
           for (let dy = -1; dy <= 1 && id === undefined; dy++) {
-            for (const candidate of grid.get(line + '|' + (cx + dx) + ',' + (cy + dy)) ?? []) {
+            for (const candidate of grid.get(partition + '|' + (cx + dx) + ',' + (cy + dy)) ?? []) {
               const cosLat = Math.cos(point[1] * Math.PI / 180);
               const east = (networkNodes[candidate][0] - point[0]) * KM_PER_DEGREE * cosLat;
               const north = (networkNodes[candidate][1] - point[1]) * KM_PER_DEGREE;
@@ -409,7 +413,8 @@
           networkNodes.push(point);
           networkEdges.push([]);
           networkNodeLine.push(line);
-          const key = line + '|' + cellKey(point);
+          networkNodeNetwork.push(declaredNetwork || '');
+          const key = partition + '|' + cellKey(point);
           if (!grid.has(key)) grid.set(key, []);
           grid.get(key).push(id);
         }
@@ -417,9 +422,9 @@
         return id;
       };
       for (const chain of networkChains) {
-        let previous = idOf(chain.points[0], chain.line);
+        let previous = idOf(chain.points[0], chain.line, chain.network);
         for (let i = 1; i < chain.points.length; i++) {
-          const current = idOf(chain.points[i], chain.line);
+          const current = idOf(chain.points[i], chain.line, chain.network);
           if (current !== previous) {
             networkEdges[previous].push(current);
             networkEdges[current].push(previous);
@@ -467,7 +472,10 @@
      * station can be close to several parallel railways; retaining a few
      * choices lets a consecutive pair select the one that actually joins it.
      */
-    function networkAllowsLine(line, network) {
+    function networkAllowsLine(line, network, declaredNetwork) {
+      if (declaredNetwork === 'HIGH_SPEED' || declaredNetwork === 'CONVENTIONAL') {
+        return network === declaredNetwork;
+      }
       const highSpeed = /(高铁|高速|客专|城际|动车|武九客专|宁蓉铁路|昌福铁路|秦沈客专|厦深铁路)/.test(line || '');
       return network === 'CONVENTIONAL' ? !highSpeed : highSpeed;
     }
@@ -482,7 +490,7 @@
         const km = Math.hypot(dx, dy);
         if (km > limit || networkComponentSize[networkComponent[n]] < MIN_COMPONENT_NODES) continue;
         const line = networkNodeLine[n];
-        if (!networkAllowsLine(line, network)) continue;
+        if (!networkAllowsLine(line, network, networkNodeNetwork[n])) continue;
         const existing = bestByLine.get(line);
         if (!existing || km < existing.km) bestByLine.set(line, { id: n, km, line });
       }
