@@ -62,7 +62,7 @@ class OfflineTravelRepository(context: Context) {
         val normal = nationalMapDirectory(); val satellite = satelliteDirectory()
         return OfflinePackStatus(
             bundle.takeIf(File::exists)?.lastModified() ?: prefs.getLong(KEY_UPDATED, 0L), saved?.orders?.size ?: 0, saved?.hotels?.size ?: 0, saved?.invoices?.size ?: 0,
-            File(normal, "railway_map.html").exists() && File(normal, "leaflet.js").exists() && countTiles(normal, "png") > 0,
+            File(normal, "railway_map.html").exists() && File(normal, "leaflet.js").exists() && File(normal, "railway_map_base.js").exists(),
             countTiles(satellite, "jpg") > 0,
             directoryBytes(normal), directoryBytes(satellite)
         )
@@ -76,7 +76,7 @@ class OfflineTravelRepository(context: Context) {
     fun offlineMapHtml(): File? {
         val map = nationalMapDirectory()
         val html = File(map, "railway_map.html")
-        val complete = html.exists() && File(map, "leaflet.js").exists() && countTiles(map, "png") > 0
+        val complete = html.exists() && File(map, "leaflet.js").exists() && File(map, "railway_map_base.js").exists()
         val revision = File(map, MAP_SHELL_REVISION_FILE).takeIf(File::exists)?.readText()?.trim()
         return html.takeIf { complete && revision == MAP_SHELL_REVISION }
     }
@@ -87,6 +87,7 @@ class OfflineTravelRepository(context: Context) {
         val map = nationalMapDirectory().apply { mkdirs() }
         progress?.invoke("正在准备全国铁路地图…")
         copyAsset("railway_network.js", File(map, "railway_network.js"), overwrite = true)
+        copyAsset("railway_map_base.js", File(map, "railway_map_base.js"), overwrite = true)
         copyAsset("railway_map_fallback.js", File(map, "railway_map_fallback.js"), overwrite = true)
         val html = appContext.assets.open("railway_map.html").bufferedReader().use { it.readText() }
             .replace("https://unpkg.com/leaflet@1.9.4/dist/leaflet.css", "leaflet.css")
@@ -123,11 +124,9 @@ class OfflineTravelRepository(context: Context) {
         progress?.invoke("正在下载离线地图引擎…")
         download("https://unpkg.com/leaflet@1.9.4/dist/leaflet.js", File(map, "leaflet.js")); download("https://unpkg.com/leaflet@1.9.4/dist/leaflet.css", File(map, "leaflet.css"))
         listOf("marker-icon.png", "marker-icon-2x.png", "marker-shadow.png", "layers.png", "layers-2x.png").forEach { download("https://unpkg.com/leaflet@1.9.4/dist/images/$it", File(map, "images/$it")) }
-        val tiles = (5..7).flatMap { z -> tileRange(z, 73.0, 135.0, 18.0, 54.0) }
-        tiles.forEachIndexed { index, (z, x, y) ->
-            download("https://tile.openstreetmap.org/$z/$x/$y.png", File(map, "tiles/$z/$x/$y.png"))
-            if (index % 18 == 0 || index == tiles.lastIndex) progress?.invoke("全国铁路地图 ${index + 1}/${tiles.size}")
-        }
+        // The default map is a bundled railway-first vector base, so it remains
+        // available offline without downloading generic OSM road tiles.
+        progress?.invoke("全国铁路矢量底图已就绪")
     }
 
     private fun tileRange(z: Int, west: Double, east: Double, south: Double, north: Double): List<Triple<Int, Int, Int>> =
@@ -151,6 +150,6 @@ class OfflineTravelRepository(context: Context) {
         const val KEY_AUTO = "auto_prepare"
         const val KEY_UPDATED = "last_updated"
         const val MAP_SHELL_REVISION_FILE = ".railway_map_shell_revision"
-        const val MAP_SHELL_REVISION = "2026.09.25-map-recovery-1"
+        const val MAP_SHELL_REVISION = "2026.09.25-railway-base-1"
     }
 }

@@ -23,6 +23,9 @@
     .live-train-icon { width: 34px !important; height: 34px !important; margin-left: -17px !important; margin-top: -17px !important; background: transparent !important; border: 0 !important; }
     .live-train-icon span { display: flex; width: 34px; height: 34px; align-items: center; justify-content: center; border: 3px solid #fff;
       border-radius: 50%; box-sizing: border-box; color: #fff; background: #0a8f69; box-shadow: 0 2px 10px rgba(8,122,92,.42); font-size: 15px; line-height: 1; }
+    /* Railway-first vector base: calm water/terrain cues below the route layer. */
+    .railway-design-base { position:absolute; inset:0; z-index:0; width:100%; height:100%; pointer-events:none; }
+    .leaflet-map-pane { z-index:1; }
   </style>
 </head>
 <body>
@@ -35,6 +38,7 @@
        Loaded as a plain script rather than injected from Kotlin: a payload this size does
        not survive WebView.evaluateJavascript reliably, and the failure is silent. -->
   <script src="railway_network.js"></script>
+  <script src="railway_map_base.js"></script>
   <script src="railway_map_fallback.js"></script>
   <script>
     let map;
@@ -69,6 +73,80 @@
       if (!fallbackMode && activePayload) activateFallback(activePayload, event.message || '铁路地图加载异常');
     });
 
+
+    function createRailwayDesignBase() {
+      const RailwayDesignBase = L.Layer.extend({
+        onAdd(nextMap) {
+          this._map = nextMap;
+          this._canvas = L.DomUtil.create('canvas', 'railway-design-base');
+          this._canvas.setAttribute('aria-hidden', 'true');
+          nextMap.getContainer().insertBefore(this._canvas, nextMap.getContainer().firstChild);
+          this._redraw = () => this.redraw();
+          nextMap.on('moveend zoomend resize', this._redraw);
+          this.redraw();
+        },
+        onRemove(nextMap) {
+          nextMap.off('moveend zoomend resize', this._redraw);
+          if (this._canvas) this._canvas.remove();
+          this._canvas = null;
+        },
+        redraw() {
+          if (!this._canvas || !this._map) return;
+          const size = this._map.getSize();
+          const ratio = Math.max(1, Math.min(3, window.devicePixelRatio || 1));
+          const canvas = this._canvas;
+          canvas.width = Math.max(1, Math.round(size.x * ratio));
+          canvas.height = Math.max(1, Math.round(size.y * ratio));
+          const context = canvas.getContext('2d');
+          context.setTransform(ratio, 0, 0, ratio, 0, 0);
+          const width = size.x, height = size.y;
+          const gradient = context.createLinearGradient(0, 0, width, height);
+          gradient.addColorStop(0, '#eff8fc');
+          gradient.addColorStop(.48, '#d9edf7');
+          gradient.addColorStop(1, '#eaf4fa');
+          context.fillStyle = gradient;
+          context.fillRect(0, 0, width, height);
+
+          const glow = context.createRadialGradient(width * .18, height * .08, 0, width * .18, height * .08, Math.max(width, height) * .72);
+          glow.addColorStop(0, 'rgba(255,255,255,.76)'); glow.addColorStop(1, 'rgba(255,255,255,0)');
+          context.fillStyle = glow; context.fillRect(0, 0, width, height);
+          context.lineCap = 'round'; context.lineJoin = 'round';
+          context.strokeStyle = 'rgba(137,181,205,.18)'; context.lineWidth = 1;
+          for (let index = 0; index < 4; index++) {
+            const y = height * (.18 + index * .23);
+            context.beginPath(); context.moveTo(-40, y + 20);
+            context.bezierCurveTo(width * .22, y - 42, width * .62, y + 52, width + 50, y - 18);
+            context.stroke();
+          }
+
+          const base = window.railwayMapBase || { rivers: [], cities: [] };
+          const toPoint = (longitude, latitude) => this._map.latLngToContainerPoint([latitude, longitude]);
+          const near = point => point.x > -100 && point.x < width + 100 && point.y > -100 && point.y < height + 100;
+          context.strokeStyle = 'rgba(111,174,206,.50)'; context.lineWidth = this._map.getZoom() >= 7 ? 1.8 : 1.35;
+          (base.rivers || []).forEach(river => {
+            const points = river.points || [];
+            const projected = points.map(pair => toPoint(pair[0], pair[1]));
+            if (!projected.some(near)) return;
+            context.beginPath();
+            projected.forEach((point, index) => index ? context.lineTo(point.x, point.y) : context.moveTo(point.x, point.y));
+            context.stroke();
+          });
+
+          const zoom = this._map.getZoom();
+          context.font = `${zoom >= 7 ? 12 : 11}px -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif`;
+          context.textBaseline = 'middle';
+          (base.cities || []).forEach(city => {
+            const point = toPoint(city.longitude, city.latitude);
+            if (!near(point)) return;
+            context.beginPath(); context.arc(point.x, point.y, zoom >= 7 ? 2.8 : 2.3, 0, Math.PI * 2);
+            context.fillStyle = 'rgba(60,127,164,.72)'; context.fill();
+            context.fillStyle = 'rgba(56,89,111,.88)';
+            context.fillText(city.name, point.x + 6, point.y - 1);
+          });
+        }
+      });
+      return new RailwayDesignBase();
+    }
     function initialize() {
       if (!window.L) {
         fallbackMode = true;
@@ -80,9 +158,7 @@
       // Do not leave Leaflet's default attribution plaque floating over the route.
       map = L.map('map', { zoomControl: false, attributionControl: false }).setView([35.86, 104.20], 4);
       L.control.zoom({ position: 'bottomright' }).addTo(map);
-      standardLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19, minZoom: 3, detectRetina: true, crossOrigin: true
-      });
+      standardLayer = createRailwayDesignBase();
       satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
         maxZoom: 19, maxNativeZoom: 19, minZoom: 3, detectRetina: true, crossOrigin: true
       });
@@ -98,8 +174,10 @@
       if (!map || !standardLayer || !satelliteLayer) return activeBase;
       const target = nextBase === 'satellite' ? 'satellite' : 'standard';
       if (target === activeBase) return activeBase;
-      map.removeLayer(activeBase === 'satellite' ? satelliteLayer : standardLayer);
-      (target === 'satellite' ? satelliteLayer : standardLayer).addTo(map);
+      // Keep the custom railway base mounted under imagery, avoiding a white flash
+      // while satellite tiles load or when an offline tile is unavailable.
+      if (target === 'satellite') satelliteLayer.addTo(map);
+      else map.removeLayer(satelliteLayer);
       activeBase = target;
       return activeBase;
     };
@@ -517,14 +595,32 @@
       return [...bestByLine.values()].sort((a, b) => a.km - b.km).slice(0, 5);
     }
 
-    // `railway_network.js` includes exact OSM station pins from the same source
-    // as its rail alignments.  They override a Kotlin city fallback (for example
-    // 汉川市区) before any snap or marker calculation happens.
+    // `railway_network.js` includes many OSM station pins, but names are not
+    // globally unique.  For example the source's first “永泰” is Guangzhou Metro,
+    // while the 昌福铁路 call is 永泰（福建）.  Never let a remote homonym replace the
+    // coordinate already supplied by the journey's railway catalogue.
+    const MAX_IMPORTED_PIN_DRIFT_KM = 35;
+
+    function pinDistanceKm(first, longitude, latitude) {
+      const latitudeMid = (first.latitude + latitude) * Math.PI / 360;
+      const northSouth = (latitude - first.latitude) * KM_PER_DEGREE;
+      const eastWest = (longitude - first.longitude) * KM_PER_DEGREE * Math.cos(latitudeMid);
+      return Math.hypot(northSouth, eastWest);
+    }
+
     function withNetworkStationPoints(stations) {
       const points = window.railwayStationPoints || {};
       return stations.map(station => {
         const point = points[station.name];
         if (!point || !Number.isFinite(point[0]) || !Number.isFinite(point[1])) return station;
+        const hasSuppliedPosition = Number.isFinite(station.longitude) && Number.isFinite(station.latitude);
+        if (hasSuppliedPosition) {
+          const distance = pinDistanceKm(station, point[0], point[1]);
+          // An exact catalogue pin and an interpolated route point are both more
+          // trustworthy than a distant OSM namesake. For a soft city fallback,
+          // accept an import only when it stays in the same local area.
+          if (station.exactStation || station.estimated || distance > MAX_IMPORTED_PIN_DRIFT_KM) return station;
+        }
         return { ...station, longitude: point[0], latitude: point[1], exactStation: true, estimated: false };
       });
     }

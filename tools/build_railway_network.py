@@ -144,6 +144,13 @@ NATIONAL_CORRIDOR_ALIASES = {
 
 # Route names alone are not a transport-type signal: several high-speed
 # corridors are officially named “铁路”. Keep this list explicit.
+# `transport_free_1` collapses both national rail and urban rail into
+# railway_station. These names are known national-rail calls whose first OSM
+# occurrence is a same-name urban station in another city.
+CANONICAL_STATION_PIN_OVERRIDES = {
+    "永泰": [118.929064, 25.851529],  # 昌福铁路永泰站（福建），not Guangzhou Metro 永泰
+}
+
 CONVENTIONAL_CORRIDORS = {
     "京广铁路", "京沪铁路", "沪昆铁路", "陇海铁路", "京包铁路", "包兰铁路",
     "沈山铁路", "京通铁路", "滨洲铁路", "滨绥铁路", "图佳铁路", "长图铁路",
@@ -257,6 +264,7 @@ def station_points(railway_shapefile):
         # duplicated names so we never silently move a pin on rebuild.
         for key_name in {name, name[:-1] if name.endswith("站") else name}:
             points.setdefault(key_name, [round(lon, 6), round(lat, 6)])
+    points.update(CANONICAL_STATION_PIN_OVERRIDES)
     print("loaded %d railway station points" % len(points))
     return points
 
