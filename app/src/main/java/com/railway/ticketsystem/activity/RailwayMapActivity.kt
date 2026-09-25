@@ -101,7 +101,7 @@ class RailwayMapActivity : AccessibleActivity() {
         binding.tvMapRoute.text = listOfNotNull(
             routeStationNames.firstOrNull(), routeStationNames.lastOrNull()
         ).joinToString(" → ")
-        binding.tvMapHint.text = "${routeStationNames.size} 个线路站点 · ${callingStationNames.size} 个实际经停站 · 走向按真实轨道绘制"
+        binding.tvMapHint.text = "${routeStationNames.size} 个线路站点 · ${callingStationNames.size} 个实际经停站"
         configureMap()
     }
 
