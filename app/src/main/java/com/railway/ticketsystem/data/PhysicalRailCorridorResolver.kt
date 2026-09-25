@@ -45,9 +45,10 @@ object PhysicalRailCorridorResolver {
         Corridor("hanyi-ningrong", MapRailNetwork.HIGH_SPEED, "宁蓉铁路", listOf("汉口", "汉川", "天门南", "仙桃西", "潜江", "荆州", "枝江北", "宜昌东")),
         Corridor("jingguang-hsr", MapRailNetwork.HIGH_SPEED, "京广高铁", listOf("北京西", "涿州东", "高碑店东", "保定东", "石家庄", "邯郸东", "安阳东", "鹤壁东", "郑州东", "许昌东", "漯河西", "驻马店西", "信阳东", "孝感北", "武汉", "岳阳东", "长沙南", "衡阳东", "郴州西", "韶关", "广州南")),
         Corridor("changfu-main", MapRailNetwork.HIGH_SPEED, "昌福铁路", listOf("南昌西", "抚州", "南城", "南丰", "建宁县北", "泰宁", "将乐", "三明北", "尤溪", "永泰", "福州")),
-        // 尤溪往厦门方向经永泰接入永莆、福厦方向，不会先画到福州再折返。
-        Corridor("yongpu-branch", MapRailNetwork.HIGH_SPEED, MANUAL_ALIGNMENT, listOf("永泰", "莆田")),
-        Corridor("fuxia-main", MapRailNetwork.HIGH_SPEED, MANUAL_ALIGNMENT, listOf("福州", "福州南", "福清", "莆田", "仙游", "泉州", "晋江", "厦门北", "厦门")),
+        // 尤溪往厦门方向经永泰接入永莆、福厦方向。两段均有本地 GIS 实体轨迹，
+        // 不能再标记为手工直线，否则尤溪之后会错误地折向福州。
+        Corridor("yongpu-branch", MapRailNetwork.HIGH_SPEED, "永莆铁路", listOf("永泰", "莆田")),
+        Corridor("fuxia-main", MapRailNetwork.HIGH_SPEED, "福厦高铁", listOf("福州", "福州南", "福清", "莆田", "仙游", "泉州", "晋江", "厦门北", "厦门")),
         Corridor("qinshen-jingha", MapRailNetwork.HIGH_SPEED, "秦沈客专", listOf("秦皇岛", "山海关", "东戴河", "绥中北", "兴城西", "葫芦岛北", "锦州南", "凌海南", "盘锦北", "台安", "辽中", "沈阳北")),
 
         // Conventional trunk lines intentionally do not use high-speed corridor hints.
