@@ -5,6 +5,9 @@
     <color name="railway_blue_dark">#A5D2FF</color>
     <color name="railway_blue_deep">#C5E4FF</color>
     <color name="hero_sky">#17354D</color>
+    <color name="railway_red">#FF6B6B</color>
+    <color name="railway_red_dark">#E53935</color>
+    <color name="railway_orange">#FF9F43</color>
     <color name="surface">#101B27</color>
     <color name="surface_container">#D91A2A3B</color>
     <color name="surface_tint">#D9223B53</color>
@@ -19,8 +22,14 @@
     <color name="gray_dark">#D9E5EF</color>
     <color name="success">#6ED8AA</color>
     <color name="success_container">#173C32</color>
+    <color name="green">#54D38A</color>
+    <color name="green_light">#1C3B2B</color>
+    <color name="green_soft">#70C18C</color>
+    <color name="orange">#FFA726</color>
+    <color name="orange_light">#3E2A14</color>
     <color name="white">#F7FBFF</color>
     <color name="black">#071019</color>
     <color name="colorPrimary">#72B8FF</color>
     <color name="colorPrimaryDark">#325E8B</color>
+    <color name="colorAccent">#72B8FF</color>
 </resources>

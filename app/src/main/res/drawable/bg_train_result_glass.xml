@@ -1,22 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- The same clearly visible shallow-blue sheet used for train information. -->
+    <!-- Apple iOS Grouped Cell Card in White-Blue Palette -->
     <item>
         <shape android:shape="rectangle">
-            <corners android:radius="30dp" />
-            <gradient android:angle="315" android:startColor="#F2FAFFFF" android:centerColor="#E4F4FFFF" android:endColor="#CBEAFCFF" />
-            <stroke android:width="1dp" android:color="#9DCCE9" />
+            <corners android:radius="20dp" />
+            <solid android:color="#FFFFFF" />
+            <stroke android:width="0.5dp" android:color="#DCE8F6" />
         </shape>
     </item>
-    <item android:height="31dp" android:gravity="top" android:left="28dp" android:right="42dp">
+    <!-- Specular Bevel Highlight on Top Edge -->
+    <item android:height="20dp" android:gravity="top" android:left="18dp" android:right="18dp" android:top="1dp">
         <shape android:shape="rectangle">
-            <corners android:radius="22dp" />
-            <gradient android:angle="0" android:startColor="#00FFFFFF" android:centerColor="#B8FFFFFF" android:endColor="#00FFFFFF" />
-        </shape>
-    </item>
-    <item android:width="160dp" android:height="160dp" android:gravity="bottom|end" android:right="-80dp" android:bottom="-98dp">
-        <shape android:shape="oval">
-            <gradient android:type="radial" android:gradientRadius="88dp" android:startColor="#2999D7FF" android:endColor="#0099D7FF" />
+            <corners android:radius="14dp" />
+            <gradient android:angle="0" android:startColor="#00FFFFFF" android:centerColor="#E6FFFFFF" android:endColor="#00FFFFFF" />
         </shape>
     </item>
 </layer-list>

@@ -17,12 +17,20 @@ import com.railway.ticketsystem.data.SeatInventoryRepository
 import com.railway.ticketsystem.data.SeatAvailability
 import com.railway.ticketsystem.data.FamilyAccountRepository
 import com.railway.ticketsystem.data.FamilySeatAllocator
+import com.railway.ticketsystem.data.CarriageCrowdData
+import com.railway.ticketsystem.data.SplitTicketingPlanner
 import com.railway.ticketsystem.databinding.ActivitySeatSelectionBinding
 import com.railway.ticketsystem.databinding.DialogPassengerSelectionBinding
 import com.railway.ticketsystem.model.Passenger
 import com.railway.ticketsystem.model.SeatTypes
 import com.railway.ticketsystem.model.Train
 import com.railway.ticketsystem.model.TransferTrain
+import com.railway.ticketsystem.viewmodel.SeatSelectionViewModel
+import androidx.activity.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -31,11 +39,13 @@ class SeatSelectionActivity : ImmersiveActivity() {
     private lateinit var binding: ActivitySeatSelectionBinding
     private lateinit var train: Train
     private lateinit var departureDate: String
+    private val viewModel: SeatSelectionViewModel by viewModels()
     private var selectedSeatType = SeatTypes.SECOND_CLASS
     private var selectedSeatNumber = ""
     private var selectedSeatNumberFirst = ""
     private var selectedSeatNumberSecond = ""
     private var basePrice = 0.0
+    private var selectedSleeperPreference = "下铺"
     
     // 中转车次相关
     private var isTransfer = false
@@ -102,7 +112,27 @@ class SeatSelectionActivity : ImmersiveActivity() {
         setupSeatTypeSelection()
         setupSeatNumberSelection()
         setupPassengerSelection()
+        setupSleeperPreference()
+        updateContiguousSeatingUI()
         updatePrice()
+
+        viewModel.initialize(train, departureDate, isTransfer, seatInventoryRepository)
+        observeViewModel()
+    }
+
+    private fun observeViewModel() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.uiState.collect { state ->
+                    if (state.totalAmount > 0) {
+                        binding.tvTotalPrice.text = "¥${state.totalAmount.toInt()}"
+                    }
+                    if (state.requiresWaitlist) {
+                        binding.btnSubmitOrder.text = "提交候补"
+                    }
+                }
+            }
+        }
     }
     
     private fun setupUI() {
@@ -130,8 +160,25 @@ class SeatSelectionActivity : ImmersiveActivity() {
             binding.groupTransferSeatSelection.visibility = View.GONE
         }
         
+        // 静音车厢优选开关（高铁 G 字头专享）
+        val isGTrain = (!isTransfer && train.number.startsWith("G")) || (isTransfer && (firstLeg?.number?.startsWith("G") == true || secondLeg?.number?.startsWith("G") == true))
+        if (isGTrain) {
+            binding.cardQuietCar.visibility = View.VISIBLE
+            binding.switchQuietCar.setOnCheckedChangeListener { buttonView, isChecked ->
+                buttonView.performHapticFeedback(android.view.HapticFeedbackConstants.KEYBOARD_TAP)
+                if (isChecked) {
+                    Toast.makeText(this, "已为您优选 03 号静音车厢！请在车厢内保持安静、佩戴耳机。", Toast.LENGTH_SHORT).show()
+                }
+            }
+        } else {
+            binding.cardQuietCar.visibility = View.GONE
+        }
+
         basePrice = train.price
         binding.tvBasePrice.text = "¥${basePrice.toInt()}"
+
+        setupCarriageHeatmap()
+        setupSplitTicketing()
         
         // 设置提交按钮
         binding.btnSubmitOrder.setOnClickListener {
@@ -203,6 +250,7 @@ class SeatSelectionActivity : ImmersiveActivity() {
             seatTypeButton.layoutParams = layoutParams
             styleGlassChoice(seatTypeButton, seatType == selectedSeatType)
             seatTypeButton.setOnClickListener {
+                it.performHapticFeedback(android.view.HapticFeedbackConstants.KEYBOARD_TAP)
                 for (i in 0 until binding.llSeatTypeButtons.childCount) {
                     val button = binding.llSeatTypeButtons.getChildAt(i) as com.google.android.material.button.MaterialButton
                     styleGlassChoice(button, false)
@@ -212,6 +260,8 @@ class SeatSelectionActivity : ImmersiveActivity() {
                 resetSeatSelections()
                 updateSeatNumbers()
                 updatePrice()
+                setupSleeperPreference()
+                updateContiguousSeatingUI()
             }
             
             binding.llSeatTypeButtons.addView(seatTypeButton)
@@ -280,6 +330,24 @@ class SeatSelectionActivity : ImmersiveActivity() {
                 selectedSeatNumber = seat
             }
         }
+
+        // 无座空座智能指引
+        if (selectedSeatType.name.contains("无座")) {
+            binding.cardUnreservedSeatGuide.visibility = View.VISIBLE
+            val dep = train.departureStation
+            val arr = train.arrivalStation
+            binding.tvUnreservedGuideContent.text = "① 03车 11A：$dep 站发车后空闲（预计可坐约 35 分钟）\n② 05车 08F：中途停靠站间空闲（预计可坐约 40 分钟）\n温馨提示：后续车站持对号座车票乘客上车时，请主动礼貌让座。"
+        } else {
+            binding.cardUnreservedSeatGuide.visibility = View.GONE
+        }
+
+        val isWaitlist = if (isTransfer) {
+            val stocks = transferSeatAvailability(selectedSeatType.name)
+            stocks != null && (stocks.first.requiresWaitlist || stocks.second.requiresWaitlist)
+        } else {
+            selectedAvailability().requiresWaitlist
+        }
+        binding.cardWaitlistOptions.visibility = if (isWaitlist) View.VISIBLE else View.GONE
     }
 
     private fun populateSeatButtons(
@@ -315,6 +383,7 @@ class SeatSelectionActivity : ImmersiveActivity() {
             styleGlassChoice(seatButton, seatButton.isSelected)
 
             seatButton.setOnClickListener {
+                it.performHapticFeedback(android.view.HapticFeedbackConstants.KEYBOARD_TAP)
                 for (i in 0 until container.childCount) {
                     val child = container.getChildAt(i) as? com.google.android.material.button.MaterialButton
                     child?.isSelected = false
@@ -323,6 +392,7 @@ class SeatSelectionActivity : ImmersiveActivity() {
                 seatButton.isSelected = true
                 styleGlassChoice(seatButton, true)
                 onSeatSelected(seatLetter)
+                updateContiguousSeatingUI()
             }
 
             container.addView(seatButton)
@@ -332,7 +402,65 @@ class SeatSelectionActivity : ImmersiveActivity() {
     private fun seatPositionLabel(seatLetter: String): String = when (seatLetter) {
         "A", "F" -> "靠窗"
         "C", "D" -> "走廊"
+        "上" -> "上铺"
+        "中" -> "中铺"
+        "下" -> "下铺"
         else -> "中间"
+    }
+
+    private fun setupSleeperPreference() {
+        val isSleeper = selectedSeatType.name.contains("卧")
+        if (isSleeper) {
+            binding.cardSleeperPreference.visibility = View.VISIBLE
+            updateSleeperButtonsUI()
+            binding.btnPrefLowerBerth.setOnClickListener {
+                it.performHapticFeedback(android.view.HapticFeedbackConstants.KEYBOARD_TAP)
+                selectedSleeperPreference = "下铺"
+                updateSleeperButtonsUI()
+            }
+            binding.btnPrefMiddleBerth.setOnClickListener {
+                it.performHapticFeedback(android.view.HapticFeedbackConstants.KEYBOARD_TAP)
+                selectedSleeperPreference = "中铺"
+                updateSleeperButtonsUI()
+            }
+            binding.btnPrefUpperBerth.setOnClickListener {
+                it.performHapticFeedback(android.view.HapticFeedbackConstants.KEYBOARD_TAP)
+                selectedSleeperPreference = "上铺"
+                updateSleeperButtonsUI()
+            }
+            if (selectedSeatType.name.contains("软卧")) {
+                binding.btnPrefMiddleBerth.visibility = View.GONE
+            } else {
+                binding.btnPrefMiddleBerth.visibility = View.VISIBLE
+            }
+        } else {
+            binding.cardSleeperPreference.visibility = View.GONE
+        }
+    }
+
+    private fun updateSleeperButtonsUI() {
+        styleGlassChoice(binding.btnPrefLowerBerth, selectedSleeperPreference == "下铺")
+        styleGlassChoice(binding.btnPrefMiddleBerth, selectedSleeperPreference == "中铺")
+        styleGlassChoice(binding.btnPrefUpperBerth, selectedSleeperPreference == "上铺")
+        binding.tvSleeperSelectedFeedback.text = "✓ 已优先为您锁定【$selectedSleeperPreference】偏好（若无余票将自动顺配其他铺位）"
+    }
+
+    private fun updateContiguousSeatingUI() {
+        val count = if (isManualInput) 1 else selectedPassengers.size
+        if (count >= 2 && !selectedSeatType.name.contains("无座")) {
+            binding.cardContiguousSeating.visibility = View.VISIBLE
+            val prefLetter = selectedSeatNumber.ifEmpty { "A" }
+            val plan = FamilySeatAllocator.plan(selectedSeatType.name, prefLetter, 5, count)
+            binding.tvContiguousBadge.text = plan.label
+            val passengers = getPassengersForOrder()
+            val seatPairs = passengers.mapIndexed { idx, p ->
+                val seat = plan.seatNumbers.getOrElse(idx) { "05A" }
+                "${p.name} ($seat)"
+            }
+            binding.tvContiguousSeatsPreview.text = "智能连座预选：${seatPairs.joinToString(" · ")}"
+        } else {
+            binding.cardContiguousSeating.visibility = View.GONE
+        }
     }
 
     private fun styleGlassChoice(
@@ -470,6 +598,18 @@ class SeatSelectionActivity : ImmersiveActivity() {
         intent.putExtra("basePrice", basePrice)
         intent.putExtra("finalPrice", finalPrice)
         intent.putExtra("requiresWaitlist", requiresWaitlist)
+        intent.putExtra("isQuietCar", binding.switchQuietCar.isChecked)
+        intent.putExtra("sleeperPreference", selectedSleeperPreference)
+        if (requiresWaitlist) {
+            intent.putExtra("crossClassWaitlist", binding.switchCrossClassWaitlist.isChecked)
+            intent.putExtra("unreservedWaitlist", binding.switchUnreservedWaitlist.isChecked)
+            val deadlineText = when {
+                binding.rbDeadline6h.isChecked -> "发车前6小时"
+                binding.rbDeadline24h.isChecked -> "发车前24小时"
+                else -> "发车前2小时"
+            }
+            intent.putExtra("waitlistDeadline", deadlineText)
+        }
         startActivity(intent)
     }
     
@@ -567,17 +707,25 @@ class SeatSelectionActivity : ImmersiveActivity() {
         isManualInput = false
         binding.llSelectedPassenger.visibility = View.VISIBLE
         binding.llManualInput.visibility = View.GONE
-        binding.tvSelectedPassengerName.text = if (passengers.size == 1) {
-            passengers.first().name
+        if (passengers.size == 1) {
+            val p = passengers.first()
+            val idMasked = if (p.idCard.length >= 8) {
+                "${p.idCard.take(4)}********${p.idCard.takeLast(4)}"
+            } else {
+                p.idCard
+            }
+            binding.tvSelectedPassengerName.text = p.name
+            binding.tvSelectedPassengerIdCard.text = "居民身份证 $idMasked\n${FamilySeatAllocator.describe(selectedSeatType.name, passengers.size)}"
         } else {
-            "已选择 ${passengers.size} 位同行乘车人"
+            binding.tvSelectedPassengerName.text = "已选择 ${passengers.size} 位同行乘车人"
+            binding.tvSelectedPassengerIdCard.text = passengers.joinToString("、") { it.name } +
+                "\n" + FamilySeatAllocator.describe(selectedSeatType.name, passengers.size)
         }
-        binding.tvSelectedPassengerIdCard.text = passengers.joinToString("、") { it.name } +
-            "\n" + FamilySeatAllocator.describe(selectedSeatType.name, passengers.size)
         binding.etPassengerName.setText("")
         binding.etPassengerIdCard.setText("")
         binding.etPassengerPhone.setText("")
         updatePrice()
+        updateContiguousSeatingUI()
     }
     
     /**
@@ -589,6 +737,7 @@ class SeatSelectionActivity : ImmersiveActivity() {
         
         binding.llSelectedPassenger.visibility = View.GONE
         binding.llManualInput.visibility = View.VISIBLE
+        updateContiguousSeatingUI()
     }
     
     /**
@@ -632,6 +781,111 @@ class SeatSelectionActivity : ImmersiveActivity() {
                 )
                 passengerRepository.addPassenger(passenger)
             }
+        }
+    }
+
+    private var selectedCarriageIndex = 1 // 默认推荐 02 车厢
+
+    private fun setupCarriageHeatmap() {
+        val trainNumber = if (isTransfer) (firstLeg?.number ?: "G1") else train.number
+        val carriages = CarriageCrowdData.getCarriages(trainNumber)
+        binding.llCarriageList.removeAllViews()
+
+        carriages.forEachIndexed { index, car ->
+            val carBtn = com.google.android.material.button.MaterialButton(this).apply {
+                minWidth = 0
+                width = dp(76)
+                height = dp(62)
+                insetTop = 0
+                insetBottom = 0
+                setPadding(dp(4), dp(4), dp(4), dp(4))
+                layoutParams = LinearLayout.LayoutParams(dp(76), dp(62)).apply {
+                    marginEnd = dp(8)
+                }
+                renderCarriageButton(this, car, index == selectedCarriageIndex)
+                setOnClickListener {
+                    it.performHapticFeedback(android.view.HapticFeedbackConstants.KEYBOARD_TAP)
+                    selectedCarriageIndex = index
+                    for (i in 0 until binding.llCarriageList.childCount) {
+                        val child = binding.llCarriageList.getChildAt(i) as? com.google.android.material.button.MaterialButton
+                        val item = carriages.getOrNull(i)
+                        if (child != null && item != null) {
+                            renderCarriageButton(child, item, i == selectedCarriageIndex)
+                        }
+                    }
+                    updateCarriageSummary(car)
+                }
+            }
+            binding.llCarriageList.addView(carBtn)
+        }
+        carriages.getOrNull(selectedCarriageIndex)?.let { updateCarriageSummary(it) }
+    }
+
+    private fun renderCarriageButton(
+        btn: com.google.android.material.button.MaterialButton,
+        car: CarriageCrowdData.CarriageInfo,
+        isSelected: Boolean
+    ) {
+        val crowdDot = when (car.crowd) {
+            CarriageCrowdData.CrowdLevel.SPACIOUS -> "🟢"
+            CarriageCrowdData.CrowdLevel.MODERATE -> "🟡"
+            CarriageCrowdData.CrowdLevel.BUSY -> "🟠"
+        }
+        val specialTag = when {
+            car.isQuietCar -> "🔕"
+            car.isDiningCar -> "☕"
+            car.hasLuggageRack -> "🧳"
+            else -> ""
+        }
+        btn.text = "${car.carNumber}车 $specialTag\n${car.carType}\n$crowdDot ${car.crowd.label}"
+        btn.textSize = 10.5f
+        btn.cornerRadius = dp(14)
+        btn.strokeWidth = dp(1)
+        btn.strokeColor = android.content.res.ColorStateList.valueOf(
+            android.graphics.Color.parseColor(if (isSelected) "#007AFF" else "#B8FFFFFF")
+        )
+        btn.backgroundTintList = android.content.res.ColorStateList.valueOf(
+            android.graphics.Color.parseColor(if (isSelected) "#E1F0FF" else "#99FFFFFF")
+        )
+        btn.setTextColor(getColor(if (isSelected) R.color.railway_blue_deep else R.color.text_primary))
+        btn.elevation = 0f
+    }
+
+    private fun updateCarriageSummary(car: CarriageCrowdData.CarriageInfo) {
+        binding.tvSelectedCarriageSummary.text = "${car.carNumber}车 · ${car.carType} · ${car.crowd.label}"
+        val facility = buildString {
+            append("当前车厢配备：")
+            if (car.hasLuggageRack) append("🧳大件行李架 · ")
+            if (car.isQuietCar) append("🔕静音车厢 · ")
+            if (car.isDiningCar) append("☕餐吧吧台 · ")
+            if (car.hasAccessibleToilet) append("♿无障碍洗手间 · ")
+            append("🔌全列AC/USB电源 · 🚰冷热饮用水")
+        }
+        binding.tvCarriageFacilityDetail.text = facility
+    }
+
+    private fun setupSplitTicketing() {
+        if (isTransfer) {
+            binding.cardSplitTicketing.visibility = View.GONE
+            return
+        }
+        val plan = SplitTicketingPlanner.findSameTrainSplitPlan(train, departureDate)
+        if (plan != null) {
+            binding.cardSplitTicketing.visibility = View.VISIBLE
+            binding.tvSplitPlanDesc.text = "前段：${plan.firstLeg.fromStation} ➔ ${plan.firstLeg.toStation} (${plan.firstLeg.carriage} ${plan.firstLeg.seatType} · ${plan.firstLeg.statusText})\n后段：${plan.secondLeg.fromStation} ➔ ${plan.secondLeg.toStation} (${plan.secondLeg.carriage} · ${plan.secondLeg.statusText})\n💡 ${plan.tip}"
+            binding.tvSplitPlanPrice.text = "分段总计：¥${plan.totalPrice.toInt()} (同趟车免下车)"
+            binding.btnAdoptSplitPlan.setOnClickListener {
+                it.performHapticFeedback(android.view.HapticFeedbackConstants.KEYBOARD_TAP)
+                Toast.makeText(
+                    this,
+                    "已采纳同车分段方案！前段 ${plan.firstLeg.seatNumber}，后段到 ${plan.intermediateStation} 车内续乘",
+                    Toast.LENGTH_LONG
+                ).show()
+                binding.btnAdoptSplitPlan.text = "✓ 已采纳分段方案"
+                binding.btnAdoptSplitPlan.isEnabled = false
+            }
+        } else {
+            binding.cardSplitTicketing.visibility = View.GONE
         }
     }
 }

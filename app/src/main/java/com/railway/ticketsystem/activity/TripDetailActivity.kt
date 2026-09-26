@@ -37,6 +37,23 @@ import com.railway.ticketsystem.databinding.ActivityTripDetailBinding
 import com.railway.ticketsystem.model.Order
 import com.railway.ticketsystem.model.TimetableStopSnapshot
 import com.railway.ticketsystem.data.TravelAssistant
+import com.railway.ticketsystem.data.RouteWeatherService
+import com.railway.ticketsystem.data.StationGroundTransferCatalog
+import com.railway.ticketsystem.data.TripChecklistRepository
+import com.railway.ticketsystem.data.SpecialAssistanceRepository
+import com.railway.ticketsystem.data.ArrivalAlarmManager
+import com.railway.ticketsystem.data.ChildDeclarationRepository
+import com.railway.ticketsystem.dialog.BaggageCheckBottomSheet
+import com.railway.ticketsystem.databinding.DialogSpecialAssistanceBinding
+import com.railway.ticketsystem.databinding.DialogAddChecklistItemBinding
+import android.widget.CheckBox
+import android.widget.LinearLayout
+import android.widget.RadioButton
+import android.widget.EditText
+import android.widget.TextView
+import android.graphics.Typeface
+import androidx.core.content.ContextCompat
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import java.security.MessageDigest
 import java.text.SimpleDateFormat
 import java.util.*
@@ -238,6 +255,10 @@ class TripDetailActivity : ImmersiveActivity() {
         binding.btnIndoorNavigation.isEnabled = false
         binding.btnCarriageService.isEnabled = false
         binding.btnStationService.isEnabled = false
+        binding.btnViewPassbook.isEnabled = false
+        binding.btnSyncCalendar.isEnabled = false
+        binding.btnConcourseMap.isEnabled = false
+        binding.cardUnreservedTripGuide.visibility = View.GONE
         binding.cardStopTimetable.visibility = View.GONE
         binding.cardTravelConcierge.visibility = View.GONE
     }
@@ -278,13 +299,19 @@ class TripDetailActivity : ImmersiveActivity() {
         renderJourneyCountdown(order)
         renderStoredTimetable(order)
         renderTravelConcierge(order)
+        renderWeatherTimeline(order)
+        renderStationExitGuide(order)
+        renderLuggageChecklist(order)
+        renderSpecialAssistance(order)
+        renderArrivalAlarm(order)
+        renderChildDeclaration(order)
 
         if (order.status == "已支付") {
             // A display-only gate or QR generation issue must never hide the ticket itself.
             val gate = runCatching { TicketTravelUpdates.getGate(this, order) }
                 .getOrDefault("请以车站现场公告为准")
             binding.tvGateInfo.visibility = View.VISIBLE
-            binding.tvGateInfo.text = "检票口：$gate，请以车站现场公告为准"
+            binding.tvGateInfo.text = "检票口：$gate · 查看候车大厅导览图 ›"
             val token = stableVoucherToken(order)
             val qrBitmap = qrBitmapFor(order, token)
             if (qrBitmap != null) {
@@ -296,8 +323,16 @@ class TripDetailActivity : ImmersiveActivity() {
                 binding.ivQrCode.visibility = View.GONE
                 binding.tvQrCodeInfo.text = "电子客票凭证\n凭证加载失败，请以订单信息为准"
             }
+
+            if (order.seatType.contains("无座") || order.seatNumber == "无座") {
+                binding.cardUnreservedTripGuide.visibility = View.VISIBLE
+                binding.tvUnreservedTripGuideContent.text = buildUnreservedSeatGuide(order)
+            } else {
+                binding.cardUnreservedTripGuide.visibility = View.GONE
+            }
         } else {
             binding.tvGateInfo.visibility = View.GONE
+            binding.cardUnreservedTripGuide.visibility = View.GONE
             binding.ivQrCode.setImageDrawable(null)
             binding.ivQrCode.visibility = View.GONE
             binding.tvQrCodeInfo.text = when (order.status) {
@@ -556,6 +591,9 @@ class TripDetailActivity : ImmersiveActivity() {
             val mapTimetable = latest.timetableStops.orEmpty().map {
                 RailwayMapTimetableStop(it.stationName, it.arrivalTime, it.departureTime)
             }
+            val seatDisplay = if (latest.carNumber.isNotBlank() && latest.seatNumber.isNotBlank()) {
+                "${latest.carNumber}车${latest.seatNumber}"
+            } else latest.seatNumber
             startActivity(
                 RailwayMapActivity.intent(
                     context = this,
@@ -565,12 +603,72 @@ class TripDetailActivity : ImmersiveActivity() {
                     boardingStation = latest.departureStation,
                     alightingStation = latest.arrivalStation,
                     departureDate = latest.departureDate,
-                    timetableStops = mapTimetable
+                    timetableStops = mapTimetable,
+                    seatNumber = seatDisplay
                 )
             )
         }
         binding.btnJourneyAction.setOnClickListener { advanceJourney() }
         binding.btnUseLoungeCoupon.setOnClickListener { useLoungeCoupon() }
+        binding.tvGateInfo.setOnClickListener {
+            val latest = loadLatest() ?: return@setOnClickListener
+            openConcourseMap(latest)
+        }
+        binding.btnConcourseMap.setOnClickListener {
+            val latest = loadLatest() ?: return@setOnClickListener
+            openConcourseMap(latest)
+        }
+        binding.btnViewPassbook.setOnClickListener {
+            val latest = loadLatest() ?: return@setOnClickListener
+            val gate = runCatching { TicketTravelUpdates.getGate(this, latest) }.getOrDefault("现场公告")
+            showPassbookTicketDialog(latest, gate)
+        }
+        binding.btnSimulateGatePass.setOnClickListener {
+            val latest = loadLatest() ?: return@setOnClickListener
+            val gate = runCatching { TicketTravelUpdates.getGate(this, latest) }.getOrDefault("02A")
+            showTurnstileGateSimulationDialog(latest, gate)
+        }
+        binding.btnRailwayTravelCode.setOnClickListener {
+            startActivity(Intent(this, RailwayTravelCodeActivity::class.java))
+        }
+        binding.btnSyncCalendar.setOnClickListener {
+            val latest = loadLatest() ?: return@setOnClickListener
+            syncTripToCalendar(latest)
+        }
+        binding.btnAddChecklistItem.setOnClickListener {
+            val latest = loadLatest() ?: return@setOnClickListener
+            showAddChecklistItemDialog(latest)
+        }
+        binding.btnBookSpecialAssistance.setOnClickListener {
+            val latest = loadLatest() ?: return@setOnClickListener
+            showSpecialAssistanceDialog(latest)
+        }
+        binding.btnOpenBaggageCheck.setOnClickListener {
+            BaggageCheckBottomSheet(this).show()
+        }
+        binding.btnDeclareChild.setOnClickListener {
+            val latest = loadLatest() ?: return@setOnClickListener
+            showChildDeclarationDialog(latest)
+        }
+        binding.btnMutePhone.setOnClickListener {
+            mutePhoneQuietMode()
+        }
+        binding.btnRequestEarplugs.setOnClickListener {
+            val latest = loadLatest() ?: return@setOnClickListener
+            requestNoiseCancellingEarplugs(latest)
+        }
+        binding.btnLead15m.setOnClickListener {
+            val latest = loadLatest() ?: return@setOnClickListener
+            updateAlarmLeadTime(latest, 15)
+        }
+        binding.btnLead20m.setOnClickListener {
+            val latest = loadLatest() ?: return@setOnClickListener
+            updateAlarmLeadTime(latest, 20)
+        }
+        binding.btnLead30m.setOnClickListener {
+            val latest = loadLatest() ?: return@setOnClickListener
+            updateAlarmLeadTime(latest, 30)
+        }
     }
 
     private fun advanceJourney() {
@@ -678,6 +776,12 @@ class TripDetailActivity : ImmersiveActivity() {
         binding.btnStationService.isEnabled = order.status != "已取消"
         binding.btnStationService.visibility = if (order.status == "已取消") View.GONE else View.VISIBLE
         binding.btnRouteMap.visibility = if (order.status == "已取消") View.GONE else View.VISIBLE
+        binding.btnViewPassbook.isEnabled = order.status != "已取消"
+        binding.btnViewPassbook.visibility = if (order.status == "已取消") View.GONE else View.VISIBLE
+        binding.btnSyncCalendar.isEnabled = order.status == "已支付"
+        binding.btnSyncCalendar.visibility = if (order.status == "已支付") View.VISIBLE else View.GONE
+        binding.btnConcourseMap.isEnabled = order.status != "已取消"
+        binding.btnConcourseMap.visibility = if (order.status == "已取消") View.GONE else View.VISIBLE
         when (order.status) {
             "待支付" -> {
                 binding.btnChangeTicket.isEnabled = true
@@ -956,10 +1060,17 @@ class TripDetailActivity : ImmersiveActivity() {
             .show()
     }
 
-        // 检查订单状态，只有已支付的订单才能退票
+    // 检查订单状态，只有已支付的订单才能退票
     private fun showRefundTicketDialog() {
-        if (loadLatest()?.status != "已支付") {
+        val latest = loadLatest()
+        if (latest?.status != "已支付") {
             Toast.makeText(this, "只有已支付的订单才能退票", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val breakdown = com.railway.ticketsystem.data.RefundFeePolicy.calculateRefund(latest)
+        if (!breakdown.isRefundable) {
+            Toast.makeText(this, breakdown.policyExplanation, Toast.LENGTH_LONG).show()
             return
         }
         
@@ -969,26 +1080,34 @@ class TripDetailActivity : ImmersiveActivity() {
             "重复购票",
             "其他原因"
         )
+
+        val feeDesc = if (breakdown.feeRatePercent == 0) "免手续费" else "${breakdown.feeRatePercent}%（¥${String.format(Locale.CHINA, "%.2f", breakdown.feeAmount)}）"
+        val messageText = "【退票明细】\n" +
+                "票面金额：¥${String.format(Locale.CHINA, "%.2f", breakdown.ticketPrice)}\n" +
+                "发车时间：${latest.departureDate} ${latest.departureTime}\n" +
+                "退票费率：$feeDesc\n" +
+                "应退金额：¥${String.format(Locale.CHINA, "%.2f", breakdown.refundAmount)}\n" +
+                "政策说明：${breakdown.policyExplanation}\n\n" +
+                "请选择退票原因并确认："
         
         AlertDialog.Builder(this)
             .setTitle("确认退票")
-            .setMessage("您确定要退票吗？退票后将扣除相应的积分。")
+            .setMessage(messageText)
             .setSingleChoiceItems(refundReasons, 0, null)
-            .setPositiveButton("确认退票") { dialog, which ->
+            .setPositiveButton("确认退票 (退¥${String.format(Locale.CHINA, "%.2f", breakdown.refundAmount)})") { dialog, _ ->
                 val selectedReason = refundReasons[(dialog as AlertDialog).listView.checkedItemPosition]
-                processRefund(selectedReason)
+                processRefund(selectedReason, breakdown)
             }
             .setNegativeButton("取消", null)
             .show()
     }
     
-    private fun processRefund(reason: String) {
+    private fun processRefund(reason: String, breakdown: com.railway.ticketsystem.data.RefundBreakdown? = null) {
         try {
-            // 计算应扣除的积分（与购票时获得的积分相同）
             val latest = loadLatest() ?: return
             val pointsToDeduct = PointsPolicy.fromAmount(latest.finalPrice)
+            val refundInfo = breakdown ?: com.railway.ticketsystem.data.RefundFeePolicy.calculateRefund(latest)
             
-            // 获取当前用户
             val currentUser = userRepository.getCurrentUser()
             if (currentUser == null) {
                 Toast.makeText(this, "用户信息获取失败", Toast.LENGTH_SHORT).show()
@@ -999,11 +1118,9 @@ class TripDetailActivity : ImmersiveActivity() {
                 return
             }
             
-            // 检查积分是否足够
             if (currentUser.points < pointsToDeduct) {
                 Toast.makeText(this, "积分不足，无法退票", Toast.LENGTH_SHORT).show()
                 return
-            
             }
             if (!orderRepository.updateOrderStatus(latest.id, currentUser.id, "已取消")) {
                 Toast.makeText(this, "订单状态更新失败，请重试", Toast.LENGTH_SHORT).show()
@@ -1018,17 +1135,18 @@ class TripDetailActivity : ImmersiveActivity() {
                 currentUser.id,
                 MessageRepository.TICKET,
                 "退票成功 · ${latest.trainNumber}",
-                "因“$reason”取消车票，已释放座位并扣除 ${pointsToDeduct} 积分。",
+                "因“$reason”取消车票。票面 ¥${String.format(Locale.CHINA, "%.2f", refundInfo.ticketPrice)}，核收手续费(${refundInfo.feeRatePercent}%) ¥${String.format(Locale.CHINA, "%.2f", refundInfo.feeAmount)}，实退 ¥${String.format(Locale.CHINA, "%.2f", refundInfo.refundAmount)}，扣除 ${pointsToDeduct} 积分。",
                 latest.id,
                 eventKey = "ticket_refund:${latest.id}"
             )
             
-            // 显示成功消息
-            Toast.makeText(this, "退票成功！已扣除${pointsToDeduct}积分", Toast.LENGTH_LONG).show()
+            Toast.makeText(
+                this,
+                "退票成功！实退 ¥${String.format(Locale.CHINA, "%.2f", refundInfo.refundAmount)}（手续费 ¥${String.format(Locale.CHINA, "%.2f", refundInfo.feeAmount)}）",
+                Toast.LENGTH_LONG
+            ).show()
             
-            // 返回上一页
             finish()
-            
         } catch (e: Exception) {
             e.printStackTrace()
             Toast.makeText(this, "退票失败，请重试", Toast.LENGTH_SHORT).show()
@@ -1254,7 +1372,586 @@ class TripDetailActivity : ImmersiveActivity() {
 
     private fun roundMoney(value: Double): Double = kotlin.math.round(value * 100.0) / 100.0
     private fun toCents(value: Double): Long = kotlin.math.round(value * 100.0).toLong()
-    
+
+    private fun buildUnreservedSeatGuide(order: Order): String {
+        val stops = order.timetableStops.orEmpty()
+        val nextStation = if (stops.size >= 2) stops[1].stationName else order.arrivalStation
+        return "• 03车 12F：${order.departureStation} 至 $nextStation 区间当前空闲，可优先暂坐\n" +
+               "• 05车 08D：餐吧车厢设有多组就座休闲席位，旅途中全程开放\n" +
+               "• 07车 03A：中途站客流平稳区间空闲\n" +
+               "💡 乘车提示：车厢座位上方电子指示灯绿灯为空闲，红灯为已售有人。"
+    }
+
+    private fun openConcourseMap(order: Order) {
+        val gate = runCatching { TicketTravelUpdates.getGate(this, order) }.getOrDefault("检票口")
+        startActivity(
+            Intent(this, StationGuideMapActivity::class.java).apply {
+                putExtra(StationGuideMapActivity.EXTRA_TICKET_ORDER_ID, order.id)
+                putExtra(StationGuideMapActivity.EXTRA_STATION, order.departureStation)
+                putExtra(StationGuideMapActivity.EXTRA_TARGET, "$gate 检票口")
+            }
+        )
+    }
+
+    private fun syncTripToCalendar(order: Order) {
+        try {
+            val startMillis = runCatching {
+                DEPARTURE_FORMAT.parse("${order.departureDate} ${order.departureTime}")?.time
+            }.getOrNull() ?: System.currentTimeMillis()
+            val endMillis = runCatching {
+                DEPARTURE_FORMAT.parse("${order.departureDate} ${order.arrivalTime}")?.time
+            }.getOrNull() ?: (startMillis + 7200000L)
+            val gate = runCatching { TicketTravelUpdates.getGate(this, order) }.getOrDefault("车站大屏")
+
+            val intent = Intent(Intent.ACTION_INSERT).apply {
+                data = android.provider.CalendarContract.Events.CONTENT_URI
+                putExtra(android.provider.CalendarContract.Events.TITLE, "🚆 ${order.trainNumber}次 ${order.departureStation} → ${order.arrivalStation}")
+                putExtra(android.provider.CalendarContract.Events.EVENT_LOCATION, "${order.departureStation} ($gate 检票口)")
+                putExtra(
+                    android.provider.CalendarContract.Events.DESCRIPTION,
+                    "车次：${order.trainNumber}\n" +
+                    "席位：${order.seatInfo}\n" +
+                    "检票口：$gate 检票口\n" +
+                    "乘车人：${order.passengerName}\n" +
+                    "订单号：${order.id}\n" +
+                    "温馨提示：请提前到达车站候车，发车前5分钟停止检票。"
+                )
+                putExtra(android.provider.CalendarContract.EXTRA_EVENT_BEGIN_TIME, startMillis)
+                putExtra(android.provider.CalendarContract.EXTRA_EVENT_END_TIME, if (endMillis > startMillis) endMillis else startMillis + 3600000L)
+                putExtra(android.provider.CalendarContract.Events.AVAILABILITY, android.provider.CalendarContract.Events.AVAILABILITY_BUSY)
+                putExtra(android.provider.CalendarContract.Events.HAS_ALARM, 1)
+            }
+            startActivity(intent)
+            Toast.makeText(this, "正在调起系统日历，保存即可建立智能行程提醒", Toast.LENGTH_SHORT).show()
+        } catch (e: Exception) {
+            Log.e("TripDetail", "日历同步失败", e)
+            Toast.makeText(this, "未找到可用系统日历应用", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun showPassbookTicketDialog(order: Order, gate: String) {
+        val dialog = com.google.android.material.bottomsheet.BottomSheetDialog(this)
+        val view = layoutInflater.inflate(R.layout.dialog_passbook_ticket, null)
+        dialog.setContentView(view)
+        (view.parent as? View)?.setBackgroundColor(Color.TRANSPARENT)
+
+        val cardFront = view.findViewById<View>(R.id.cardTicketFront)
+        val cardBack = view.findViewById<View>(R.id.cardTicketBack)
+        val tvTrainNumber = view.findViewById<android.widget.TextView>(R.id.tvPassbookTrainNumber)
+        val tvDepStation = view.findViewById<android.widget.TextView>(R.id.tvPassbookDepStation)
+        val tvDepPinyin = view.findViewById<android.widget.TextView>(R.id.tvPassbookDepPinyin)
+        val tvArrStation = view.findViewById<android.widget.TextView>(R.id.tvPassbookArrStation)
+        val tvArrPinyin = view.findViewById<android.widget.TextView>(R.id.tvPassbookArrPinyin)
+        val tvDepTime = view.findViewById<android.widget.TextView>(R.id.tvPassbookDepTime)
+        val tvGate = view.findViewById<android.widget.TextView>(R.id.tvPassbookGate)
+        val tvSeatInfo = view.findViewById<android.widget.TextView>(R.id.tvPassbookSeatInfo)
+        val tvPrice = view.findViewById<android.widget.TextView>(R.id.tvPassbookPrice)
+        val tvPassenger = view.findViewById<android.widget.TextView>(R.id.tvPassbookPassenger)
+        val tvTicketCode = view.findViewById<android.widget.TextView>(R.id.tvPassbookTicketCode)
+        val ivMiniQr = view.findViewById<android.widget.ImageView>(R.id.ivPassbookQrMini)
+        val btnFlip = view.findViewById<android.widget.Button>(R.id.btnFlipTicket)
+        val btnSave = view.findViewById<android.widget.Button>(R.id.btnSaveTicket)
+        val btnClose = view.findViewById<android.widget.Button>(R.id.btnClosePassbook)
+
+        tvTrainNumber?.text = "${order.trainNumber} 次"
+        tvDepStation?.text = "${order.departureStation}站"
+        tvDepPinyin?.text = com.railway.ticketsystem.data.StationPinyinResolver.getPinyin(order.departureStation)
+        tvArrStation?.text = "${order.arrivalStation}站"
+        tvArrPinyin?.text = com.railway.ticketsystem.data.StationPinyinResolver.getPinyin(order.arrivalStation)
+        tvDepTime?.text = "${formatFullDate(order.departureDate)} ${order.departureTime} 开"
+        tvGate?.text = "检票口 $gate"
+        tvSeatInfo?.text = order.seatInfo
+        tvPrice?.text = "¥${money(order.finalPrice)}元"
+        tvPassenger?.text = "${desensitizeId(order.passengerIdCard)} ${desensitizeName(order.passengerName)}"
+
+        val serial = "W" + (Math.abs(order.id.hashCode()) % 900000 + 100000) + " " +
+                order.departureDate.replace("-", "").takeLast(4) + " " +
+                order.departureTime.replace(":", "") + " " +
+                (Math.abs((order.id + order.passengerIdCard).hashCode().toLong()) % 9000000000000000L + 1000000000000000L)
+        tvTicketCode?.text = serial
+
+        val token = stableVoucherToken(order)
+        val qrBitmap = qrBitmapFor(order, token)
+        if (qrBitmap != null) {
+            ivMiniQr?.setImageBitmap(qrBitmap)
+        }
+
+        var isShowingFront = true
+        btnFlip?.setOnClickListener {
+            val visibleCard = if (isShowingFront) cardFront else cardBack
+            val hiddenCard = if (isShowingFront) cardBack else cardFront
+
+            val anim1 = android.animation.ObjectAnimator.ofFloat(visibleCard, "rotationY", 0f, 90f).apply {
+                duration = 200
+            }
+            val anim2 = android.animation.ObjectAnimator.ofFloat(hiddenCard, "rotationY", -90f, 0f).apply {
+                duration = 200
+            }
+            anim1.addListener(object : android.animation.AnimatorListenerAdapter() {
+                override fun onAnimationEnd(animation: android.animation.Animator) {
+                    visibleCard?.visibility = View.GONE
+                    hiddenCard?.visibility = View.VISIBLE
+                    hiddenCard?.rotationY = -90f
+                    anim2.start()
+                    isShowingFront = !isShowingFront
+                    btnFlip.text = "翻转票面"
+                }
+            })
+            anim1.start()
+        }
+
+        btnSave?.setOnClickListener {
+            Toast.makeText(this, "电子磁介质客票已保存至本地相册", Toast.LENGTH_SHORT).show()
+        }
+
+        btnClose?.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialog.show()
+    }
+
+    private fun showTurnstileGateSimulationDialog(order: Order, gate: String) {
+        val dialog = com.google.android.material.bottomsheet.BottomSheetDialog(this)
+        val view = layoutInflater.inflate(R.layout.dialog_turnstile_gate_simulation, null)
+        dialog.setContentView(view)
+        (view.parent as? View)?.setBackgroundColor(Color.TRANSPARENT)
+
+        val tvChannelBadge = view.findViewById<android.widget.TextView>(R.id.tvGateChannelBadge)
+        val tvStatusLed = view.findViewById<android.widget.TextView>(R.id.tvGateStatusLed)
+        val tvStatusText = view.findViewById<android.widget.TextView>(R.id.tvGateStatusText)
+        val tvPassPrompt = view.findViewById<android.widget.TextView>(R.id.tvGatePassPrompt)
+        val tvCameraPrompt = view.findViewById<android.widget.TextView>(R.id.tvFaceCameraPrompt)
+        val tvPassengerId = view.findViewById<android.widget.TextView>(R.id.tvGatePassengerIdName)
+        val layoutTap = view.findViewById<View>(R.id.layoutTapIdCard)
+        val layoutResult = view.findViewById<View>(R.id.layoutVerificationResult)
+        val tvVerifiedTrip = view.findViewById<android.widget.TextView>(R.id.tvGateVerifiedTripInfo)
+        val tvVerifiedStation = view.findViewById<android.widget.TextView>(R.id.tvGateVerifiedStationGuide)
+        val viewLaser = view.findViewById<View>(R.id.viewGateScanLaser)
+        val btnClose = view.findViewById<View>(R.id.btnCloseGateDialog)
+
+        val channelName = if (gate.isNotBlank()) "南 $gate 检票通道" else "南 02A 检票通道"
+        tvChannelBadge?.text = channelName
+        tvPassengerId?.text = "${order.passengerName} (身份证: ${desensitizeId(order.passengerIdCard)})"
+        val platformNumber = (Math.abs(order.trainNumber.hashCode()) % 8 + 1)
+        val seatDisplay = if (order.carNumber.isNotBlank() && order.seatNumber.isNotBlank()) {
+            "${order.carNumber}车 ${order.seatNumber}号"
+        } else order.seatInfo
+        tvVerifiedTrip?.text = "车次：${order.trainNumber} 次 · $seatDisplay"
+        tvVerifiedStation?.text = "乘车站：${order.departureStation} · 检票口：$gate · 请前往 ${platformNumber} 站台乘车"
+
+        var isVerified = false
+        layoutTap?.setOnClickListener {
+            if (isVerified) {
+                Toast.makeText(this, "该证件已完成进站核验", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            it.performHapticFeedback(android.view.HapticFeedbackConstants.KEYBOARD_TAP)
+            tvStatusLed?.text = "🟡"
+            tvStatusText?.text = "已感应身份证，正在比对动态人脸活体..."
+            tvPassPrompt?.text = "请平视前方摄像头并保持面部无遮挡..."
+            tvCameraPrompt?.text = "正在采集面部特征点进行活体校验..."
+
+            // 扫描激光上下往返微动
+            android.animation.ObjectAnimator.ofFloat(viewLaser, "translationY", 0f, 320f).apply {
+                duration = 600
+                repeatCount = 1
+                repeatMode = android.animation.ValueAnimator.REVERSE
+                start()
+            }
+
+            android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+                if (isFinishing || isDestroyed) return@postDelayed
+                isVerified = true
+                window?.decorView?.performHapticFeedback(android.view.HapticFeedbackConstants.LONG_PRESS)
+                tvStatusLed?.text = "🟢"
+                tvStatusText?.text = "核验成功 · 票证人一致"
+                tvPassPrompt?.text = "闸翼通道开启 · 请抓紧通行"
+                tvCameraPrompt?.text = "✓ 动态活体比对 100% 吻合"
+                layoutResult?.visibility = View.VISIBLE
+                Toast.makeText(this, "核验通过，闸机已开，祝您旅途愉快！", Toast.LENGTH_SHORT).show()
+            }, 1200L)
+        }
+
+        btnClose?.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialog.show()
+    }
+
+    private fun desensitizeId(id: String): String {
+        if (id.length < 8) return id
+        return id.take(4) + "********" + id.takeLast(4)
+    }
+
+    private fun desensitizeName(name: String): String {
+        if (name.length <= 1) return name
+        return name.first() + "*".repeat(name.length - 1)
+    }
+
+    private fun renderWeatherTimeline(order: Order) {
+        val stopNames = order.timetableStops?.map { it.stationName }?.ifEmpty { null }
+            ?: listOf(order.departureStation, order.arrivalStation)
+        val weather = RouteWeatherService.getWeatherTimeline(order.departureStation, order.arrivalStation, stopNames)
+        binding.llWeatherStops.removeAllViews()
+
+        weather.stops.forEachIndexed { _, stop ->
+            val stopView = LinearLayout(this).apply {
+                orientation = LinearLayout.VERTICAL
+                gravity = android.view.Gravity.CENTER
+                setPadding(dp(8), dp(8), dp(8), dp(8))
+                setBackgroundResource(R.drawable.bg_passenger_selected)
+                layoutParams = LinearLayout.LayoutParams(dp(76), dp(82)).apply {
+                    marginEnd = dp(8)
+                }
+
+                val tvIcon = android.widget.TextView(context).apply {
+                    text = stop.icon
+                    textSize = 18f
+                    gravity = android.view.Gravity.CENTER
+                }
+                val tvName = android.widget.TextView(context).apply {
+                    text = stop.stationName
+                    textSize = 12f
+                    setTypeface(null, android.graphics.Typeface.BOLD)
+                    setTextColor(getColor(R.color.railway_blue_deep))
+                    gravity = android.view.Gravity.CENTER
+                    maxLines = 1
+                }
+                val tvTemp = android.widget.TextView(context).apply {
+                    text = "${stop.temperature}°C · ${stop.condition}"
+                    textSize = 10f
+                    setTextColor(getColor(R.color.text_secondary))
+                    gravity = android.view.Gravity.CENTER
+                }
+                addView(tvIcon)
+                addView(tvName)
+                addView(tvTemp)
+            }
+            binding.llWeatherStops.addView(stopView)
+        }
+
+        binding.tvWeatherAlertBadge.text = weather.alertLevel ?: "宜出行 · 晴好"
+        binding.tvWeatherAdvisory.text = "💡 ${weather.advisory}"
+    }
+
+    private fun renderStationExitGuide(order: Order) {
+        val guide = StationGroundTransferCatalog.getGuide(order.arrivalStation)
+        binding.tvExitGuideTitle.text = "🚇 到达【${guide.stationName}】地面接驳指引"
+        binding.tvExitMetroLines.text = "🚇 地铁直达接驳：${guide.metroLines}"
+        binding.tvExitMetroGuide.text = guide.metroGuide
+        binding.tvExitTaxiGuide.text = "🚕 网约车与出租车：${guide.taxiRideHailLocation}"
+        binding.tvExitBusGuide.text = "🚌 公交与机场大巴：${guide.busAirportShuttle}"
+        binding.tvExitFastTip.text = "💡 快捷通行建议：${guide.fastExitTip}"
+    }
+
+    private fun renderLuggageChecklist(order: Order) {
+        val checklistRepo = TripChecklistRepository(this)
+        val tripKey = "${order.trainNumber}_${order.departureDate}"
+        val items = checklistRepo.getItems(tripKey)
+        binding.llChecklistContainer.removeAllViews()
+
+        items.forEach { item ->
+            val row = LinearLayout(this).apply {
+                orientation = LinearLayout.HORIZONTAL
+                gravity = android.view.Gravity.CENTER_VERTICAL
+                setPadding(dp(4), dp(4), dp(4), dp(4))
+                layoutParams = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                ).apply { bottomMargin = dp(4) }
+
+                val checkBox = CheckBox(context).apply {
+                    isChecked = item.isChecked
+                    text = "${item.text} · ${item.category}"
+                    textSize = 13f
+                    setTextColor(getColor(if (item.isChecked) R.color.gray_medium else R.color.text_primary))
+                    if (item.isChecked) {
+                        paintFlags = paintFlags or android.graphics.Paint.STRIKE_THRU_TEXT_FLAG
+                    }
+                    setOnCheckedChangeListener { buttonView, isChecked ->
+                        buttonView.performHapticFeedback(android.view.HapticFeedbackConstants.KEYBOARD_TAP)
+                        item.isChecked = isChecked
+                        checklistRepo.saveItems(tripKey, items)
+                        setTextColor(getColor(if (isChecked) R.color.gray_medium else R.color.text_primary))
+                        if (isChecked) {
+                            paintFlags = paintFlags or android.graphics.Paint.STRIKE_THRU_TEXT_FLAG
+                        } else {
+                            paintFlags = paintFlags and android.graphics.Paint.STRIKE_THRU_TEXT_FLAG.inv()
+                        }
+                    }
+                }
+                addView(checkBox)
+            }
+            binding.llChecklistContainer.addView(row)
+        }
+    }
+
+    private fun showAddChecklistItemDialog(order: Order) {
+        val tripKey = "${order.trainNumber}_${order.departureDate}"
+        val dialogBinding = DialogAddChecklistItemBinding.inflate(layoutInflater)
+        val dialog = AlertDialog.Builder(this)
+            .setView(dialogBinding.root)
+            .create()
+        dialog.setOnShowListener {
+            dialog.window?.setBackgroundDrawable(android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT))
+        }
+        dialogBinding.btnCancelChecklist.setOnClickListener { dialog.dismiss() }
+        dialogBinding.btnConfirmChecklist.setOnClickListener {
+            val text = dialogBinding.etNewChecklistText.text?.toString()?.trim().orEmpty()
+            if (text.isNotBlank()) {
+                val repo = TripChecklistRepository(this)
+                repo.addItem(tripKey, text)
+                renderLuggageChecklist(order)
+                Toast.makeText(this, "已添加备忘项：$text", Toast.LENGTH_SHORT).show()
+                dialog.dismiss()
+            } else {
+                Toast.makeText(this, "请输入待办内容", Toast.LENGTH_SHORT).show()
+            }
+        }
+        dialog.show()
+    }
+
+    private fun renderSpecialAssistance(order: Order) {
+        val assistanceRepo = SpecialAssistanceRepository(this)
+        val tripKey = "${order.trainNumber}_${order.departureDate}"
+        val record = assistanceRepo.getBooking(tripKey)
+
+        if (record != null) {
+            binding.tvAssistanceStatusBadge.text = "🟢 已预约"
+            binding.tvAssistanceStatusBadge.setTextColor(getColor(R.color.success))
+            binding.tvAssistancePrompt.text = "已为您成功预约【${record.serviceType}】服务。\n联系人：${record.passengerName}（${record.contactPhone}）\n${if (record.note.isNotBlank()) "备注需求：${record.note}\n" else ""}提示：${record.statusText}"
+            binding.btnBookSpecialAssistance.text = "管理 / 取消爱心协助预约"
+        } else {
+            binding.tvAssistanceStatusBadge.text = "未预约"
+            binding.tvAssistanceStatusBadge.setTextColor(getColor(R.color.text_secondary))
+            binding.tvAssistancePrompt.text = "提供老幼病残孕重点旅客站台轮椅推车接送、视力协助引导与绿色进出站通道预约"
+            binding.btnBookSpecialAssistance.text = "预约站台爱心接送协助"
+        }
+    }
+
+    private fun showSpecialAssistanceDialog(order: Order) {
+        val assistanceRepo = SpecialAssistanceRepository(this)
+        val tripKey = "${order.trainNumber}_${order.departureDate}"
+        val existing = assistanceRepo.getBooking(tripKey)
+
+        if (existing != null) {
+            AlertDialog.Builder(this)
+                .setTitle("重点旅客协助预约管理")
+                .setMessage("当前已预约：${existing.serviceType}\n联系电话：${existing.contactPhone}\n\n如需取消，请点击【取消本次预约】。")
+                .setNegativeButton("保留预约", null)
+                .setPositiveButton("取消本次预约") { _, _ ->
+                    assistanceRepo.cancelBooking(tripKey)
+                    renderSpecialAssistance(order)
+                    Toast.makeText(this, "已取消爱心协助预约", Toast.LENGTH_SHORT).show()
+                }
+                .show()
+            return
+        }
+
+        val dialogBinding = DialogSpecialAssistanceBinding.inflate(layoutInflater)
+        dialogBinding.tvAssistanceTripSummary.text = "${order.trainNumber} ${order.departureStation} ➔ ${order.arrivalStation} · ${order.seatInfo} · ${order.passengerName}"
+        dialogBinding.etAssistancePhone.setText(order.passengerPhone)
+
+        val dialog = AlertDialog.Builder(this)
+            .setView(dialogBinding.root)
+            .create()
+        dialog.setOnShowListener {
+            dialog.window?.setBackgroundDrawable(android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT))
+        }
+
+        dialogBinding.btnCancelAssistance.setOnClickListener { dialog.dismiss() }
+        dialogBinding.btnConfirmAssistance.setOnClickListener {
+            val phone = dialogBinding.etAssistancePhone.text?.toString()?.trim().orEmpty()
+            if (phone.isBlank()) {
+                Toast.makeText(this, "请填写联系人电话", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            val serviceType = when (dialogBinding.rgAssistanceTypes.checkedRadioButtonId) {
+                R.id.rbWheelchair -> "轮椅推车站台无障碍接驳"
+                R.id.rbVisionGuide -> "视力障碍专人引导乘车"
+                R.id.rbMaternalInfant -> "母婴/老幼特需绿色通道优先检票"
+                R.id.rbLuggageHelp -> "重特大件行李站台便民搬运协助"
+                else -> "重点旅客关怀协助"
+            }
+            val note = dialogBinding.etAssistanceNote.text?.toString()?.trim().orEmpty()
+            val record = SpecialAssistanceRepository.AssistanceRecord(
+                tripKey = tripKey,
+                trainNumber = order.trainNumber,
+                passengerName = order.passengerName,
+                contactPhone = phone,
+                serviceType = serviceType,
+                note = note,
+                bookedAt = System.currentTimeMillis(),
+                statusText = "车站爱心服务专区工作人员将在发车前30分钟电话确认进站通道与接驳站台"
+            )
+            assistanceRepo.saveBooking(record)
+            renderSpecialAssistance(order)
+            Toast.makeText(this, "预约提交成功！车站专员将在发车前致电接洽", Toast.LENGTH_LONG).show()
+            dialog.dismiss()
+        }
+        dialog.show()
+    }
+
+    private fun renderArrivalAlarm(order: Order) {
+        val alarmManager = ArrivalAlarmManager(this)
+        val status = alarmManager.getAlarmStatus(order.id)
+
+        binding.switchArrivalAlarm.setOnCheckedChangeListener(null)
+        binding.switchArrivalAlarm.isChecked = status.isEnabled
+        binding.switchArrivalAlarm.setOnCheckedChangeListener { _, isChecked ->
+            toggleArrivalAlarm(order, isChecked)
+        }
+
+        updateLeadPillsUI(status.leadMinutes)
+
+        if (status.isEnabled) {
+            binding.tvArrivalAlarmStatus.text = "🟢 已开启 · 预计 ${status.formattedTriggerTime}（到站前 ${status.leadMinutes} 分钟）强力震动提醒"
+            binding.tvArrivalAlarmStatus.setTextColor(getColor(R.color.success))
+        } else {
+            binding.tvArrivalAlarmStatus.text = "未开启 · 开启后将在到站前 ${status.leadMinutes} 分钟强震动提醒，避免坐过站"
+            binding.tvArrivalAlarmStatus.setTextColor(getColor(R.color.text_secondary))
+        }
+    }
+
+    private fun updateLeadPillsUI(leadMinutes: Int) {
+        val activeBg = ContextCompat.getDrawable(this, R.drawable.bg_quick_date_pill_active)
+        val inactiveBg = ContextCompat.getDrawable(this, R.drawable.bg_quick_date_pill)
+        val activeColor = ContextCompat.getColor(this, R.color.railway_blue)
+        val inactiveColor = ContextCompat.getColor(this, R.color.text_secondary)
+
+        binding.btnLead15m.background = if (leadMinutes == 15) activeBg else inactiveBg
+        binding.btnLead15m.setTextColor(if (leadMinutes == 15) activeColor else inactiveColor)
+        binding.btnLead15m.setTypeface(null, if (leadMinutes == 15) Typeface.BOLD else Typeface.NORMAL)
+
+        binding.btnLead20m.background = if (leadMinutes == 20) activeBg else inactiveBg
+        binding.btnLead20m.setTextColor(if (leadMinutes == 20) activeColor else inactiveColor)
+        binding.btnLead20m.setTypeface(null, if (leadMinutes == 20) Typeface.BOLD else Typeface.NORMAL)
+
+        binding.btnLead30m.background = if (leadMinutes == 30) activeBg else inactiveBg
+        binding.btnLead30m.setTextColor(if (leadMinutes == 30) activeColor else inactiveColor)
+        binding.btnLead30m.setTypeface(null, if (leadMinutes == 30) Typeface.BOLD else Typeface.NORMAL)
+    }
+
+    private fun updateAlarmLeadTime(order: Order, leadMinutes: Int) {
+        val alarmManager = ArrivalAlarmManager(this)
+        val current = alarmManager.getAlarmStatus(order.id)
+        if (current.isEnabled) {
+            val updated = alarmManager.scheduleAlarm(order, leadMinutes)
+            Toast.makeText(this, "已更新为到站前 $leadMinutes 分钟唤醒（${updated.formattedTriggerTime}）", Toast.LENGTH_SHORT).show()
+        } else {
+            getSharedPreferences("arrival_alarm_prefs", MODE_PRIVATE).edit()
+                .putInt("alarm_lead_${order.id}", leadMinutes)
+                .apply()
+        }
+        renderArrivalAlarm(order)
+    }
+
+    private fun toggleArrivalAlarm(order: Order, isChecked: Boolean) {
+        val alarmManager = ArrivalAlarmManager(this)
+        val lead = alarmManager.getAlarmStatus(order.id).leadMinutes
+        if (isChecked) {
+            val status = alarmManager.scheduleAlarm(order, lead)
+            Toast.makeText(this, "到站防踏空闹钟已开启！将在 ${status.formattedTriggerTime} 震动提醒", Toast.LENGTH_SHORT).show()
+        } else {
+            alarmManager.cancelAlarm(order.id)
+            Toast.makeText(this, "到站唤醒闹钟已关闭", Toast.LENGTH_SHORT).show()
+        }
+        renderArrivalAlarm(order)
+    }
+
+    private fun renderChildDeclaration(order: Order) {
+        val repo = ChildDeclarationRepository(this)
+        val tripKey = "${order.trainNumber}_${order.departureDate}_${order.passengerName}"
+        val record = repo.getDeclaration(tripKey)
+
+        if (record != null) {
+            binding.tvChildDeclarationBadge.text = "🟢 已申报"
+            binding.tvChildDeclarationBadge.setTextColor(getColor(R.color.success))
+            binding.tvChildDeclarationPrompt.text = "已绑定免票同行儿童：${record.childName}（证件号：${record.idNumber}）\n通行凭证号：${record.certificateCode}\n申报时间：${record.declaredAt}\n提示：进出站请随主乘车人一同经人脸/人工闸机直接核验通行。"
+            binding.btnDeclareChild.text = "管理 / 取消免费儿童申报"
+        } else {
+            binding.tvChildDeclarationBadge.text = "未申报"
+            binding.tvChildDeclarationBadge.setTextColor(getColor(R.color.text_secondary))
+            binding.tvChildDeclarationPrompt.text = "依规定：每名持票成人可带一名未满6周岁且不占座儿童，需在线提前申报以便闸机直接放行"
+            binding.btnDeclareChild.text = "申报免费乘车儿童"
+        }
+    }
+
+    private fun showChildDeclarationDialog(order: Order) {
+        val repo = ChildDeclarationRepository(this)
+        val tripKey = "${order.trainNumber}_${order.departureDate}_${order.passengerName}"
+        val existing = repo.getDeclaration(tripKey)
+
+        if (existing != null) {
+            android.app.AlertDialog.Builder(this)
+                .setTitle("免费乘车儿童申报管理")
+                .setMessage("当前已绑定免票儿童：${existing.childName}\n证件号码：${existing.idNumber}\n凭证编号：${existing.certificateCode}\n同行成人：${existing.adultPassenger}\n\n如需取消绑定，请点击【取消本次申报】。")
+                .setPositiveButton("保留申报", null)
+                .setNegativeButton("取消本次申报") { _, _ ->
+                    repo.cancelDeclaration(tripKey)
+                    Toast.makeText(this, "已取消该儿童免费乘车申报", Toast.LENGTH_SHORT).show()
+                    renderChildDeclaration(order)
+                }
+                .show()
+            return
+        }
+
+        val dialog = BottomSheetDialog(this)
+        val view = layoutInflater.inflate(R.layout.dialog_declare_child, null)
+        dialog.setContentView(view)
+
+        val etChildName = view.findViewById<EditText>(R.id.etChildName)
+        val etChildId = view.findViewById<EditText>(R.id.etChildIdNumber)
+        val tvAdultInfo = view.findViewById<TextView>(R.id.tvAdultPassengerInfo)
+        val btnCancel = view.findViewById<View>(R.id.btnCancelDeclareChild)
+        val btnSubmit = view.findViewById<View>(R.id.btnSubmitDeclareChild)
+
+        tvAdultInfo.text = "同行成年人：${order.passengerName}（${order.trainNumber}次 ${order.departureStation} → ${order.arrivalStation}）"
+
+        btnCancel.setOnClickListener { dialog.dismiss() }
+        btnSubmit.setOnClickListener {
+            val name = etChildName.text.toString().trim()
+            val idNum = etChildId.text.toString().trim()
+            if (name.isEmpty() || idNum.isEmpty()) {
+                Toast.makeText(this, "请完整填写儿童姓名与证件号", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            repo.saveDeclaration(tripKey, name, idNum, order.passengerName)
+            Toast.makeText(this, "免费乘车儿童申报成功！已生成进站电子凭证", Toast.LENGTH_SHORT).show()
+            dialog.dismiss()
+            renderChildDeclaration(order)
+        }
+
+        dialog.show()
+    }
+
+    private fun mutePhoneQuietMode() {
+        val audioManager = getSystemService(AUDIO_SERVICE) as? android.media.AudioManager
+        try {
+            audioManager?.ringerMode = android.media.AudioManager.RINGER_MODE_VIBRATE
+            Toast.makeText(this, "🔕 已为您将手机切换至静音/振动模式，共同守护静音车厢", Toast.LENGTH_SHORT).show()
+        } catch (e: Exception) {
+            Toast.makeText(this, "请在系统控制中心开启手机静音模式，践行静音车厢公约", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun requestNoiseCancellingEarplugs(order: Order) {
+        val car = if (order.carNumber.isNotBlank()) "${order.carNumber}车" else "您所在车厢"
+        val seat = if (order.seatNumber.isNotBlank()) order.seatNumber else "您的席位"
+        android.app.AlertDialog.Builder(this)
+            .setTitle("索取静音降噪耳塞")
+            .setMessage("将为您呼叫 $car 乘务员免费送达一套高分子慢回弹降噪耳塞至 $seat。\n\n请确认是否呼叫乘务员送达？")
+            .setPositiveButton("立即索取") { _, _ ->
+                Toast.makeText(this, "乘务组已受理！乘务员将在5分钟内将降噪耳塞送达您的席位", Toast.LENGTH_LONG).show()
+            }
+            .setNegativeButton("取消", null)
+            .show()
+    }
+
+    private fun dp(value: Int): Int = (value * resources.displayMetrics.density).toInt()
+
     override fun onSupportNavigateUp(): Boolean {
         finish()
         return true

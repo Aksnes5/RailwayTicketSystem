@@ -30,3 +30,12 @@ captures/
 
 # --- Scratch ---
 temp.txt
+*.log
+__pycache__/
+*.pyc
+scratch/
+tmp/
+*.png
+wuyi_path*.json
+tools/**/__pycache__/
+aintern_review_*/

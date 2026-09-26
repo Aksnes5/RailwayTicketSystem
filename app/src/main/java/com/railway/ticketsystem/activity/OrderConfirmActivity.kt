@@ -140,16 +140,24 @@ class OrderConfirmActivity : ImmersiveActivity() {
         }
         
         val passengers = passengersForOrder()
-        binding.tvOrderPassengerName.text = if (passengers.size == 1) passengerName else {
-            "同行 ${passengers.size} 人：${passengers.joinToString("、") { it.name }}"
+        val passengerPriceSum = passengers.sumOf { p ->
+            val discount = com.railway.ticketsystem.model.TicketType.fromLabel(p.ticketType).discountRate
+            finalPrice * discount
+        }
+        val typeBreakdowns = passengers.groupBy { it.ticketType }.map { (type, list) -> "${type}×${list.size}" }.joinToString("，")
+
+        binding.tvOrderPassengerName.text = if (passengers.size == 1) {
+            "${passengers.first().name} (${passengers.first().ticketType})"
+        } else {
+            "同行 ${passengers.size} 人：${passengers.joinToString("、") { "${it.name}(${it.ticketType})" }}"
         }
         binding.tvOrderPassengerIdCard.text = if (passengers.size == 1) passengerIdCard else {
             "同车厢相邻座位 · 共 ${passengers.size} 张车票"
         }
         
         binding.tvOrderBasePrice.text = "¥${basePrice.toInt()}"
-        binding.tvOrderSeatTypePrice.text = "$seatType × ${getSeatTypeMultiplier(seatType)}"
-        binding.tvOrderTotalPrice.text = "¥${(finalPrice * passengers.size).toInt()}"
+        binding.tvOrderSeatTypePrice.text = "$seatType · $typeBreakdowns"
+        binding.tvOrderTotalPrice.text = "¥${passengerPriceSum.toInt()}"
         
         // 设置按钮事件
         binding.btnPay.text = if (requiresWaitlist) "提交候补" else "提交订单"
@@ -463,7 +471,7 @@ class OrderConfirmActivity : ImmersiveActivity() {
                         passengerIdCard = passenger.idCard,
                         passengerPhone = passenger.phone,
                         basePrice = basePrice,
-                        finalPrice = finalPrice,
+                        finalPrice = finalPrice * com.railway.ticketsystem.model.TicketType.fromLabel(passenger.ticketType).discountRate,
                         status = "待支付",
                         createTime = currentTime,
                         payTime = null,

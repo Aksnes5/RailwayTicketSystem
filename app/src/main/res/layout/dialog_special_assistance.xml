@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_glass_card"
+    android:orientation="vertical"
+    android:padding="20dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:layout_marginBottom="16dp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="♿ 重点旅客爱心协助预约"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="@color/text_primary" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="铁路公益服务"
+            android:textSize="11sp"
+            android:textColor="@color/railway_blue"
+            android:background="@drawable/bg_price_pill"
+            android:paddingHorizontal="8dp"
+            android:paddingVertical="3dp" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tvAssistanceTripSummary"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="G5430 汉口 ➔ 汉川北 · 01车01A"
+        android:textSize="13sp"
+        android:textColor="@color/text_secondary"
+        android:layout_marginBottom="14dp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="请选择协助服务项目"
+        android:textSize="13.5sp"
+        android:textStyle="bold"
+        android:textColor="@color/text_primary"
+        android:layout_marginBottom="8dp" />
+
+    <RadioGroup
+        android:id="@+id/rgAssistanceTypes"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp">
+
+        <RadioButton
+            android:id="@+id/rbWheelchair"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="♿ 轮椅推车进出站与站台无障碍接驳"
+            android:textSize="13.5sp"
+            android:textColor="@color/text_primary"
+            android:padding="4dp" />
+
+        <RadioButton
+            android:id="@+id/rbVisionGuide"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="🦯 视力障碍专人引导进站上车"
+            android:textSize="13.5sp"
+            android:textColor="@color/text_primary"
+            android:padding="4dp" />
+
+        <RadioButton
+            android:id="@+id/rbMaternalInfant"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="👶 母婴/老幼特需绿色通道优先检票"
+            android:textSize="13.5sp"
+            android:textColor="@color/text_primary"
+            android:padding="4dp" />
+
+        <RadioButton
+            android:id="@+id/rbLuggageHelp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="🧳 重特大件行李站台便民搬运协助"
+            android:textSize="13.5sp"
+            android:textColor="@color/text_primary"
+            android:padding="4dp" />
+    </RadioGroup>
+
+    <!-- 手机号 -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp"
+        android:hint="联系人电话 (接收车站接洽短信)"
+        style="@style/App.TextInput.Rounded">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/etAssistancePhone"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="phone" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- 备注说明 -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:hint="身体状况或随行要求备注 (选填)"
+        style="@style/App.TextInput.Rounded">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/etAssistanceNote"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="text" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- 操作按钮 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnCancelAssistance"
+            style="@style/App.Button.Quiet"
+            android:layout_width="0dp"
+            android:layout_height="44dp"
+            android:layout_weight="1"
+            android:text="取消"
+            android:textSize="14sp"
+            app:cornerRadius="@dimen/corner_large"
+            android:layout_marginEnd="8dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnConfirmAssistance"
+            android:layout_width="0dp"
+            android:layout_height="44dp"
+            android:layout_weight="1"
+            android:text="立即预约"
+            android:textSize="14sp"
+            app:cornerRadius="@dimen/corner_large" />
+    </LinearLayout>
+
+</LinearLayout>

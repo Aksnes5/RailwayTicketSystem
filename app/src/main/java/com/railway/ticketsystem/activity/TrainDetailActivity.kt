@@ -2,7 +2,11 @@ package com.railway.ticketsystem.activity
 
 import android.os.Bundle
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.railway.ticketsystem.R
 import com.railway.ticketsystem.adapter.TrainStopScheduleAdapter
@@ -16,12 +20,15 @@ import com.railway.ticketsystem.data.TrainStopSchedule
 import com.railway.ticketsystem.databinding.ActivityTrainDetailBinding
 import com.railway.ticketsystem.model.Train
 import com.railway.ticketsystem.model.RouteType
+import com.railway.ticketsystem.viewmodel.TrainDetailViewModel
+import kotlinx.coroutines.launch
 
 class TrainDetailActivity : ImmersiveActivity() {
     
     private lateinit var binding: ActivityTrainDetailBinding
     private lateinit var train: Train
     private lateinit var stationAdapter: TrainStopScheduleAdapter
+    private val viewModel: TrainDetailViewModel by viewModels()
     private var departureDate: String = ""
     private var publishedTimetable: List<TrainStopSchedule> = emptyList()
     private val statusTicker = object : Runnable {
@@ -51,6 +58,23 @@ class TrainDetailActivity : ImmersiveActivity() {
         
         setupUI()
         setupStationList()
+        viewModel.initialize(train, departureDate)
+        observeViewModel()
+    }
+
+    private fun observeViewModel() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.timetable.collect { timetable ->
+                    if (timetable.isNotEmpty()) {
+                        publishedTimetable = timetable
+                        if (::stationAdapter.isInitialized) {
+                            stationAdapter.updateStops(timetable)
+                        }
+                    }
+                }
+            }
+        }
     }
 
     override fun onResume() {
@@ -141,6 +165,9 @@ class TrainDetailActivity : ImmersiveActivity() {
         TrainSetResolver.modelFor(train)?.let { model ->
             binding.tvTrainSet.text = model
             binding.layoutTrainSet.visibility = android.view.View.VISIBLE
+            binding.layoutTrainSet.setOnClickListener {
+                showRollingStockSpecsDialog(model)
+            }
         } ?: run {
             binding.layoutTrainSet.visibility = android.view.View.GONE
         }
@@ -247,5 +274,54 @@ class TrainDetailActivity : ImmersiveActivity() {
         }
         
         Toast.makeText(this, message, Toast.LENGTH_LONG).show()
+    }
+
+    private fun showRollingStockSpecsDialog(model: String) {
+        val dialog = com.google.android.material.bottomsheet.BottomSheetDialog(this)
+        val spec = com.railway.ticketsystem.data.RollingStockSpecsData.getSpec(model)
+        val view = layoutInflater.inflate(R.layout.dialog_rolling_stock_specs, null)
+        dialog.setContentView(view)
+        (view.parent as? android.view.View)?.setBackgroundColor(android.graphics.Color.TRANSPARENT)
+
+        view.findViewById<android.widget.TextView>(R.id.tvSpecModelName)?.text = spec.modelName
+        view.findViewById<android.widget.TextView>(R.id.tvSpecSeriesFamily)?.text = "${spec.seriesFamily} · ${spec.manufacturer}"
+        view.findViewById<android.widget.TextView>(R.id.tvSpecSpeedBadge)?.text = spec.speedDesignClass
+        view.findViewById<android.widget.TextView>(R.id.tvFormationSummary)?.text = spec.formationType
+        view.findViewById<android.widget.TextView>(R.id.tvSpecHighlights)?.text = spec.highlights.joinToString("\n") { "• $it" }
+
+        val containerCars = view.findViewById<android.widget.LinearLayout>(R.id.containerCarCards)
+        containerCars?.removeAllViews()
+        spec.cars.forEach { car ->
+            val carCard = layoutInflater.inflate(R.layout.item_rolling_stock_car, containerCars, false)
+            carCard.findViewById<android.widget.TextView>(R.id.tvCarNumber)?.text = car.carNumber
+            carCard.findViewById<android.widget.TextView>(R.id.tvCarClass)?.text = car.seatClasses
+            val tvTag = carCard.findViewById<android.widget.TextView>(R.id.tvCarTag)
+            tvTag?.text = car.tag
+            if (car.isQuietCar) {
+                tvTag?.setBackgroundColor(0xFFEBF5FF.toInt())
+                tvTag?.setTextColor(0xFF007AFF.toInt())
+            } else if (car.isDiningCar || car.isBarrierFree) {
+                tvTag?.setBackgroundColor(0xFFFFF4E5.toInt())
+                tvTag?.setTextColor(0xFFFF9500.toInt())
+            }
+            carCard.findViewById<android.widget.TextView>(R.id.tvCarFeatures)?.text = car.features
+            containerCars?.addView(carCard)
+        }
+
+        val containerAmenities = view.findViewById<android.widget.LinearLayout>(R.id.containerAmenities)
+        containerAmenities?.removeAllViews()
+        spec.amenities.forEach { amenity ->
+            val amenityView = layoutInflater.inflate(R.layout.item_train_amenity, containerAmenities, false)
+            amenityView.findViewById<android.widget.TextView>(R.id.tvAmenityIcon)?.text = amenity.iconEmoji
+            amenityView.findViewById<android.widget.TextView>(R.id.tvAmenityTitle)?.text = amenity.title
+            amenityView.findViewById<android.widget.TextView>(R.id.tvAmenityDesc)?.text = amenity.description
+            containerAmenities?.addView(amenityView)
+        }
+
+        view.findViewById<android.view.View>(R.id.btnCloseSpecs)?.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialog.show()
     }
 }

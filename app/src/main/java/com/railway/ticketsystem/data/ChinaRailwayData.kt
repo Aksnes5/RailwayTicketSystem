@@ -701,7 +701,12 @@ object ChinaRailwayData {
                     // 随机决定是否生成车次（30%概率）
                     if (Random.nextFloat() < 0.3f) {
                         val trainType = trainNumbers.random()
-                        val trainNumber = "$trainType${Random.nextInt(1, 9999)}"
+                        val num = when (trainType) {
+                            "T", "Z" -> Random.nextInt(1, 999) // T/Z 严格 1-3 位数 (1-998)
+                            "K" -> if (Random.nextFloat() < 0.25f) Random.nextInt(1, 999) else Random.nextInt(1001, 9999)
+                            else -> if (Random.nextFloat() < 0.3f) Random.nextInt(1, 999) else Random.nextInt(1001, 9999)
+                        }
+                        val trainNumber = "$trainType$num"
                         val departureHour = timeSlots.random()
                         val departureMinute = Random.nextInt(0, 60)
                         val departureTime = String.format("%02d:%02d", departureHour, departureMinute)

@@ -8,5 +8,7 @@ class RailwayTicketApplication : Application() {
         super.onCreate()
         // Must happen before the first Activity inflates so DayNight resources are selected globally.
         AccessibilityPreferences.applyNightMode(this)
+        com.railway.ticketsystem.data.AppRepositoryProvider.initialize(this)
+        com.railway.ticketsystem.data.DataSourceModePreferences.init(this)
     }
 }

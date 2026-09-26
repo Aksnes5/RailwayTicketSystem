@@ -68,6 +68,8 @@ class TrainResultAdapter(
                 val availability = seatInventoryRepository.getAvailabilities(train, departureDateProvider())
                 val classes = if (train.routeType == RouteType.CONVENTIONAL) {
                     listOf("硬座" to "硬座", "硬卧" to "硬卧", "软卧" to "软卧", "无座" to "无座")
+                } else if (train.isDongwo) {
+                    listOf("二等" to "二等座", "软卧" to "软卧", "一等" to "一等座", "无座" to "无座")
                 } else if (train.number.trim().startsWith("D", ignoreCase = true)) {
                     listOf("二等" to "二等座", "一等" to "一等座", "无座" to "无座")
                 } else {

@@ -1,21 +1,46 @@
-# Add project specific ProGuard rules here.
-# You can control the set of applied configuration files using the
-# proguardFiles setting in build.gradle.
-#
-# For more details, see
-#   http://developer.android.com/guide/developing/tools/proguard.html
+# 12306 Railway Ticket System Proguard / R8 Optimization Rules
 
-# If your project uses WebView with JS, uncomment the following
-# and specify the fully qualified class name to the JavaScript interface
-# class:
-#-keepclassmembers class fqcn.of.javascript.interface.for.webview {
-#   public *;
-#}
+# 保持数据模型与实体类不被混淆（Gson 序列化/反序列化依赖）
+-keep class com.railway.ticketsystem.model.** { *; }
+-keep class com.railway.ticketsystem.data.SeatAvailability { *; }
+-keep class com.railway.ticketsystem.data.RefundBreakdown { *; }
+-keep class com.railway.ticketsystem.data.TrainStopSchedule { *; }
+-keep class com.railway.ticketsystem.data.StationCoordinates { *; }
+-keep class com.railway.ticketsystem.viewmodel.** { *; }
 
-# Uncomment this to preserve the line number information for
-# debugging stack traces.
-#-keepattributes SourceFile,LineNumberTable
+# 保持 Gson 相关注解和内部类
+-keepattributes *Annotation*,Signature,InnerClasses,EnclosingMethod
+-keepclassmembers class * {
+    @com.google.gson.annotations.SerializedName <fields>;
+}
 
-# If you keep the line number information, uncomment this to
-# hide the original source file name.
-#-renamesourcefileattribute SourceFile
+# 保持 WebView JavaScript 交互接口不被混淆
+-keepclassmembers class * {
+    @android.webkit.JavascriptInterface <methods>;
+}
+-keepclassmembers class com.railway.ticketsystem.activity.RailwayMapActivity$WebAppInterface {
+    public *;
+}
+
+# 保持 AndroidX ViewModel 与 Lifecycle
+-keep class * extends androidx.lifecycle.ViewModel {
+    <init>(...);
+}
+-keep class * extends androidx.lifecycle.AndroidViewModel {
+    <init>(...);
+}
+
+# 保持 ViewBinding
+-keep class com.railway.ticketsystem.databinding.** { *; }
+
+# 保持 ZXing 二维码/乘车凭证生成库
+-dontwarn com.google.zxing.**
+-keep class com.google.zxing.** { *; }
+-keep class com.journeyapps.barcodescanner.** { *; }
+
+# 保持 AndroidX 安全加密组件
+-keep class androidx.security.crypto.** { *; }
+
+# 保持调试行号信息便于崩溃堆栈排查
+-keepattributes SourceFile,LineNumberTable
+-renamesourcefileattribute SourceFile

@@ -290,13 +290,11 @@ object RailwayData {
         }
         
         val number = when (prefix) {
-            "G" -> (1000..9999).random()
-            "D" -> (2000..9999).random()
-            "C" -> (1000..9999).random()
-            "K" -> (1000..9999).random()
-            "T" -> (1000..9999).random()
-            "Z" -> (1000..9999).random()
-            else -> (1000..9999).random()
+            "T", "Z" -> (1..998).random() // T/Z 在现实客运中绝无四位数
+            "K" -> if ((1..4).random() == 1) (1..998).random() else (1001..9998).random()
+            "G", "D" -> if ((1..3).random() == 1) (1..998).random() else (1001..9998).random()
+            "C" -> if ((1..5).random() == 1) (1..998).random() else (1001..9998).random()
+            else -> (1..998).random()
         }
         
         return "$prefix$number"

@@ -44,7 +44,7 @@ class PassengerAdapter(
         private val btnDelete: ImageView = itemView.findViewById(R.id.btnDelete)
 
         fun bind(passenger: Passenger) {
-            tvPassengerName.text = passenger.name
+            tvPassengerName.text = "${passenger.name} (${passenger.ticketType})"
             tvPassengerIdCard.text = "身份证：${passenger.idCard}"
             tvPassengerPhone.text = "手机：${maskPhone(passenger.phone)}"
 

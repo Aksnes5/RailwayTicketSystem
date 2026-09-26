@@ -63,6 +63,52 @@ class WaitlistRepository(private val context: Context) {
         readRequests().filter { it.userId == userId }.sortedByDescending { it.createTime }
     }
 
+    fun getPendingRequestsFor(trainNumber: String, departureDate: String, seatType: String): List<WaitlistRequest> = synchronized(waitlistLock) {
+        readRequests().filter {
+            it.status == "候补中" &&
+            it.requestedOrder.trainNumber == trainNumber &&
+            it.requestedOrder.departureDate == departureDate &&
+            it.requestedOrder.seatType == seatType
+        }.sortedBy { it.createTime }
+    }
+
+    fun fulfillDirectly(request: WaitlistRequest, orderRepository: OrderRepository): WaitlistRequest? {
+        val fulfilledOrder = reserveCompatibleSeat(request, orderRepository) ?: return null
+        val result = synchronized(waitlistLock) {
+            val requests = readRequests().toMutableList()
+            val index = requests.indexOfFirst { it.id == request.id && it.status == "候补中" }
+            if (index == -1) return@synchronized null
+            val updated = requests[index].copy(
+                status = "已兑现",
+                fulfilledOrderId = fulfilledOrder.id,
+                fulfilledTime = now(),
+                resultMessage = "系统自动捕获退票余票并成功兑现"
+            )
+            requests[index] = updated
+            if (persist(requests)) updated else null
+        }
+        if (result != null) {
+            cancelEvaluation(request)
+            UserRepository(context).adjustPointsOnce(
+                request.userId,
+                PointsPolicy.fromAmount(fulfilledOrder.finalPrice),
+                "waitlist_payment:${request.id}"
+            )
+            val msg = MessageRepository(context).add(
+                request.userId, MessageRepository.WAITLIST, "候补车票自动兑现成功！",
+                "系统检测到 ${fulfilledOrder.trainNumber} ${fulfilledOrder.seatType} 释放余票，已自动为您出票（${fulfilledOrder.seatInfo}）并加入我的行程！",
+                fulfilledOrder.id,
+                eventKey = "waitlist_auto_fulfilled:${request.id}",
+                relatedWaitlistId = request.id
+            )
+            if (msg != null) {
+                LocalNotifications.post(context, msg)
+            }
+            TravelReminderScheduler.schedule(context, fulfilledOrder)
+        }
+        return result
+    }
+
     fun getPendingCount(userId: String): Int = getRequestsByUserId(userId).count { it.status == "候补中" }
 
     fun hasPendingRequestFor(order: Order): Boolean = synchronized(waitlistLock) {

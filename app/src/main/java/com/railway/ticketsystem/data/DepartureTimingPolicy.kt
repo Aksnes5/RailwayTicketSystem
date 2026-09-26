@@ -6,10 +6,10 @@ import java.util.Locale
 /**
  * A departure that has already happened cannot be sold.
  *
- * The timetable generator picks a time of day (06:00–22:59) without consulting the clock,
- * so a search made in the afternoon naturally contains trains that left in the morning.
- * Nothing downstream re-checked the departure against the current time either, so those
- * trains stayed listed and could be ordered.
+ * The timetable generator produces services across the 24-hour cycle (including
+ * a dense schedule of conventional trains and sleeper EMUs D1-D300 overnight between
+ * 22:00 and 06:00). A same-day search made in the afternoon naturally contains trains
+ * that left in the morning, which this policy filters out based on the current time.
  */
 object DepartureTimingPolicy {
     /** Sales close this long before departure, leaving time to be checked in. */

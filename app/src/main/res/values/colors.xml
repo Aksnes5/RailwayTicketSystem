@@ -1,37 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- White + iOS-system-blue palette. Blue is reserved for hierarchy and selection. -->
-    <color name="railway_blue">#0A84FF</color>
-    <color name="railway_blue_light">#EAF6FF</color>
-    <color name="railway_blue_dark">#0077ED</color>
-    <color name="railway_blue_deep">#005CC8</color>
+    <!-- Authentic Apple iOS 17/18 Human Interface Palette -->
+    <color name="railway_blue">#007AFF</color>
+    <color name="railway_blue_light">#EBF5FF</color>
+    <color name="railway_blue_dark">#0062CC</color>
+    <color name="railway_blue_deep">#007AFF</color>
     <color name="hero_sky">#D9F1FF</color>
-    <color name="railway_red">#E64A19</color>
-    <color name="railway_red_dark">#BF360C</color>
-    <color name="railway_orange">#F56A00</color>
-    <color name="surface">#FBFDFF</color>
-    <color name="surface_container">#E8FFFFFF</color>
-    <color name="surface_tint">#EAF6FF</color>
-    <color name="divider">#73B8DFFF</color>
-    <color name="button_stroke">#94CBE9</color>
-    <color name="action_surface">#EAF6FF</color>
-    <color name="action_surface_pressed">#D8EEFF</color>
-    <color name="text_primary">#13263A</color>
-    <color name="text_secondary">#4D718F</color>
-    <color name="success">#16A06A</color>
-    <color name="success_container">#E9F8F0</color>
+    <color name="railway_red">#FF3B30</color>
+    <color name="railway_red_dark">#D70015</color>
+    <color name="railway_orange">#FF9500</color>
+    <color name="surface">#F5F9FE</color>
+    <color name="surface_container">#FFFFFF</color>
+    <color name="surface_tint">#EBF5FF</color>
+    <color name="divider">#E1EDF7</color>
+    <color name="button_stroke">#D5E5F5</color>
+    <color name="action_surface">#F0F6FD</color>
+    <color name="action_surface_pressed">#E1EFFD</color>
+    <color name="text_primary">#1C1C1E</color>
+    <color name="text_secondary">#8E8E93</color>
+    <color name="success">#34C759</color>
+    <color name="success_container">#E8F9ED</color>
     <color name="white">#FFFFFF</color>
     <color name="black">#000000</color>
-    <!-- Legacy names intentionally stay blue-tinted instead of neutral gray. -->
-    <color name="gray_light">#F5FBFF</color>
-    <color name="gray_medium">#87A9C3</color>
-    <color name="gray_dark">#2B4C66</color>
-    <color name="green">#4CAF50</color>
-    <color name="green_light">#E9F8F0</color>
-    <color name="green_soft">#81C784</color>
-    <color name="orange">#FF9800</color>
-    <color name="orange_light">#FFF3E0</color>
-    <color name="colorPrimary">#0A84FF</color>
-    <color name="colorPrimaryDark">#0077ED</color>
-    <color name="colorAccent">#0A84FF</color>
+    <!-- Apple system tones -->
+    <color name="gray_light">#F4F8FC</color>
+    <color name="gray_medium">#8E8E93</color>
+    <color name="gray_dark">#3A3A3C</color>
+    <color name="green">#34C759</color>
+    <color name="green_light">#E8F9ED</color>
+    <color name="green_soft">#30D158</color>
+    <color name="orange">#FF9500</color>
+    <color name="orange_light">#FFF4E5</color>
+    <color name="colorPrimary">#007AFF</color>
+    <color name="colorPrimaryDark">#0062CC</color>
+    <color name="colorAccent">#007AFF</color>
+
+    <!-- iOS Semantic Design System: White & Sky Blue Luminous Palette -->
+    <color name="ios_blue">#007AFF</color>
+    <color name="ios_blue_light">#EBF5FF</color>
+    <color name="ios_bg_grouped">#F3F8FD</color>
+    <color name="ios_glass_card">#FAFFFFFF</color>
+    <color name="ios_glass_stroke">#40FFFFFF</color>
+    <color name="ios_card_stroke">#DCE8F6</color>
 </resources>

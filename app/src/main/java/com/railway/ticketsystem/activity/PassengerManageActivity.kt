@@ -93,6 +93,12 @@ class PassengerManageActivity : ImmersiveActivity() {
             dialogBinding.etPassengerName.setText(passenger.name)
             dialogBinding.etPassengerIdCard.setText(passenger.idCard)
             dialogBinding.etPassengerPhone.setText(passenger.phone)
+            when (passenger.ticketType) {
+                com.railway.ticketsystem.model.TicketType.CHILD.label -> dialogBinding.toggleTicketType.check(R.id.btnTypeChild)
+                com.railway.ticketsystem.model.TicketType.STUDENT.label -> dialogBinding.toggleTicketType.check(R.id.btnTypeStudent)
+                com.railway.ticketsystem.model.TicketType.DISABLED_MILITARY.label -> dialogBinding.toggleTicketType.check(R.id.btnTypeMilitary)
+                else -> dialogBinding.toggleTicketType.check(R.id.btnTypeAdult)
+            }
         }
 
         val dialog = AlertDialog.Builder(this)
@@ -114,6 +120,12 @@ class PassengerManageActivity : ImmersiveActivity() {
             val name = dialogBinding.etPassengerName.text.toString().trim()
             val idCard = dialogBinding.etPassengerIdCard.text.toString().trim()
             val phone = dialogBinding.etPassengerPhone.text.toString().trim()
+            val ticketType = when (dialogBinding.toggleTicketType.checkedButtonId) {
+                R.id.btnTypeChild -> com.railway.ticketsystem.model.TicketType.CHILD.label
+                R.id.btnTypeStudent -> com.railway.ticketsystem.model.TicketType.STUDENT.label
+                R.id.btnTypeMilitary -> com.railway.ticketsystem.model.TicketType.DISABLED_MILITARY.label
+                else -> com.railway.ticketsystem.model.TicketType.ADULT.label
+            }
 
             if (name.isEmpty() || idCard.isEmpty() || phone.isEmpty()) {
                 Toast.makeText(this, "请填写完整信息", Toast.LENGTH_SHORT).show()
@@ -133,7 +145,7 @@ class PassengerManageActivity : ImmersiveActivity() {
             val currentUser = userRepository.getCurrentUser()
             if (currentUser != null) {
                 val passengerToSave = if (passenger != null) {
-                    passenger.copy(name = name, idCard = idCard, phone = phone)
+                    passenger.copy(name = name, idCard = idCard, phone = phone, ticketType = ticketType)
                 } else {
                     Passenger(
                         id = "PASSENGER_${System.currentTimeMillis()}",
@@ -141,7 +153,8 @@ class PassengerManageActivity : ImmersiveActivity() {
                         name = name,
                         idCard = idCard,
                         phone = phone,
-                        addTime = System.currentTimeMillis().toString()
+                        addTime = System.currentTimeMillis().toString(),
+                        ticketType = ticketType
                     )
                 }
 

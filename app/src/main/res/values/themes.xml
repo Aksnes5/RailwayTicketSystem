@@ -24,66 +24,66 @@
     </style>
 
     <style name="App.Button.Primary" parent="Widget.Material3.Button">
-        <item name="cornerRadius">@dimen/corner_large</item>
+        <item name="cornerRadius">999dp</item>
         <item name="strokeWidth">0dp</item>
-        <item name="backgroundTint">#D6EBFC</item>
-        <item name="android:textColor">@color/railway_blue_deep</item>
-        <item name="rippleColor">#260677D7</item>
-        <item name="android:minHeight">50dp</item>
+        <item name="backgroundTint">@color/railway_blue</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="rippleColor">#33FFFFFF</item>
+        <item name="android:minHeight">48dp</item>
         <item name="android:textStyle">bold</item>
         <item name="android:elevation">0dp</item>
         <item name="elevation">0dp</item>
     </style>
 
-    <!-- 首页查询是唯一使用实心品牌蓝的大型主操作。 -->
+    <!-- 首页查询大型主操作 CTA -->
     <style name="App.Button.Search" parent="Widget.Material3.Button">
-        <item name="cornerRadius">@dimen/corner_large</item>
+        <item name="cornerRadius">999dp</item>
         <item name="strokeWidth">0dp</item>
         <item name="backgroundTint">@color/railway_blue</item>
         <item name="android:textColor">@color/white</item>
-        <item name="android:minHeight">56dp</item>
+        <item name="android:minHeight">54dp</item>
         <item name="android:textStyle">bold</item>
         <item name="android:elevation">0dp</item>
         <item name="elevation">0dp</item>
     </style>
 
     <style name="App.Button.Quiet" parent="Widget.Material3.Button.OutlinedButton">
-        <item name="cornerRadius">@dimen/corner_large</item>
+        <item name="cornerRadius">999dp</item>
         <item name="strokeWidth">0dp</item>
-        <item name="backgroundTint">#BFFFFFFF</item>
-        <item name="android:textColor">@color/railway_blue_deep</item>
-        <item name="rippleColor">#260677D7</item>
+        <item name="backgroundTint">#14007AFF</item>
+        <item name="android:textColor">@color/railway_blue</item>
+        <item name="rippleColor">#26007AFF</item>
         <item name="android:elevation">0dp</item>
         <item name="elevation">0dp</item>
     </style>
 
-    <!-- Default cards stay translucent unless a document-style screen explicitly opts into white. -->
+    <!-- iOS 风格毛玻璃卡片: 高透光、0.5dp 精致发丝边框与柔和圆角 -->
     <style name="App.Card.Liquid" parent="Widget.Material3.CardView.Elevated">
-        <item name="cardBackgroundColor">#B8FFFFFF</item>
-        <item name="cardElevation">0dp</item>
-        <item name="strokeColor">#BFFFFFFF</item>
-        <item name="strokeWidth">1dp</item>
+        <item name="cardBackgroundColor">#FFFFFF</item>
+        <item name="cardElevation">1dp</item>
+        <item name="strokeColor">#DCE8F6</item>
+        <item name="strokeWidth">0.5dp</item>
+        <item name="cardCornerRadius">20dp</item>
     </style>
 
     <!-- Liquid outlined fields avoid the Material filled-box underline on every form. -->
     <style name="App.TextInput.Rounded" parent="Widget.Material3.TextInputLayout.OutlinedBox">
-        <item name="boxCornerRadiusTopStart">@dimen/corner_large</item>
-        <item name="boxCornerRadiusTopEnd">@dimen/corner_large</item>
-        <item name="boxCornerRadiusBottomStart">@dimen/corner_large</item>
-        <item name="boxCornerRadiusBottomEnd">@dimen/corner_large</item>
-        <item name="boxBackgroundColor">#A8FFFFFF</item>
-        <item name="boxStrokeColor">@color/button_stroke</item>
-        <item name="boxStrokeWidth">1dp</item>
+        <item name="boxCornerRadiusTopStart">16dp</item>
+        <item name="boxCornerRadiusTopEnd">16dp</item>
+        <item name="boxCornerRadiusBottomStart">16dp</item>
+        <item name="boxCornerRadiusBottomEnd">16dp</item>
+        <item name="boxBackgroundColor">#F2F8FD</item>
+        <item name="boxStrokeColor">#DCE8F6</item>
+        <item name="boxStrokeWidth">0.5dp</item>
         <item name="boxStrokeWidthFocused">1dp</item>
         <item name="hintTextColor">@color/text_secondary</item>
     </style>
 
+    <!-- iOS Tab Bar 原生体验：去除非必要的 Material 块状指示器，采用纯净图标点亮 -->
     <style name="App.BottomNavigation.ActiveIndicator" parent="">
-        <item name="android:color">#C6DDF2FF</item>
-        <item name="android:width">68dp</item>
+        <item name="android:color">@android:color/transparent</item>
+        <item name="android:width">48dp</item>
         <item name="android:height">32dp</item>
-        <item name="marginHorizontal">8dp</item>
-        <item name="shapeAppearance">@style/ShapeAppearanceOverlay.RailwayTicketSystem.Avatar</item>
     </style>
 
     <style name="ShapeAppearanceOverlay.RailwayTicketSystem.Avatar" parent="">

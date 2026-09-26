@@ -19,7 +19,18 @@ data class Train(
      * section, while this list may begin earlier or terminate later.
      */
     val serviceStations: List<String> = emptyList()
-) : Serializable
+) : Serializable {
+    val isDongwo: Boolean get() = isDongwo(number)
+}
+
+fun isDongwo(trainNumber: String): Boolean {
+    val trimmed = trainNumber.trim().uppercase()
+    if (!trimmed.startsWith("D")) return false
+    val digits = trimmed.substring(1).takeWhile { it.isDigit() }
+    val num = digits.toIntOrNull() ?: return false
+    return num in 1..300
+}
+
 
 data class SeatType(
     val name: String,
@@ -40,6 +51,7 @@ object SeatTypes {
 
     fun forTrain(train: Train): List<SeatType> = when {
         train.routeType == RouteType.CONVENTIONAL -> conventionalTypes
+        isDongwo(train.number) -> listOf(SECOND_CLASS, SOFT_SLEEPER, FIRST_CLASS)
         train.number.trim().startsWith("D", ignoreCase = true) -> listOf(SECOND_CLASS, FIRST_CLASS)
         else -> allTypes
     }

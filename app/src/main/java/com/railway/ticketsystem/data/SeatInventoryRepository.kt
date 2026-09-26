@@ -31,7 +31,7 @@ data class SeatAvailability(
         }
 }
 
-class SeatInventoryRepository(context: Context) {
+class SeatInventoryRepository(private val context: Context) {
     private val prefs: SharedPreferences = SecurePreferences.open(
         context.applicationContext,
         "secure_seat_inventory_data",
@@ -42,6 +42,11 @@ class SeatInventoryRepository(context: Context) {
     companion object {
         private const val INVENTORY_KEY = "seat_inventory"
         private val inventoryLock = Any()
+        private val stripedLocks = java.util.concurrent.ConcurrentHashMap<String, java.util.concurrent.locks.ReentrantLock>()
+
+        private fun getLockFor(trainNumber: String, departureDate: String): java.util.concurrent.locks.ReentrantLock {
+            return stripedLocks.computeIfAbsent("${trainNumber}_${departureDate}") { java.util.concurrent.locks.ReentrantLock() }
+        }
 
         /**
          * 整份库存的内存副本，按应用共享。
@@ -102,18 +107,25 @@ class SeatInventoryRepository(context: Context) {
     /** Atomically decrements a seat-class snapshot when every requested ticket is available. */
     fun reserveSeats(train: Train, departureDate: String, seatType: String, count: Int): Boolean {
         if (count <= 0 || seatType !in supportedSeatTypesFor(train)) return false
-        return synchronized(inventoryLock) {
-            val records = readRecords().toMutableList()
-            val index = records.indexOfFirst { matches(it, train.number, departureDate, seatType) }
-            val availability = if (index >= 0) {
-                normalize(records[index]).also { records[index] = it }
-            } else {
-                SeatAvailability(train.number, departureDate, seatType, generateInitialCount(seatType)).also(records::add)
+        val lock = getLockFor(train.number, departureDate)
+        lock.lock()
+        try {
+            return synchronized(inventoryLock) {
+                val records = readRecords().toMutableList()
+                val index = records.indexOfFirst { matches(it, train.number, departureDate, seatType) }
+                val availability = if (index >= 0) {
+                    normalize(records[index]).also { records[index] = it }
+                } else {
+                    SeatAvailability(train.number, departureDate, seatType, generateInitialCount(seatType)).also(records::add)
+                }
+                if (availability.availableSeats < count) return@synchronized false
+                val newCount = maxOf(0, availability.availableSeats - count)
+                records[records.indexOfFirst { matches(it, train.number, departureDate, seatType) }] =
+                    availability.copy(availableSeats = newCount)
+                persist(records)
             }
-            if (availability.availableSeats < count) return@synchronized false
-            records[records.indexOfFirst { matches(it, train.number, departureDate, seatType) }] =
-                availability.copy(availableSeats = availability.availableSeats - count)
-            persist(records)
+        } finally {
+            lock.unlock()
         }
     }
 
@@ -123,14 +135,29 @@ class SeatInventoryRepository(context: Context) {
      */
     fun rollbackReservedSeats(train: Train, departureDate: String, seatType: String, count: Int = 1): Boolean {
         if (count <= 0 || seatType !in supportedSeatTypesFor(train)) return false
-        return synchronized(inventoryLock) {
-            val records = readRecords().toMutableList()
-            val index = records.indexOfFirst { matches(it, train.number, departureDate, seatType) }
-            if (index < 0) return@synchronized false
-            records[index] = normalize(records[index].copy(
-                availableSeats = records[index].availableSeats + count
-            ))
-            persist(records)
+        val lock = getLockFor(train.number, departureDate)
+        lock.lock()
+        try {
+            val rolledBack = synchronized(inventoryLock) {
+                val records = readRecords().toMutableList()
+                val index = records.indexOfFirst { matches(it, train.number, departureDate, seatType) }
+                if (index < 0) return@synchronized false
+                records[index] = normalize(records[index].copy(
+                    availableSeats = records[index].availableSeats + count
+                ))
+                persist(records)
+            }
+            if (rolledBack) {
+                WaitlistFulfillmentEngine.onSeatReleased(
+                    context,
+                    train.number,
+                    departureDate,
+                    seatType
+                )
+            }
+            return rolledBack
+        } finally {
+            lock.unlock()
         }
     }
 
@@ -140,60 +167,75 @@ class SeatInventoryRepository(context: Context) {
      */
     fun consumeWaitlistSeat(order: Order): Boolean {
         if (order.seatType !in supportedSeatTypes) return false
-        return synchronized(inventoryLock) {
-            val records = readRecords().toMutableList()
-            var index = records.indexOfFirst { matches(it, order.trainNumber, order.departureDate, order.seatType) }
-            if (index < 0) {
-                // 库存记录可能只存在于内存里（读路径不再落盘），不能把这当成"没有这个车次"。
-                // 按 getAvailabilities 的方式补一条初始库存再走下面的核销。
-                records.add(
-                    SeatAvailability(
-                        order.trainNumber,
-                        order.departureDate,
-                        order.seatType,
-                        generateInitialCount(order.seatType)
+        val lock = getLockFor(order.trainNumber, order.departureDate)
+        lock.lock()
+        try {
+            return synchronized(inventoryLock) {
+                val records = readRecords().toMutableList()
+                var index = records.indexOfFirst { matches(it, order.trainNumber, order.departureDate, order.seatType) }
+                if (index < 0) {
+                    records.add(
+                        SeatAvailability(
+                            order.trainNumber,
+                            order.departureDate,
+                            order.seatType,
+                            generateInitialCount(order.seatType)
+                        )
                     )
-                )
-                index = records.lastIndex
+                    index = records.lastIndex
+                }
+                if (records[index].availableSeats > 0) {
+                    records[index] = records[index].copy(availableSeats = maxOf(0, records[index].availableSeats - 1))
+                    persist(records)
+                } else true
             }
-            if (records[index].availableSeats > 0) {
-                records[index] = records[index].copy(availableSeats = records[index].availableSeats - 1)
-                persist(records)
-            } else true
+        } finally {
+            lock.unlock()
         }
     }
+
     /** Restores one inventory unit after a paid ticket is successfully refunded. */
     fun releaseSeat(order: Order): Boolean {
         if (order.seatType !in supportedSeatTypes) return false
-        return synchronized(inventoryLock) {
-            // Order ids survive change-ticket operations. Scope the receipt to the exact
-            // ticket snapshot so releasing the old seat cannot suppress a later refund.
-            val receiptKey = listOf(
-                "released_order",
-                order.id,
-                order.trainNumber,
-                order.departureDate,
-                order.seatType,
-                order.carNumber,
-                order.seatNumber
-            ).joinToString("_")
-            if (prefs.getBoolean(receiptKey, false)) return@synchronized true
-            val records = readRecords().toMutableList()
-            val index = records.indexOfFirst { matches(it, order.trainNumber, order.departureDate, order.seatType) }
-            if (index < 0) {
-                // A legacy paid order may predate the persisted inventory snapshot.
-                records.add(SeatAvailability(order.trainNumber, order.departureDate, order.seatType, 1))
-            } else {
-                records[index] = normalize(records[index].copy(availableSeats = records[index].availableSeats + 1))
+        val lock = getLockFor(order.trainNumber, order.departureDate)
+        lock.lock()
+        try {
+            val released = synchronized(inventoryLock) {
+                val receiptKey = listOf(
+                    "released_order",
+                    order.id,
+                    order.trainNumber,
+                    order.departureDate,
+                    order.seatType,
+                    order.carNumber,
+                    order.seatNumber
+                ).joinToString("_")
+                if (prefs.getBoolean(receiptKey, false)) return@synchronized true
+                val records = readRecords().toMutableList()
+                val index = records.indexOfFirst { matches(it, order.trainNumber, order.departureDate, order.seatType) }
+                if (index < 0) {
+                    records.add(SeatAvailability(order.trainNumber, order.departureDate, order.seatType, 1))
+                } else {
+                    records[index] = normalize(records[index].copy(availableSeats = records[index].availableSeats + 1))
+                }
+                cachedRecords = records.toList()
+                prefs.edit()
+                    .putString(INVENTORY_KEY, gson.toJson(records))
+                    .putBoolean(receiptKey, true)
+                    .apply()
+                true
             }
-            // 这一处要连回执一起写，所以没走 persist()；但内存副本必须跟着更新，
-            // 否则后续读取会拿到退票前的旧库存。
-            cachedRecords = records.toList()
-            prefs.edit()
-                .putString(INVENTORY_KEY, gson.toJson(records))
-                .putBoolean(receiptKey, true)
-                .apply()
-            true
+            if (released) {
+                WaitlistFulfillmentEngine.onSeatReleased(
+                    context,
+                    order.trainNumber,
+                    order.departureDate,
+                    order.seatType
+                )
+            }
+            return released
+        } finally {
+            lock.unlock()
         }
     }
 
@@ -218,6 +260,8 @@ class SeatInventoryRepository(context: Context) {
     private fun supportedSeatTypesFor(train: Train): List<String> =
         if (train.routeType == com.railway.ticketsystem.model.RouteType.CONVENTIONAL) {
             listOf("硬座", "硬卧", "软卧", "无座")
+        } else if (train.isDongwo) {
+            listOf("二等座", "软卧", "一等座", "无座")
         } else if (train.number.trim().startsWith("D", ignoreCase = true)) {
             listOf("二等座", "一等座", "无座")
         } else {

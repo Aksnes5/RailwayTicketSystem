@@ -15,6 +15,10 @@ open class AccessibleActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         AccessibilityPreferences.applyNightMode(this)
         super.onCreate(savedInstanceState)
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O_MR1) {
+            setShowWhenLocked(true)
+            setTurnScreenOn(true)
+        }
         AccessibilityPreferences.applySystemBarAppearance(this)
     }
 

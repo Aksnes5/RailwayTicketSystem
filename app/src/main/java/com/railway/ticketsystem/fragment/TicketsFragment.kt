@@ -14,7 +14,10 @@ import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.HapticFeedbackConstants
+import android.view.animation.DecelerateInterpolator
 import android.view.animation.LinearInterpolator
+import android.view.animation.OvershootInterpolator
 import android.widget.ArrayAdapter
 import android.widget.GridLayout
 import android.widget.LinearLayout
@@ -25,6 +28,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.core.content.ContextCompat
 import com.railway.ticketsystem.R
 import com.railway.ticketsystem.adapter.TicketAdapter
+import com.railway.ticketsystem.data.DataSourceModePreferences
+import com.railway.ticketsystem.data.TrainDataSourceMode
 import com.railway.ticketsystem.data.MembershipRepository
 import com.railway.ticketsystem.data.RailwayData
 import com.railway.ticketsystem.data.SecurePreferences
@@ -76,6 +81,7 @@ class TicketsFragment : Fragment() {
             android.util.Log.d("TicketsFragment", "setupDatePicker完成")
             setupRecentRoutes()
             android.util.Log.d("TicketsFragment", "setupRecentRoutes完成")
+            updateLiveJourneyCapsule()
             applyQueryGlassBlur()
             startLiquidMotion()
             android.util.Log.d("TicketsFragment", "onViewCreated完成")
@@ -116,6 +122,45 @@ class TicketsFragment : Fragment() {
                 putExtra(com.railway.ticketsystem.activity.StationServiceActivity.EXTRA_STATION, selectedStation)
             })
         }
+        binding.btnBaggageCompliance.setOnClickListener {
+            com.railway.ticketsystem.dialog.BaggageCheckBottomSheet(requireContext()).show()
+        }
+        binding.btnChildDeclarationHome.setOnClickListener {
+            showChildDeclarationPolicyDialog()
+        }
+        binding.btnQuietCarriageHome.setOnClickListener {
+            showQuietCarriagePledgeDialog()
+        }
+        binding.btnDelayQueryHome.setOnClickListener {
+            val depStation = binding.etDepartureStation.text?.toString()?.trim().orEmpty().ifEmpty { "汉口" }
+            startActivity(android.content.Intent(requireContext(), com.railway.ticketsystem.activity.TrainDelayQueryActivity::class.java).apply {
+                putExtra(com.railway.ticketsystem.activity.TrainDelayQueryActivity.EXTRA_STATION_NAME, depStation)
+            })
+        }
+        binding.btnTempIdHome.setOnClickListener {
+            startActivity(android.content.Intent(requireContext(), com.railway.ticketsystem.activity.TemporaryIdCertificateActivity::class.java))
+        }
+        binding.btnTravelCodeHome.setOnClickListener {
+            startActivity(android.content.Intent(requireContext(), com.railway.ticketsystem.activity.RailwayTravelCodeActivity::class.java))
+        }
+
+        setupDataSourceModeCapsule()
+    }
+
+    private fun showChildDeclarationPolicyDialog() {
+        androidx.appcompat.app.AlertDialog.Builder(requireContext())
+            .setTitle("👶 免费乘车儿童线上申明须知")
+            .setMessage("依国家铁路局新规：\n\n1. 每名持票成年人旅客可免费携带一名未满 6 周岁且不单独占用席位的儿童乘车。\n\n2. 超过一名时，超过人数需购买儿童优惠票。\n\n3. 携带免费乘车儿童必须在购票后提前在线申报申明，申报成功后儿童即可随成年人一同直接刷闸机进出站。\n\n您可在【行程详情】中随时为已购车票一键办理免费儿童申报。")
+            .setPositiveButton("我知道了", null)
+            .show()
+    }
+
+    private fun showQuietCarriagePledgeDialog() {
+        androidx.appcompat.app.AlertDialog.Builder(requireContext())
+            .setTitle("🎧 铁路静音车厢公约")
+            .setMessage("共同守护舒适静谧的出行环境：\n\n1. 请将手机及其他电子设备调至静音或震动模式。\n2. 使用电子设备收听音频请全程佩戴耳机且不外音泄露。\n3. 在车厢内轻声细语交流，接打电话请前往连接处。\n4. 请照看好随行儿童，避免喧哗嬉闹。\n\n💡 列车上如需休息或感到嘈杂，可在【车厢服务】或【行程详情】中向乘务员免费索取降噪耳塞。")
+            .setPositiveButton("践行静音公约", null)
+            .show()
     }
 
     /** A slow, low-alpha light sweep makes the hero feel like a live glass surface. */
@@ -144,9 +189,50 @@ class TicketsFragment : Fragment() {
     }
 
     private fun swapStations() {
-        val departureStation = binding.etDepartureStation.text.toString()
-        binding.etDepartureStation.setText(binding.etArrivalStation.text.toString())
-        binding.etArrivalStation.setText(departureStation)
+        binding.btnSwapStations.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
+
+        // 1. Rotate the swap button with an elastic overshoot spring
+        binding.btnSwapStations.animate()
+            .rotationBy(180f)
+            .setDuration(360L)
+            .setInterpolator(OvershootInterpolator(2.2f))
+            .start()
+
+        // 2. Animate departure and arrival text with smooth cross-fade slide
+        val depText = binding.etDepartureStation.text?.toString().orEmpty()
+        val arrText = binding.etArrivalStation.text?.toString().orEmpty()
+
+        binding.etDepartureStation.animate()
+            .translationX(40f)
+            .alpha(0f)
+            .setDuration(130L)
+            .withEndAction {
+                binding.etDepartureStation.setText(arrText)
+                binding.etDepartureStation.translationX = -40f
+                binding.etDepartureStation.animate()
+                    .translationX(0f)
+                    .alpha(1f)
+                    .setDuration(180L)
+                    .setInterpolator(DecelerateInterpolator())
+                    .start()
+            }
+            .start()
+
+        binding.etArrivalStation.animate()
+            .translationX(-40f)
+            .alpha(0f)
+            .setDuration(130L)
+            .withEndAction {
+                binding.etArrivalStation.setText(depText)
+                binding.etArrivalStation.translationX = 40f
+                binding.etArrivalStation.animate()
+                    .translationX(0f)
+                    .alpha(1f)
+                    .setDuration(180L)
+                    .setInterpolator(DecelerateInterpolator())
+                    .start()
+            }
+            .start()
     }
     
     private fun setupRecyclerView() {
@@ -191,16 +277,39 @@ class TicketsFragment : Fragment() {
         binding.etDepartureDate.setOnClickListener {
             showDatePicker()
         }
+
+        binding.btnQuickToday.setOnClickListener {
+            it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
+            setDepartureDate(0)
+        }
+        binding.btnQuickTomorrow.setOnClickListener {
+            it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
+            setDepartureDate(1)
+        }
         
         // 设置默认日期为今天
-        val today = Calendar.getInstance()
-        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-        binding.etDepartureDate.setText(dateFormat.format(today.time))
+        setDepartureDate(0)
+    }
+
+    private fun updateQuickDatePills(daysFromToday: Int) {
+        val activeBg = ContextCompat.getDrawable(requireContext(), R.drawable.bg_quick_date_pill_active)
+        val inactiveBg = ContextCompat.getDrawable(requireContext(), R.drawable.bg_quick_date_pill)
+        val activeColor = ContextCompat.getColor(requireContext(), R.color.railway_blue)
+        val inactiveColor = ContextCompat.getColor(requireContext(), R.color.text_secondary)
+
+        binding.btnQuickToday.background = if (daysFromToday == 0) activeBg else inactiveBg
+        binding.btnQuickToday.setTextColor(if (daysFromToday == 0) activeColor else inactiveColor)
+        binding.btnQuickToday.setTypeface(null, if (daysFromToday == 0) Typeface.BOLD else Typeface.NORMAL)
+
+        binding.btnQuickTomorrow.background = if (daysFromToday == 1) activeBg else inactiveBg
+        binding.btnQuickTomorrow.setTextColor(if (daysFromToday == 1) activeColor else inactiveColor)
+        binding.btnQuickTomorrow.setTypeface(null, if (daysFromToday == 1) Typeface.BOLD else Typeface.NORMAL)
     }
     
     private fun setDepartureDate(daysFromToday: Int) {
         val date = Calendar.getInstance().apply { add(Calendar.DAY_OF_MONTH, daysFromToday) }
         binding.etDepartureDate.setText(SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(date.time))
+        updateQuickDatePills(daysFromToday)
     }
 
     private fun showDatePicker() {
@@ -403,7 +512,10 @@ class TicketsFragment : Fragment() {
             renderDays()
         }
         confirmButton.setOnClickListener {
+            it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
             binding.etDepartureDate.setText(dateFormat.format(selectedDate.time))
+            val diffDays = ((selectedDate.timeInMillis - today.timeInMillis) / (24 * 60 * 60 * 1000)).toInt()
+            updateQuickDatePills(diffDays)
             dialog.dismiss()
         }
 
@@ -600,10 +712,88 @@ class TicketsFragment : Fragment() {
     interface OnTicketBookListener {
         fun onTicketBook(train: Train)
     }
+
+    private fun setupDataSourceModeCapsule() {
+        updateModeCapsuleUi()
+        binding.capsuleModeToggle.setOnClickListener {
+            val newMode = DataSourceModePreferences.toggleMode(requireContext())
+            updateModeCapsuleUi()
+            val toastText = if (newMode == TrainDataSourceMode.REAL) {
+                "已切换为 12306 官方实盘车次"
+            } else {
+                "已切换为 算法智能推算模式"
+            }
+            Toast.makeText(requireContext(), toastText, Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun updateModeCapsuleUi() {
+        if (_binding == null) return
+        val ctx = context ?: return
+        val mode = DataSourceModePreferences.getMode(ctx)
+        if (mode == TrainDataSourceMode.REAL) {
+            binding.tvHomeModeBadge.text = "官方实盘"
+            binding.vHomeModeDot.setBackgroundResource(R.drawable.bg_dot_live_green)
+        } else {
+            binding.tvHomeModeBadge.text = "智能推算"
+            binding.vHomeModeDot.setBackgroundResource(R.drawable.bg_dot_mode_blue)
+        }
+    }
     
     override fun onResume() {
         super.onResume()
-        if (_binding != null) renderRecentRoutes()
+        if (_binding != null) {
+            renderRecentRoutes()
+            updateLiveJourneyCapsule()
+            updateModeCapsuleUi()
+        }
+    }
+
+    private fun updateLiveJourneyCapsule() {
+        if (_binding == null) return
+        val ctx = context ?: return
+        try {
+            val userRepo = com.railway.ticketsystem.data.UserRepository(ctx)
+            val user = userRepo.getCurrentUser()
+            if (user == null) {
+                binding.cardLiveJourneyCapsule.visibility = View.GONE
+                return
+            }
+            val orderRepo = com.railway.ticketsystem.data.OrderRepository(ctx)
+            val activeOrders = orderRepo.getAllOrders()
+                .filter { it.userId == user.id && it.status == "已支付" }
+                .sortedBy { "${it.departureDate} ${it.departureTime}" }
+
+            val upcomingTrip = activeOrders.firstOrNull()
+            if (upcomingTrip == null) {
+                binding.cardLiveJourneyCapsule.visibility = View.GONE
+                return
+            }
+
+            binding.cardLiveJourneyCapsule.visibility = View.VISIBLE
+            binding.tvCapsuleTrainNumber.text = upcomingTrip.trainNumber
+            binding.tvCapsuleRoute.text = "${upcomingTrip.departureStation} → ${upcomingTrip.arrivalStation}"
+            binding.tvCapsuleSeat.text = if (upcomingTrip.carNumber.isNotBlank() && upcomingTrip.seatNumber.isNotBlank()) {
+                "${upcomingTrip.carNumber}车 ${upcomingTrip.seatNumber}号"
+            } else upcomingTrip.seatNumber
+
+            val gate = runCatching {
+                com.railway.ticketsystem.data.TicketTravelUpdates.getGate(ctx, upcomingTrip)
+            }.getOrDefault("现场公告")
+            binding.tvCapsuleStatusBadge.text = "检票口 $gate"
+            val statusText = com.railway.ticketsystem.data.TravelAssistant.journeyStatusText(upcomingTrip)
+            binding.tvCapsuleCountdown.text = "乘车日 ${upcomingTrip.departureDate} ${upcomingTrip.departureTime} 开 · $statusText"
+
+            binding.cardLiveJourneyCapsule.setOnClickListener {
+                val intent = android.content.Intent(ctx, com.railway.ticketsystem.activity.TripDetailActivity::class.java).apply {
+                    putExtra("orderId", upcomingTrip.id)
+                }
+                startActivity(intent)
+            }
+        } catch (e: Exception) {
+            android.util.Log.e("TicketsFragment", "更新行程胶囊卡片失败", e)
+            binding.cardLiveJourneyCapsule.visibility = View.GONE
+        }
     }
 
     override fun onDestroyView() {

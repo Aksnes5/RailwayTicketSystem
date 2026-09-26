@@ -5,6 +5,7 @@ import android.content.Intent
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
+import android.view.HapticFeedbackConstants
 import android.view.LayoutInflater
 import android.widget.Toast
 import com.railway.ticketsystem.activity.AccessibleActivity
@@ -28,12 +29,7 @@ import com.railway.ticketsystem.data.WaitlistRepository
 import com.railway.ticketsystem.databinding.ActivityMainBinding
 import com.railway.ticketsystem.databinding.DialogBookingBinding
 import com.railway.ticketsystem.fragment.ProfileFragment
-import com.railway.ticketsystem.fragment.ProfileFragmentWithAvatar
-import com.railway.ticketsystem.fragment.ProfileFragmentWithSafeSave
 import com.railway.ticketsystem.fragment.MembershipCenterFragment
-import com.railway.ticketsystem.fragment.SafeProfileFragment
-import com.railway.ticketsystem.fragment.SimpleProfileFragmentFixed
-import com.railway.ticketsystem.fragment.TestProfileFragment
 import com.railway.ticketsystem.fragment.TicketsFragment
 import com.railway.ticketsystem.fragment.TripsFragment
 import com.railway.ticketsystem.model.Ticket
@@ -48,7 +44,7 @@ class MainActivity : AccessibleActivity(), TicketsFragment.OnTicketBookListener 
     private lateinit var ticketsFragment: TicketsFragment
     private lateinit var tripsFragment: TripsFragment
     private lateinit var membershipFragment: MembershipCenterFragment
-    private lateinit var profileFragment: ProfileFragmentWithSafeSave
+    private lateinit var profileFragment: ProfileFragment
     private var currentFragment: Fragment? = null
     private var statusBarInset = 0
     
@@ -157,7 +153,7 @@ class MainActivity : AccessibleActivity(), TicketsFragment.OnTicketBookListener 
                     R.id.nav_profile -> {
                         try {
                             if (!::profileFragment.isInitialized) {
-                                profileFragment = ProfileFragmentWithSafeSave()
+                                profileFragment = ProfileFragment()
                             }
                             switchFragment(profileFragment)
                             true
@@ -180,6 +176,7 @@ class MainActivity : AccessibleActivity(), TicketsFragment.OnTicketBookListener 
     private fun switchFragment(fragment: Fragment) {
         try {
             if (currentFragment === fragment) return
+            binding.bottomNavigation.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
             supportFragmentManager.beginTransaction().apply {
                 setCustomAnimations(R.anim.fragment_liquid_enter, R.anim.fragment_liquid_exit)
                 currentFragment?.takeIf { it.isAdded }?.let(::hide)
@@ -350,7 +347,7 @@ class MainActivity : AccessibleActivity(), TicketsFragment.OnTicketBookListener 
                     // 跳转到个人资料页面
                     binding.bottomNavigation.selectedItemId = R.id.nav_profile
                     if (!::profileFragment.isInitialized) {
-                        profileFragment = ProfileFragmentWithSafeSave()
+                        profileFragment = ProfileFragment()
                     }
                     switchFragment(profileFragment)
                 }

@@ -22,6 +22,15 @@ import com.railway.ticketsystem.data.StationCoordinateCatalog
 import com.railway.ticketsystem.data.OfflineTravelRepository
 import com.railway.ticketsystem.data.AccessibilityPreferences
 import android.webkit.WebSettings
+import android.net.ConnectivityManager
+import android.net.Network
+import android.net.NetworkCapabilities
+import android.net.NetworkRequest
+import android.os.Build
+import android.os.VibrationEffect
+import android.os.Vibrator
+import android.os.VibratorManager
+import com.railway.ticketsystem.data.RealWeatherService
 import com.railway.ticketsystem.databinding.ActivityRailwayMapBinding
 
 /** One saved timetable call used to calculate the live position on the map. */
@@ -42,6 +51,8 @@ class RailwayMapActivity : AccessibleActivity() {
     private var mapReady = false
     private lateinit var payload: RailwayMapPayload
     private var satelliteBase = true
+    private var connectivityManager: ConnectivityManager? = null
+    private var networkCallback: ConnectivityManager.NetworkCallback? = null
     private val positionTicker = object : Runnable {
         override fun run() {
             updateLivePosition()
@@ -56,7 +67,8 @@ class RailwayMapActivity : AccessibleActivity() {
         applyImmersiveSystemBars()
 
         val requestedRouteStations = normalizeStations(
-            intent.getStringArrayListExtra(EXTRA_ROUTE_STATIONS).orEmpty()
+            intent.getStringArrayListExtra(EXTRA_ROUTE_STATIONS)
+                ?: intent.getStringArrayExtra(EXTRA_ROUTE_STATIONS)?.toList().orEmpty()
         )
         val network = intent.getStringExtra(EXTRA_NETWORK)
             ?.let { runCatching { MapRailNetwork.valueOf(it) }.getOrNull() }
@@ -64,12 +76,14 @@ class RailwayMapActivity : AccessibleActivity() {
         val resolvedRoute = PhysicalRailCorridorResolver.resolveForMap(requestedRouteStations, network)
         val routeStationNames = resolvedRoute.stationNames
         val callingStationNames = normalizeStations(
-            intent.getStringArrayListExtra(EXTRA_CALLING_STATIONS).orEmpty()
+            intent.getStringArrayListExtra(EXTRA_CALLING_STATIONS)
+                ?: intent.getStringArrayExtra(EXTRA_CALLING_STATIONS)?.toList().orEmpty()
         ).ifEmpty { requestedRouteStations }
         val trainNumber = intent.getStringExtra(EXTRA_TRAIN_NUMBER).orEmpty()
         val boardingStation = intent.getStringExtra(EXTRA_BOARDING).orEmpty()
         val alightingStation = intent.getStringExtra(EXTRA_ALIGHTING).orEmpty()
         val departureDate = intent.getStringExtra(EXTRA_DEPARTURE_DATE).orEmpty()
+        val seatNumber = intent.getStringExtra(EXTRA_SEAT_NUMBER).orEmpty()
         val timetableStops = readTimetableStops(
             intent.getStringExtra(EXTRA_TIMETABLE_STOPS_JSON)
         )
@@ -92,7 +106,8 @@ class RailwayMapActivity : AccessibleActivity() {
             network = network.name,
             callingStations = callingStationNames,
             departureDate = departureDate,
-            timetableStops = timetableStops
+            timetableStops = timetableStops,
+            seatNumber = seatNumber
         )
 
         binding.btnMapBack.setOnClickListener { finish() }
@@ -102,7 +117,35 @@ class RailwayMapActivity : AccessibleActivity() {
             routeStationNames.firstOrNull(), routeStationNames.lastOrNull()
         ).joinToString(" → ")
         binding.tvMapHint.text = "${routeStationNames.size} 个线路站点 · ${callingStationNames.size} 个实际经停站"
+        connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager
+        registerNetworkMonitoring()
         configureMap()
+    }
+
+    private fun registerNetworkMonitoring() {
+        val cm = connectivityManager ?: return
+        networkCallback = object : ConnectivityManager.NetworkCallback() {
+            override fun onAvailable(network: Network) {
+                runOnUiThread {
+                    binding.webRailwayMap.evaluateJavascript("window.onNetworkStateChanged && window.onNetworkStateChanged(true);", null)
+                }
+            }
+            override fun onLost(network: Network) {
+                runOnUiThread {
+                    binding.webRailwayMap.evaluateJavascript("window.onNetworkStateChanged && window.onNetworkStateChanged(false);", null)
+                }
+            }
+            override fun onCapabilitiesChanged(network: Network, capabilities: NetworkCapabilities) {
+                val hasInternet = capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+                runOnUiThread {
+                    binding.webRailwayMap.evaluateJavascript("window.onNetworkStateChanged && window.onNetworkStateChanged($hasInternet);", null)
+                }
+            }
+        }
+        val request = NetworkRequest.Builder()
+            .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+            .build()
+        runCatching { cm.registerNetworkCallback(request, networkCallback!!) }
     }
 
     /**
@@ -118,6 +161,10 @@ class RailwayMapActivity : AccessibleActivity() {
         val baseMargin = (16 * resources.displayMetrics.density).toInt()
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, insets ->
             val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            val density = resources.displayMetrics.density
+            val topDp = (bars.top / density).toInt()
+            val bottomDp = (bars.bottom / density).toInt()
+            binding.webRailwayMap.evaluateJavascript("window.setSystemInsets && window.setSystemInsets($topDp, $bottomDp);", null)
             binding.cardMapHeader.layoutParams =
                 (binding.cardMapHeader.layoutParams as FrameLayout.LayoutParams).apply {
                     topMargin = baseMargin + bars.top
@@ -157,12 +204,23 @@ class RailwayMapActivity : AccessibleActivity() {
             settings.loadsImagesAutomatically = true
             settings.cacheMode = WebSettings.LOAD_CACHE_ELSE_NETWORK
             settings.allowFileAccess = true
-            setBackgroundColor(Color.rgb(238, 247, 255))
+            setBackgroundColor(Color.parseColor("#081320"))
             addJavascriptInterface(MapJavascriptBridge(), "RailwayMapBridge")
             webViewClient = object : WebViewClient() {
                 override fun onPageFinished(view: WebView, url: String) {
                     super.onPageFinished(view, url)
                     mapReady = true
+                    val insets = ViewCompat.getRootWindowInsets(binding.root)?.getInsets(WindowInsetsCompat.Type.systemBars())
+                    if (insets != null) {
+                        val density = resources.displayMetrics.density
+                        val topDp = (insets.top / density).toInt()
+                        val bottomDp = (insets.bottom / density).toInt()
+                        binding.webRailwayMap.evaluateJavascript("window.setSystemInsets && window.setSystemInsets($topDp, $bottomDp);", null)
+                    }
+                    val isOnline = connectivityManager?.activeNetwork?.let {
+                        connectivityManager?.getNetworkCapabilities(it)?.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+                    } ?: false
+                    binding.webRailwayMap.evaluateJavascript("window.onNetworkStateChanged && window.onNetworkStateChanged($isOnline);", null)
                     renderRoute()
                 }
             }
@@ -197,6 +255,14 @@ class RailwayMapActivity : AccessibleActivity() {
      */
     private inner class MapJavascriptBridge {
         @JavascriptInterface
+        fun finishActivity() {
+            runOnUiThread {
+                if (isFinishing || isDestroyed) return@runOnUiThread
+                finish()
+            }
+        }
+
+        @JavascriptInterface
         fun updateLiveStatus(status: String?) {
             runOnUiThread {
                 if (isFinishing || isDestroyed) return@runOnUiThread
@@ -204,6 +270,61 @@ class RailwayMapActivity : AccessibleActivity() {
                 binding.tvMapLiveStatus.text = text
                 binding.tvMapLiveStatus.visibility = if (text.isBlank()) View.GONE else View.VISIBLE
             }
+        }
+
+        @JavascriptInterface
+        fun triggerArrivalHaptic() {
+            runOnUiThread {
+                runCatching {
+                    val vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                        (getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as? VibratorManager)?.defaultVibrator
+                    } else {
+                        @Suppress("DEPRECATION")
+                        getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator
+                    }
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        vibrator?.vibrate(VibrationEffect.createWaveform(longArrayOf(0, 150, 100, 200), -1))
+                    } else {
+                        @Suppress("DEPRECATION")
+                        vibrator?.vibrate(longArrayOf(0, 150, 100, 200), -1)
+                    }
+                }
+            }
+        }
+
+        @JavascriptInterface
+        fun openStationGuide(stationName: String, target: String) {
+            runOnUiThread {
+                runCatching {
+                    startActivity(
+                        Intent(this@RailwayMapActivity, StationGuideMapActivity::class.java).apply {
+                            putExtra(StationGuideMapActivity.EXTRA_STATION, stationName)
+                            putExtra(StationGuideMapActivity.EXTRA_TARGET, target.ifBlank { "便捷换乘通道" })
+                        }
+                    )
+                }
+            }
+        }
+
+        @JavascriptInterface
+        fun fetchRealWeather(latitude: Double, longitude: Double, stationName: String) {
+            if (!latitude.isFinite() || !longitude.isFinite() || stationName.isBlank()) return
+            Thread {
+                val weather = RealWeatherService.fetchCurrentWeather(latitude, longitude)
+                if (weather != null) {
+                    val safeStation = stationName.replace("'", "\\'")
+                    val safeDesc = weather.description.replace("'", "\\'")
+                    val safeIcon = weather.icon.replace("'", "\\'")
+                    val temp = weather.temperature
+                    runOnUiThread {
+                        if (isFinishing || isDestroyed) return@runOnUiThread
+                        binding.webRailwayMap.evaluateJavascript(
+                            "window.onRealWeatherLoaded && window.onRealWeatherLoaded('$safeStation', '$safeDesc', $temp, '$safeIcon');",
+                            null
+                        )
+                    }
+                }
+            }.start()
         }
     }
 
@@ -216,6 +337,7 @@ class RailwayMapActivity : AccessibleActivity() {
     }
 
     override fun onDestroy() {
+        networkCallback?.let { runCatching { connectivityManager?.unregisterNetworkCallback(it) } }
         binding.root.removeCallbacks(positionTicker)
         binding.webRailwayMap.apply {
             stopLoading()
@@ -235,7 +357,8 @@ class RailwayMapActivity : AccessibleActivity() {
         val routeCorridorHints: List<String?>,
         val network: String,
         val departureDate: String,
-        val timetableStops: List<RailwayMapTimetableStop>
+        val timetableStops: List<RailwayMapTimetableStop>,
+        val seatNumber: String? = null
     )
 
     data class RailwayMapStation(
@@ -310,6 +433,7 @@ class RailwayMapActivity : AccessibleActivity() {
         private const val EXTRA_DEPARTURE_DATE = "route_map_departure_date"
         private const val EXTRA_TIMETABLE_STOPS_JSON = "route_map_timetable_stops_json"
         private const val EXTRA_NETWORK = "route_map_network"
+        private const val EXTRA_SEAT_NUMBER = "route_map_seat_number"
         private const val LIVE_POSITION_REFRESH_MILLIS = 1_000L
 
         fun intent(
@@ -321,7 +445,8 @@ class RailwayMapActivity : AccessibleActivity() {
             alightingStation: String,
             departureDate: String,
             timetableStops: List<RailwayMapTimetableStop>,
-            network: MapRailNetwork? = null
+            network: MapRailNetwork? = null,
+            seatNumber: String? = null
         ): Intent = Intent(context, RailwayMapActivity::class.java).apply {
             putStringArrayListExtra(EXTRA_ROUTE_STATIONS, ArrayList(routeStations))
             putStringArrayListExtra(EXTRA_CALLING_STATIONS, ArrayList(callingStations))
@@ -330,6 +455,7 @@ class RailwayMapActivity : AccessibleActivity() {
             putExtra(EXTRA_ALIGHTING, alightingStation)
             putExtra(EXTRA_DEPARTURE_DATE, departureDate)
             putExtra(EXTRA_TIMETABLE_STOPS_JSON, Gson().toJson(timetableStops))
+            putExtra(EXTRA_SEAT_NUMBER, seatNumber)
             network?.let { putExtra(EXTRA_NETWORK, it.name) }
         }
 

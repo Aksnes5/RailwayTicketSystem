@@ -39,21 +39,37 @@ data class TransferTrain(
     val availableSeats: Int
         get() = minOf(firstLeg.availableSeats, secondLeg.availableSeats)
     
+    val isCrossStation: Boolean
+        get() = firstLeg.arrivalStation != secondLeg.departureStation
+
     // 获取中转站显示信息
     val transferInfo: String
-        get() = "在${transferStation}中转${transferTime}分钟"
+        get() = if (isCrossStation) {
+            "同城跨站（${firstLeg.arrivalStation}→${secondLeg.departureStation}）换乘${transferTime}分钟"
+        } else {
+            "在${transferStation}同站换乘${transferTime}分钟"
+        }
+
     val risk: TransferRisk
-        get() = when {
-            transferTime >= 90 -> TransferRisk.STEADY
-            transferTime >= 45 -> TransferRisk.TIGHT
-            else -> TransferRisk.NOT_RECOMMENDED
+        get() = if (isCrossStation) {
+            when {
+                transferTime >= 120 -> TransferRisk.STEADY
+                transferTime >= 80 -> TransferRisk.TIGHT
+                else -> TransferRisk.NOT_RECOMMENDED
+            }
+        } else {
+            when {
+                transferTime >= 40 -> TransferRisk.STEADY
+                transferTime >= 20 -> TransferRisk.TIGHT
+                else -> TransferRisk.NOT_RECOMMENDED
+            }
         }
 
     val riskLabel: String
         get() = when (risk) {
-            TransferRisk.STEADY -> "稳妥换乘"
-            TransferRisk.TIGHT -> "时间较紧"
-            TransferRisk.NOT_RECOMMENDED -> "不建议换乘"
+            TransferRisk.STEADY -> if (isCrossStation) "同城跨站·稳妥" else "稳妥换乘"
+            TransferRisk.TIGHT -> if (isCrossStation) "同城跨站·较紧" else "时间较紧"
+            TransferRisk.NOT_RECOMMENDED -> "换乘时间不足"
         }
 
     // 获取两段车次的详细信息

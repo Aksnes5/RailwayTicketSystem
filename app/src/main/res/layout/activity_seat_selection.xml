@@ -100,6 +100,211 @@
 
         </com.google.android.material.card.MaterialCardView>
 
+        <!-- 静音车厢优选开关 -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardQuietCar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:visibility="gone"
+            app:cardCornerRadius="@dimen/corner_large"
+            app:cardBackgroundColor="#B8FFFFFF"
+            app:cardElevation="0dp"
+            app:strokeColor="#8CFFFFFF"
+            app:strokeWidth="1dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:padding="16dp">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="🔕 优先选择静音车厢 (3/4车)"
+                        android:textSize="15sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/text_primary" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="3dp"
+                        android:text="全程保持安静 · 佩戴耳机 · 通话请移步连接处"
+                        android:textSize="11.5sp"
+                        android:textColor="@color/text_secondary" />
+                </LinearLayout>
+
+                <androidx.appcompat.widget.SwitchCompat
+                    android:id="@+id/switchQuietCar"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- 车厢客座热力与大件行李透视 -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardCarriageHeatmap"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            app:cardCornerRadius="@dimen/corner_large"
+            app:cardBackgroundColor="#B8FFFFFF"
+            app:cardElevation="0dp"
+            app:strokeColor="#8CFFFFFF"
+            app:strokeWidth="1dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="10dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="💺 车厢客座热力与设施透视"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/text_primary" />
+
+                    <TextView
+                        android:id="@+id/tvSelectedCarriageSummary"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="02车 · 舒适适中"
+                        android:textSize="12sp"
+                        android:textColor="@color/railway_blue_deep"
+                        android:background="@drawable/bg_price_pill"
+                        android:paddingHorizontal="8dp"
+                        android:paddingVertical="2dp" />
+                </LinearLayout>
+
+                <HorizontalScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:scrollbars="none">
+
+                    <LinearLayout
+                        android:id="@+id/llCarriageList"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical" />
+                </HorizontalScrollView>
+
+                <TextView
+                    android:id="@+id/tvCarriageFacilityDetail"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="当前车厢配备：🧳车端大件行李架 · 🔌全列 USB/AC 电源 · 🚰冷热饮用水"
+                    android:textSize="12sp"
+                    android:textColor="@color/text_secondary" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- 同车换座 / 分段接续方案 -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardSplitTicketing"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            app:cardCornerRadius="@dimen/corner_large"
+            app:cardBackgroundColor="#F4F8FD"
+            app:cardElevation="0dp"
+            app:strokeColor="#7FB5E3FF"
+            app:strokeWidth="1dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="8dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="⚡ 同车分段购票推荐"
+                        android:textSize="15sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/railway_blue_deep" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="全程同车无需换乘"
+                        android:textSize="11sp"
+                        android:textColor="@color/railway_blue"
+                        android:background="@drawable/bg_price_pill"
+                        android:paddingHorizontal="6dp"
+                        android:paddingVertical="2dp" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tvSplitPlanDesc"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="前段：汉口 ➔ 孝感东 (03车 二等座 有票)\n后段：孝感东 ➔ 汉川北 (同车免下车，就近补座)"
+                    android:textSize="13sp"
+                    android:lineSpacingExtra="3dp"
+                    android:textColor="@color/text_primary" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginTop="10dp">
+
+                    <TextView
+                        android:id="@+id/tvSplitPlanPrice"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="分段总计：¥15 (无加价)"
+                        android:textSize="13sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/railway_orange" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnAdoptSplitPlan"
+                        style="@style/App.Button.Quiet"
+                        android:layout_width="wrap_content"
+                        android:layout_height="36dp"
+                        android:text="采纳同车分段"
+                        android:textSize="12.5sp"
+                        app:cornerRadius="@dimen/corner_large" />
+                </LinearLayout>
+
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
         <!-- 座位选择 -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
@@ -132,6 +337,54 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical">
 
+                    <!-- iOS 风格车厢断面走向微缩示意 -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:paddingHorizontal="10dp"
+                        android:layout_marginBottom="8dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="🪟 靠窗"
+                            android:textColor="@color/text_secondary"
+                            android:textSize="11.5sp"
+                            android:textStyle="bold" />
+
+                        <View
+                            android:layout_width="0dp"
+                            android:layout_height="1dp"
+                            android:layout_weight="1"
+                            android:layout_marginHorizontal="8dp"
+                            android:background="@color/divider" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="🚶 过道"
+                            android:textColor="@color/text_secondary"
+                            android:textSize="11.5sp" />
+
+                        <View
+                            android:layout_width="0dp"
+                            android:layout_height="1dp"
+                            android:layout_weight="1"
+                            android:layout_marginHorizontal="8dp"
+                            android:background="@color/divider" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="靠窗 🪟"
+                            android:textColor="@color/text_secondary"
+                            android:textSize="11.5sp"
+                            android:textStyle="bold" />
+
+                    </LinearLayout>
+
                     <LinearLayout
                         android:id="@+id/llSeatButtons"
                         android:layout_width="match_parent"
@@ -143,6 +396,294 @@
 
                         <!-- 座位按钮将通过代码动态添加 -->
 
+                    </LinearLayout>
+
+                    <!-- 卧铺指定铺位偏好设置 -->
+                    <LinearLayout
+                        android:id="@+id/cardSleeperPreference"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:background="@drawable/bg_surface_card"
+                        android:padding="12dp"
+                        android:layout_marginBottom="12dp"
+                        android:visibility="gone">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="🛏️ 铺位偏好指定 (官方优先兑现)"
+                                android:textColor="@color/railway_blue_deep"
+                                android:textSize="13.5sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/tvSleeperRuleBadge"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:background="@drawable/bg_quick_date_pill_active"
+                                android:paddingHorizontal="6dp"
+                                android:paddingVertical="1dp"
+                                android:text="12306 官方支持"
+                                android:textColor="@color/railway_blue"
+                                android:textSize="10.5sp" />
+                        </LinearLayout>
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="3dp"
+                            android:text="余票充足时按您选定的铺位优先出票；若所选铺位售罄将自动顺配其他铺位。"
+                            android:textColor="@color/text_secondary"
+                            android:textSize="11.5sp" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="10dp"
+                            android:orientation="horizontal">
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/btnPrefLowerBerth"
+                                android:layout_width="0dp"
+                                android:layout_height="40dp"
+                                android:layout_marginEnd="6dp"
+                                android:layout_weight="1"
+                                android:insetTop="0dp"
+                                android:insetBottom="0dp"
+                                android:text="下铺 (最便捷)"
+                                android:textSize="12sp"
+                                app:cornerRadius="20dp" />
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/btnPrefMiddleBerth"
+                                android:layout_width="0dp"
+                                android:layout_height="40dp"
+                                android:layout_marginEnd="6dp"
+                                android:layout_weight="1"
+                                android:insetTop="0dp"
+                                android:insetBottom="0dp"
+                                android:text="中铺"
+                                android:textSize="12sp"
+                                app:cornerRadius="20dp" />
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/btnPrefUpperBerth"
+                                android:layout_width="0dp"
+                                android:layout_height="40dp"
+                                android:layout_weight="1"
+                                android:insetTop="0dp"
+                                android:insetBottom="0dp"
+                                android:text="上铺 (最安静)"
+                                android:textSize="12sp"
+                                app:cornerRadius="20dp" />
+                        </LinearLayout>
+
+                        <TextView
+                            android:id="@+id/tvSleeperSelectedFeedback"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:text="✓ 已优先为您锁定【下铺】偏好"
+                            android:textColor="@color/railway_blue"
+                            android:textSize="12sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <!-- 多人同行智能连座推荐 -->
+                    <LinearLayout
+                        android:id="@+id/cardContiguousSeating"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:background="@drawable/bg_surface_card"
+                        android:padding="12dp"
+                        android:layout_marginBottom="12dp"
+                        android:visibility="gone">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="👥 多人同行连座优选"
+                                android:textColor="@color/railway_blue_deep"
+                                android:textSize="13.5sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/tvContiguousBadge"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:background="@drawable/bg_quick_date_pill_active"
+                                android:paddingHorizontal="6dp"
+                                android:paddingVertical="1dp"
+                                android:text="同排相邻"
+                                android:textColor="@color/railway_blue"
+                                android:textSize="10.5sp" />
+                        </LinearLayout>
+
+                        <TextView
+                            android:id="@+id/tvContiguousDetail"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:text="已为您智能规划相邻连座（优先 A+B 或 D+F），避免分散乘车。"
+                            android:textColor="@color/text_secondary"
+                            android:textSize="11.5sp" />
+
+                        <TextView
+                            android:id="@+id/tvContiguousSeatsPreview"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp"
+                            android:textColor="@color/railway_blue"
+                            android:textSize="12.5sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <!-- 候补双通道极速兑现设置 -->
+                    <LinearLayout
+                        android:id="@+id/cardWaitlistOptions"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:background="@drawable/bg_surface_card"
+                        android:padding="12dp"
+                        android:layout_marginBottom="12dp"
+                        android:visibility="gone">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="⚡ 候补双通道极速兑现设置"
+                                android:textColor="@color/railway_orange"
+                                android:textSize="13.5sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/tvWaitlistProbability"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:background="@drawable/bg_quick_date_pill_active"
+                                android:paddingHorizontal="6dp"
+                                android:paddingVertical="1dp"
+                                android:text="成功率预估 92%"
+                                android:textColor="@color/railway_blue"
+                                android:textSize="10.5sp"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+
+                        <com.google.android.material.switchmaterial.SwitchMaterial
+                            android:id="@+id/switchCrossClassWaitlist"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:text="接受跨席别候补（一二等座及卧铺跨席自动兑现）"
+                            android:textColor="@color/text_primary"
+                            android:textSize="12sp"
+                            android:checked="true" />
+
+                        <com.google.android.material.switchmaterial.SwitchMaterial
+                            android:id="@+id/switchUnreservedWaitlist"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="接受无座兑现（优先保出行，可在车上补座）"
+                            android:textColor="@color/text_primary"
+                            android:textSize="12sp"
+                            android:checked="false" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp"
+                            android:text="截止兑现时间设置："
+                            android:textColor="@color/text_secondary"
+                            android:textSize="11.5sp" />
+
+                        <RadioGroup
+                            android:id="@+id/rgWaitlistDeadline"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_marginTop="2dp">
+
+                            <RadioButton
+                                android:id="@+id/rbDeadline2h"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="发车前2h"
+                                android:textSize="11.5sp"
+                                android:textColor="@color/text_primary"
+                                android:checked="true" />
+
+                            <RadioButton
+                                android:id="@+id/rbDeadline6h"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="发车前6h"
+                                android:textSize="11.5sp"
+                                android:textColor="@color/text_primary" />
+
+                            <RadioButton
+                                android:id="@+id/rbDeadline24h"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="发车前24h"
+                                android:textSize="11.5sp"
+                                android:textColor="@color/text_primary" />
+                        </RadioGroup>
+                    </LinearLayout>
+
+                    <!-- 无座乘客沿途空座蹭座指南 -->
+                    <LinearLayout
+                        android:id="@+id/cardUnreservedSeatGuide"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:background="@drawable/bg_surface_card"
+                        android:padding="12dp"
+                        android:layout_marginBottom="8dp"
+                        android:visibility="gone">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="💺 沿途空座指南 (智能推荐)"
+                            android:textSize="13.5sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/railway_blue" />
+
+                        <TextView
+                            android:id="@+id/tvUnreservedGuideContent"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:lineSpacingExtra="3dp"
+                            android:textSize="12sp"
+                            android:textColor="@color/text_secondary" />
                     </LinearLayout>
 
                 </LinearLayout>
@@ -365,7 +906,7 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:background="@drawable/bg_passenger_selected"
-                    android:padding="12dp"
+                    android:padding="16dp"
                     android:layout_marginBottom="16dp"
                     android:visibility="gone">
 
@@ -376,7 +917,7 @@
                         android:text="张三"
                         android:textSize="16sp"
                         android:textStyle="bold"
-                        android:textColor="@color/railway_blue"
+                        android:textColor="@color/railway_blue_deep"
                         android:layout_marginBottom="4dp" />
 
                     <TextView
@@ -384,7 +925,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="身份证：110101199001011234"
-                        android:textSize="14sp"
+                        android:textSize="13.5sp"
+                        android:lineSpacingExtra="3dp"
                         android:textColor="@color/gray_medium" />
 
                 </LinearLayout>

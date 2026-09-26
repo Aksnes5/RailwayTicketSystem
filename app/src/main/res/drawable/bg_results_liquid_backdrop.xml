@@ -1,7 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:alpha="64"><bitmap android:gravity="fill" android:src="@drawable/glass_refraction_backdrop" android:tileMode="disabled" /></item>
-    <item><shape android:shape="rectangle"><solid android:color="#F9FDFF" /></shape></item>
-    <item android:width="540dp" android:height="440dp" android:gravity="top|start" android:left="-190dp" android:top="-160dp"><shape android:shape="oval"><gradient android:type="radial" android:gradientRadius="285dp" android:startColor="#32A4D8FF" android:centerColor="#16B5E8FF" android:endColor="#00B5E8FF" /></shape></item>
-    <item android:width="460dp" android:height="500dp" android:gravity="bottom|end" android:right="-240dp" android:bottom="-210dp"><shape android:shape="oval"><gradient android:type="radial" android:gradientRadius="270dp" android:startColor="#2393D2FF" android:centerColor="#109BD9FF" android:endColor="#009BD9FF" /></shape></item>
+    <!-- Authentic Apple iOS 17/18 White & Sky Blue Luminous Canvas for Search & Results -->
+    <item>
+        <shape android:shape="rectangle">
+            <gradient
+                android:angle="270"
+                android:startColor="#FFFFFF"
+                android:centerColor="#F3F8FD"
+                android:endColor="#E7F1FB" />
+        </shape>
+    </item>
+    <item android:width="500dp" android:height="500dp" android:gravity="top|start" android:left="-120dp" android:top="-140dp">
+        <shape android:shape="oval">
+            <gradient
+                android:type="radial"
+                android:gradientRadius="280dp"
+                android:startColor="#22007AFF"
+                android:centerColor="#0A007AFF"
+                android:endColor="#00007AFF" />
+        </shape>
+    </item>
+    <item android:width="450dp" android:height="450dp" android:gravity="bottom|end" android:right="-160dp" android:bottom="-140dp">
+        <shape android:shape="oval">
+            <gradient
+                android:type="radial"
+                android:gradientRadius="260dp"
+                android:startColor="#16007AFF"
+                android:centerColor="#06007AFF"
+                android:endColor="#00007AFF" />
+        </shape>
+    </item>
 </layer-list>

@@ -21,8 +21,10 @@ object TrainGenerator {
     
     // 性能控制参数（快速模式）
     /** Service window: the first and last departure times a generated train may have. */
-    private const val SERVICE_FIRST_DEPARTURE_MINUTES = 6 * 60          // 06:00
-    private const val SERVICE_LAST_DEPARTURE_MINUTES = 22 * 60 + 30     // 22:30
+    const val OVERNIGHT_START_MINUTES = 22 * 60         // 22:00 (1320)
+    const val OVERNIGHT_END_MINUTES = 6 * 60            // 06:00 (360)
+    const val OVERNIGHT_TOTAL_MINUTES = 8 * 60          // 480 分钟
+    const val DAYTIME_TOTAL_MINUTES = 16 * 60           // 960 分钟
     private const val MINUTES_PER_DAY = 24 * 60
     // The displayed slowest high-speed variant is 1.08× its base and the fastest
     // conventional variant is 0.92× its base.  2.36 keeps every K/T/Z result
@@ -145,12 +147,13 @@ object TrainGenerator {
      * 生成单条列车（公开方法，供异步加载使用）
      */
     fun generateSingleTrain(route: RailwayRoute, index: Int): Train {
-        val trainNumber = generateTrainNumber(route.routeType, index)
         val from = route.stations.first().name
         val to = route.stations.last().name
         val variants = buildVariants(from, to, routeType = route.routeType)
         val (duration, price) = variants[(index - 1) % variants.size]
         val departureTime = generateDepartureTime(duration, route.routeType)
+        val isOvernight = isOvernightTime(departureTime)
+        val trainNumber = generateTrainNumber(route.routeType, index, isOvernight)
         val arrivalTime = calculateArrivalTime(departureTime, duration)
         
         return Train(
@@ -169,7 +172,76 @@ object TrainGenerator {
     /**
      * 生成车次号
      */
-    private fun generateTrainNumber(routeType: com.railway.ticketsystem.model.RouteType, index: Int): String {
+    fun isOvernightMinutes(minutes: Int): Boolean {
+        val normalized = ((minutes % MINUTES_PER_DAY) + MINUTES_PER_DAY) % MINUTES_PER_DAY
+        return normalized >= OVERNIGHT_START_MINUTES || normalized < OVERNIGHT_END_MINUTES
+    }
+
+    fun isOvernightTime(time: String): Boolean {
+        val minutes = parseTimeToMinutes(time)
+        return isOvernightMinutes(minutes)
+    }
+
+    fun overnightOffsetToMinuteOfDay(offset: Int): Int {
+        val normalizedOffset = ((offset % OVERNIGHT_TOTAL_MINUTES) + OVERNIGHT_TOTAL_MINUTES) % OVERNIGHT_TOTAL_MINUTES
+        return if (normalizedOffset < 120) {
+            OVERNIGHT_START_MINUTES + normalizedOffset
+        } else {
+            normalizedOffset - 120
+        }
+    }
+
+    fun randomOvernightMinute(): Int {
+        return overnightOffsetToMinuteOfDay(random.nextInt(OVERNIGHT_TOTAL_MINUTES))
+    }
+
+    fun randomDaytimeMinute(): Int {
+        return OVERNIGHT_END_MINUTES + random.nextInt(DAYTIME_TOTAL_MINUTES)
+    }
+
+    fun formatMinutesToTime(minutes: Int): String {
+        val normalized = ((minutes % MINUTES_PER_DAY) + MINUTES_PER_DAY) % MINUTES_PER_DAY
+        return String.format("%02d:%02d", normalized / 60, normalized % 60)
+    }
+
+    /**
+     * 生成车次号
+     * 规则：凌晨（22:00-06:00）时段，除了普速（K/T/Z），只应该出现动卧（D1-D300）。
+     */
+    /**
+     * 生成车次号
+     * 规则：
+     * 1. 凌晨（22:00-06:00）时段，除了普速（K/T/Z），只应该出现动卧（D1-D300）。
+     * 2. 普速车次编号严格遵循中国铁路客运规范：
+     *    - T字头（特快旅客列车）：仅限 1~3 位数（T1-T998），绝无四位数特快。
+     *    - Z字头（直达特快列车）：仅限 1~3 位数（Z1-Z998），绝无四位数直特。
+     *    - K字头（快速旅客列车）：有大量四位数（K1001-K9998），亦有1~3位数（K1-K998）。
+     *    - G/D/C：支持 1~4 位数。
+     */
+    private fun generateTrainNumber(
+        routeType: com.railway.ticketsystem.model.RouteType,
+        index: Int,
+        isOvernight: Boolean = false
+    ): String {
+        if (isOvernight) {
+            return when (routeType) {
+                com.railway.ticketsystem.model.RouteType.CONVENTIONAL -> {
+                    val prefix = listOf("K", "T", "Z").random()
+                    val num = when (prefix) {
+                        "T", "Z" -> (1..998).random() // T/Z 严格 1-3 位数
+                        else -> if (random.nextDouble() < 0.25) (1..998).random() else (1001..9998).random() // K 有四位数
+                    }
+                    "$prefix$num"
+                }
+                com.railway.ticketsystem.model.RouteType.HIGH_SPEED,
+                com.railway.ticketsystem.model.RouteType.INTERCITY -> {
+                    // 凌晨/夜间除了普速只应该出现动卧（D1-D300）
+                    val num = (1..300).random()
+                    "D$num"
+                }
+            }
+        }
+
         val prefix = when (routeType) {
             com.railway.ticketsystem.model.RouteType.HIGH_SPEED -> listOf("G", "D").random()
             com.railway.ticketsystem.model.RouteType.INTERCITY -> "C"
@@ -177,22 +249,49 @@ object TrainGenerator {
         }
         
         val number = when (prefix) {
-            "G" -> (1000..9999).random()
-            "D" -> (2000..9999).random()
-            "C" -> (1000..9999).random()
-            "K" -> (1000..9999).random()
-            "T" -> (1000..9999).random()
-            "Z" -> (1000..9999).random()
-            else -> (1000..9999).random()
+            "T", "Z" -> (1..998).random() // T/Z 严格 1-3 位数 (1-998)
+            "K" -> if (random.nextDouble() < 0.25) (1..998).random() else (1001..9998).random() // K 字头有大量四位数
+            "G", "D" -> if (random.nextDouble() < 0.3) (1..998).random() else (1001..9998).random()
+            "C" -> if (random.nextDouble() < 0.2) (1..998).random() else (1001..9998).random()
+            else -> (1..998).random()
         }
         
         return "$prefix$number"
     }
-    
+
     /**
      * 生成唯一的车次号（用于跨线车次）
      */
-    private fun generateUniqueTrainNumber(routeType: com.railway.ticketsystem.model.RouteType): String {
+    private fun generateUniqueTrainNumber(
+        routeType: com.railway.ticketsystem.model.RouteType,
+        isOvernight: Boolean = false,
+        assignedDongwoNumber: Int? = null
+    ): String {
+        if (isOvernight) {
+            return when (routeType) {
+                com.railway.ticketsystem.model.RouteType.CONVENTIONAL -> {
+                    val prefix = listOf("K", "T", "Z").random()
+                    val timestamp = System.currentTimeMillis()
+                    val randomSuffix = random.nextInt(1000)
+                    val num = when (prefix) {
+                        "T", "Z" -> ((timestamp + randomSuffix) % 998 + 1).toInt() // T/Z 严格 1-3 位数 (1-998)
+                        else -> if (random.nextDouble() < 0.25) {
+                            ((timestamp + randomSuffix) % 998 + 1).toInt()
+                        } else {
+                            (1001 + ((timestamp + randomSuffix) % 8998)).toInt()
+                        }
+                    }
+                    "$prefix$num"
+                }
+                com.railway.ticketsystem.model.RouteType.HIGH_SPEED,
+                com.railway.ticketsystem.model.RouteType.INTERCITY -> {
+                    // 凌晨/夜间除了普速只应该出现动卧（D1-D300）
+                    val num = assignedDongwoNumber ?: (1..300).random()
+                    "D$num"
+                }
+            }
+        }
+
         val prefix = when (routeType) {
             com.railway.ticketsystem.model.RouteType.HIGH_SPEED -> listOf("G", "D").random()
             com.railway.ticketsystem.model.RouteType.INTERCITY -> "C"
@@ -202,31 +301,50 @@ object TrainGenerator {
         // 使用时间戳确保唯一性
         val timestamp = System.currentTimeMillis()
         val randomSuffix = random.nextInt(1000)
-        val number = ((timestamp % 9000) + 1000 + randomSuffix) % 10000
+        val number = when (prefix) {
+            "T", "Z" -> ((timestamp + randomSuffix) % 998 + 1).toInt() // T/Z 严格 1-3 位数 (1-998)
+            "K" -> if (random.nextDouble() < 0.25) {
+                ((timestamp + randomSuffix) % 998 + 1).toInt()
+            } else {
+                (1001 + ((timestamp + randomSuffix) % 8998)).toInt()
+            }
+            "G", "D" -> if (random.nextDouble() < 0.3) {
+                ((timestamp + randomSuffix) % 998 + 1).toInt()
+            } else {
+                (1001 + ((timestamp + randomSuffix) % 8998)).toInt()
+            }
+            "C" -> if (random.nextDouble() < 0.2) {
+                ((timestamp + randomSuffix) % 998 + 1).toInt()
+            } else {
+                (1001 + ((timestamp + randomSuffix) % 8998)).toInt()
+            }
+            else -> ((timestamp + randomSuffix) % 998 + 1).toInt()
+        }
         
         return "$prefix$number"
     }
     
     /**
      * 生成出发时间
+     * 普速列车（K/T/Z）：全天候运行，在凌晨/夜间（22:00-06:00）安排大量普速车（约50%）。
+     * 高铁动车（HIGH_SPEED）：除普速外只允许动卧（D1-D300）在 22:00-06:00 运行（约15%）。
+     * 城际列车（INTERCITY）：不在 22:00-06:00 运行，全部分布在日间 06:00-22:00。
      */
-    /**
-     * Passenger services run from 06:00 to 22:30; nothing is scheduled to leave outside that
-     * window, so the draw is taken over the window itself rather than hour-by-hour (which
-     * would also allow a 22:59 departure).
-     */
-    private fun generateDepartureTime(duration: String, routeType: RouteType): String {
-        val first = SERVICE_FIRST_DEPARTURE_MINUTES
-        var last = SERVICE_LAST_DEPARTURE_MINUTES
-        // A high-speed service that arrives after midnight is not a thing, so its last
-        // departure is pulled back by the journey's own duration.  Conventional overnight
-        // sleepers genuinely do run past midnight and keep the full window.
-        if (routeType != RouteType.CONVENTIONAL) {
-            last = minOf(last, MINUTES_PER_DAY - parseDurationToMinutes(duration))
+    private fun generateDepartureTime(duration: String, routeType: RouteType, forceOvernight: Boolean? = null): String {
+        val minute = when (forceOvernight) {
+            true -> randomOvernightMinute()
+            false -> randomDaytimeMinute()
+            null -> when (routeType) {
+                RouteType.CONVENTIONAL -> {
+                    if (random.nextDouble() < 0.50) randomOvernightMinute() else randomDaytimeMinute()
+                }
+                RouteType.HIGH_SPEED -> {
+                    if (random.nextDouble() < 0.15) randomOvernightMinute() else randomDaytimeMinute()
+                }
+                RouteType.INTERCITY -> randomDaytimeMinute()
+            }
         }
-        if (last < first) last = first
-        val minutes = (first..last).random()
-        return String.format("%02d:%02d", minutes / 60, minutes % 60)
+        return formatMinutesToTime(minute)
     }
     
     /**
@@ -319,9 +437,10 @@ object TrainGenerator {
                 val count = determineTrainCount(degree[from] ?: 0, degree[to] ?: 0).coerceAtMost(budget)
 
                 repeat(count) { idx ->
-                    val number = generateUniqueTrainNumber(com.railway.ticketsystem.model.RouteType.HIGH_SPEED)
                     val (duration, price) = variants[idx % variants.size]
                     val dep = generateDepartureTime(duration, com.railway.ticketsystem.model.RouteType.HIGH_SPEED)
+                    val isOvernight = isOvernightTime(dep)
+                    val number = generateUniqueTrainNumber(com.railway.ticketsystem.model.RouteType.HIGH_SPEED, isOvernight)
                     val arr = calculateArrivalTime(dep, duration)
                     // 为提升短路径覆盖率，更多生成短路径（经停站少）
                     if (pathStations.size <= 3 || random.nextDouble() < 0.6) {
@@ -451,12 +570,53 @@ object TrainGenerator {
             ?.let { head -> head + queryRoute }
             ?: extendPastQueryToHub(queryRoute, from, to, routeType)
         val directOriginRate = if (LatestRailwayNetwork.isMajorHubStation(from)) 28 else 22
+
+        // 计算夜间（22:00-06:00）与日间（06:00-22:00）车次配比：
+        // - 普速车（CONVENTIONAL）：凌晨/夜间时段安排大量普速车（约50%）
+        // - 高铁动车（HIGH_SPEED）：除普速外只安排动卧（D1-D300，约16%）
+        // - 城际铁路（INTERCITY）：不安排夜间车次（0%）
+        val overnightCount = when (routeType) {
+            RouteType.CONVENTIONAL -> (count * 0.50).toInt().coerceAtLeast(count / 2)
+            RouteType.HIGH_SPEED -> (count * 0.16).toInt().coerceIn(minOf(2, count), 8)
+            RouteType.INTERCITY -> 0
+        }
+        val daytimeCount = (count - overnightCount).coerceAtLeast(0)
+
+        val overnightMinutes = if (overnightCount > 0) {
+            (0 until overnightCount).map { i ->
+                val sliceStart = i * OVERNIGHT_TOTAL_MINUTES / overnightCount
+                val sliceEnd = ((i + 1) * OVERNIGHT_TOTAL_MINUTES / overnightCount - 1).coerceAtLeast(sliceStart)
+                val offset = (sliceStart..sliceEnd).random()
+                overnightOffsetToMinuteOfDay(offset)
+            }
+        } else emptyList()
+
+        val daytimeMinutes = if (daytimeCount > 0) {
+            (0 until daytimeCount).map { j ->
+                val sliceStart = OVERNIGHT_END_MINUTES + j * DAYTIME_TOTAL_MINUTES / daytimeCount
+                val sliceEnd = (OVERNIGHT_END_MINUTES + (j + 1) * DAYTIME_TOTAL_MINUTES / daytimeCount - 1).coerceAtLeast(sliceStart)
+                (sliceStart..sliceEnd).random()
+            }
+        } else emptyList()
+
+        data class ScheduledSlot(val departureMinutes: Int, val isOvernight: Boolean)
+        val scheduleSlots = (overnightMinutes.map { ScheduledSlot(it, true) } +
+            daytimeMinutes.map { ScheduledSlot(it, false) })
+            .sortedBy { it.departureMinutes }
+
+        val dongwoPool = (1..300).shuffled().iterator()
         val trains = ArrayList<Train>(count)
-        repeat(count) { idx ->
-            val number = generateUniqueTrainNumber(routeType)
+        scheduleSlots.forEachIndexed { idx, slot ->
+            val depTime = formatMinutesToTime(slot.departureMinutes)
             val (duration, price) = variants[idx % variants.size]
-            val departureTime = generateDepartureTime(duration, routeType)
-            val arrivalTime = calculateArrivalTime(departureTime, duration)
+            val arrivalTime = calculateArrivalTime(depTime, duration)
+            val number = generateUniqueTrainNumber(
+                routeType = routeType,
+                isOvernight = slot.isOvernight,
+                assignedDongwoNumber = if (slot.isOvernight && routeType == RouteType.HIGH_SPEED) {
+                    if (dongwoPool.hasNext()) dongwoPool.next() else (1..300).random()
+                } else null
+            )
             val serviceSeed = kotlin.math.abs((number + from + to).hashCode()) % 100
             val isQueryOrigin = serviceSeed < directOriginRate || throughServiceRoutes.isEmpty()
             val serviceRoute = if (isQueryOrigin) {
@@ -469,7 +629,7 @@ object TrainGenerator {
                     number = number,
                     departureStation = from,
                     arrivalStation = to,
-                    departureTime = departureTime,
+                    departureTime = depTime,
                     arrivalTime = arrivalTime,
                     duration = duration,
                     price = price,
@@ -482,7 +642,7 @@ object TrainGenerator {
         }
         android.util.Log.d(
             "TrainGenerator",
-            "为 $from -> $to 生成 ${trains.size} 趟${option.flavor}方案车次（查询区段: ${queryRoute.joinToString(" -> ")}；跨站方案: ${throughServiceRoutes.size}）"
+            "为 $from -> $to 生成 ${trains.size} 趟${option.flavor}方案车次（夜间班次: $overnightCount，查询区段: ${queryRoute.joinToString(" -> ")}；跨站方案: ${throughServiceRoutes.size}）"
         )
         return trains
     }
@@ -685,9 +845,10 @@ object TrainGenerator {
         if (route != null) {
             val variants = buildVariants(fromStation, toStation, routeType = route.routeType)
             for (i in 1..count) {
-                val trainNumber = generateTrainNumber(route.routeType, i)
                 val (duration, price) = variants[(i - 1) % variants.size]
                 val departureTime = generateDepartureTime(duration, route.routeType)
+                val isOvernight = isOvernightTime(departureTime)
+                val trainNumber = generateTrainNumber(route.routeType, i, isOvernight)
                 val arrivalTime = calculateArrivalTime(departureTime, duration)
                 
                 trains.add(Train(
@@ -863,10 +1024,11 @@ object TrainGenerator {
             // 避免生成重复的直达车次
             if (fromStation == toStation) return null
             
-            val trainNumber = generateUniqueTrainNumber(route1.routeType)
             val variants = buildVariants(fromStation, toStation)
             val (totalDuration, totalPrice) = variants[random.nextInt(variants.size)]
             val departureTime = generateDepartureTime(totalDuration, route1.routeType)
+            val isOvernight = isOvernightTime(departureTime)
+            val trainNumber = generateUniqueTrainNumber(route1.routeType, isOvernight)
             val arrivalTime = calculateArrivalTime(departureTime, totalDuration)
 
             Train(
@@ -897,11 +1059,11 @@ object TrainGenerator {
         connectionStation: String
     ): Train? {
         return try {
-            // 生成唯一的车次号
-            val trainNumber = generateUniqueTrainNumber(route1.routeType)
             val variants = buildVariants(fromStation, toStation)
             val (totalDuration, totalPrice) = variants[random.nextInt(variants.size)]
             val departureTime = generateDepartureTime(totalDuration, route1.routeType)
+            val isOvernight = isOvernightTime(departureTime)
+            val trainNumber = generateUniqueTrainNumber(route1.routeType, isOvernight)
             val arrivalTime = calculateArrivalTime(departureTime, totalDuration)
 
             Train(

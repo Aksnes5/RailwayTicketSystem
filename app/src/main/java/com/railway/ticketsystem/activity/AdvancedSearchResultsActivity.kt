@@ -26,6 +26,9 @@ import com.railway.ticketsystem.model.Train
 import com.railway.ticketsystem.model.TransferTrain
 import com.railway.ticketsystem.model.SeatTypes
 import com.railway.ticketsystem.model.TransferRisk
+import android.graphics.Typeface
+import android.view.HapticFeedbackConstants
+import androidx.core.content.ContextCompat
 
 class AdvancedSearchResultsActivity : ImmersiveActivity() {
     
@@ -37,6 +40,8 @@ class AdvancedSearchResultsActivity : ImmersiveActivity() {
     private var arrivalStation: String = ""
     private var departureDate: String = ""
     private var isDirectRoute = true // 默认选择直达
+    private var filterOnlyHighSpeed = false
+    private var filterOnlyAvailable = false
     private enum class SortMode { EARLIEST, SHORTEST, CHEAPEST }
     private var sortMode: SortMode = SortMode.EARLIEST
     private var currentTrains: List<Train> = emptyList()
@@ -69,8 +74,29 @@ class AdvancedSearchResultsActivity : ImmersiveActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.title = "$departureStation → $arrivalStation"
         
-        // 选中态由 ToggleGroup 的监听器统一处理，这里不再重复挂点击，否则一次点击会跑两遍查询
+        binding.filterHighSpeed.setOnClickListener {
+            it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
+            filterOnlyHighSpeed = !filterOnlyHighSpeed
+            updateFilterPillUi(binding.filterHighSpeed, filterOnlyHighSpeed)
+            applySort()
+        }
+
+        binding.filterAvailableOnly.setOnClickListener {
+            it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
+            filterOnlyAvailable = !filterOnlyAvailable
+            updateFilterPillUi(binding.filterAvailableOnly, filterOnlyAvailable)
+            applySort()
+        }
         
+        val isReal = com.railway.ticketsystem.data.DataSourceModePreferences.isRealMode(this)
+        if (isReal) {
+            binding.tvSearchModeText.text = "官方实盘"
+            binding.vSearchModeDot.setBackgroundResource(R.drawable.bg_dot_live_green)
+        } else {
+            binding.tvSearchModeText.text = "智能推算"
+            binding.vSearchModeDot.setBackgroundResource(R.drawable.bg_dot_mode_blue)
+        }
+
         // 设置初始按钮状态（默认选择直达）。调试构建可以用一个 intent extra 直接进中转：
         // 真机上 MIUI 关掉了 adb 的输入注入（input tap 报 INJECT_EVENTS 拒绝），
         // 没法用坐标点按钮，只能这样复现。release 构建里这个分支恒为 false。
@@ -79,6 +105,17 @@ class AdvancedSearchResultsActivity : ImmersiveActivity() {
         } else {
             selectRouteType(true)
         }
+    }
+
+    private fun updateFilterPillUi(textView: android.widget.TextView, active: Boolean) {
+        val activeBg = ContextCompat.getDrawable(this, R.drawable.bg_quick_date_pill_active)
+        val inactiveBg = ContextCompat.getDrawable(this, R.drawable.bg_quick_date_pill)
+        val activeColor = ContextCompat.getColor(this, R.color.railway_blue)
+        val inactiveColor = ContextCompat.getColor(this, R.color.text_secondary)
+
+        textView.background = if (active) activeBg else inactiveBg
+        textView.setTextColor(if (active) activeColor else inactiveColor)
+        textView.setTypeface(null, if (active) Typeface.BOLD else Typeface.NORMAL)
     }
 
     /** 见 setupUI：只在 debug 构建且显式传参时为 true。 */
@@ -147,10 +184,23 @@ class AdvancedSearchResultsActivity : ImmersiveActivity() {
 
     private fun applySort() {
         if (!isDirectRoute) return
+        var filtered = currentTrains
+        if (filterOnlyHighSpeed) {
+            filtered = filtered.filter { it.number.startsWith("G") || it.number.startsWith("D") || it.number.startsWith("C") }
+        }
+        if (filterOnlyAvailable) {
+            filtered = filtered.filter { train ->
+                val seatTypes = SeatTypes.forTrain(train)
+                seatTypes.any { seatType ->
+                    val availability = seatInventoryRepository.getAvailability(train, departureDate, seatType.name)
+                    !availability.requiresWaitlist && availability.availableSeats > 0
+                }
+            }
+        }
         val sorted = when (sortMode) {
-            SortMode.EARLIEST -> currentTrains.sortedBy { parseTimeToMinutes(it.departureTime) }
-            SortMode.SHORTEST -> currentTrains.sortedBy { parseDurationToMinutes(it.duration) }
-            SortMode.CHEAPEST -> currentTrains.sortedBy { it.price }
+            SortMode.EARLIEST -> filtered.sortedBy { parseTimeToMinutes(it.departureTime) }
+            SortMode.SHORTEST -> filtered.sortedBy { parseDurationToMinutes(it.duration) }
+            SortMode.CHEAPEST -> filtered.sortedBy { it.price }
         }
         trainAdapter.updateTrains(sorted)
         binding.rvTrains.scrollToPosition(0)
@@ -474,8 +524,8 @@ class AdvancedSearchResultsActivity : ImmersiveActivity() {
                 // 计算实际的中转时间
                 val transferTime = calculateTransferTime(firstTrain, secondTrain)
                 
-                // 检查中转时间是否合理（20分钟以上，最多6小时）
-                if (transferTime >= 20 && transferTime <= 360) {
+                // 检查中转时间是否合理（区分同站换乘与同城跨站换乘容差）
+                if (com.railway.ticketsystem.data.TransferStationRule.isTransferTimeValid(firstTrain.arrivalStation, secondTrain.departureStation, transferTime)) {
                     val totalPrice = firstTrain.price + secondTrain.price
                     val totalDuration = calculateTotalDuration(firstTrain.duration, secondTrain.duration, transferTime)
                     

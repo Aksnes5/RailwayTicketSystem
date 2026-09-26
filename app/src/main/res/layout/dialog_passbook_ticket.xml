@@ -1,0 +1,419 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_sheet_dialog_top_rounded"
+    android:orientation="vertical"
+    android:padding="20dp">
+
+    <!-- Top Grabber -->
+    <View
+        android:layout_width="36dp"
+        android:layout_height="4dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="14dp"
+        android:background="@drawable/bg_bottom_sheet_handle" />
+
+    <!-- Title & Apple Wallet Badge -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="16dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="电子磁介质车票"
+            android:textColor="@color/text_primary"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+    </LinearLayout>
+
+    <!-- Flip Card Container (Perspective enabled) -->
+    <FrameLayout
+        android:id="@+id/cardFlipContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp">
+
+        <!-- FRONT: Authentic China Railway Blue Magnetic Paper Ticket -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardTicketFront"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardBackgroundColor="#E6F3FE"
+            app:cardCornerRadius="18dp"
+            app:cardElevation="4dp"
+            app:strokeColor="#7FBDE8"
+            app:strokeWidth="1dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="18dp">
+
+                <!-- Header: CR Logo, Name, Train Number -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="12dp">
+
+                    <ImageView
+                        android:layout_width="22dp"
+                        android:layout_height="22dp"
+                        android:contentDescription="中国铁路"
+                        android:src="@drawable/ic_china_railway_logo" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:text="中国铁路 · CHINA RAILWAY"
+                        android:textColor="#1A568C"
+                        android:textSize="13sp"
+                        android:textStyle="bold" />
+
+                    <View
+                        android:layout_width="0dp"
+                        android:layout_height="1dp"
+                        android:layout_weight="1" />
+
+                    <TextView
+                        android:id="@+id/tvPassbookTrainNumber"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="G1234 次"
+                        android:textColor="@color/railway_red"
+                        android:textSize="17sp"
+                        android:textStyle="bold" />
+
+                </LinearLayout>
+
+                <!-- Station Origin -> Destination Route -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="12dp">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="start"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/tvPassbookDepStation"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="汉口站"
+                            android:textColor="#0F2D4A"
+                            android:textSize="22sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tvPassbookDepPinyin"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="HANKOU"
+                            android:textColor="#5B7E9F"
+                            android:textSize="11sp" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="——— 🚆 ———"
+                            android:textColor="#3D7DB5"
+                            android:textSize="12sp"
+                            android:textStyle="bold" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="end"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/tvPassbookArrStation"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="天门南"
+                            android:textColor="#0F2D4A"
+                            android:textSize="22sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tvPassbookArrPinyin"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="TIANMENNAN"
+                            android:textColor="#5B7E9F"
+                            android:textSize="11sp" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+                <!-- Dotted Perforation Line -->
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginBottom="12dp"
+                    android:background="#95C5E8" />
+
+                <!-- Date & Time Row -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="8dp">
+
+                    <TextView
+                        android:id="@+id/tvPassbookDepTime"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="2026年09月28日 07:02 开"
+                        android:textColor="#0F2D4A"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvPassbookGate"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_badge_high_speed"
+                        android:paddingHorizontal="8dp"
+                        android:paddingVertical="2dp"
+                        android:text="检票口 12A"
+                        android:textColor="@color/railway_blue"
+                        android:textSize="11sp"
+                        android:textStyle="bold" />
+
+                </LinearLayout>
+
+                <!-- Seat & Class Row -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="10dp">
+
+                    <TextView
+                        android:id="@+id/tvPassbookSeatInfo"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="05车 12A号  二等座"
+                        android:textColor="#0F2D4A"
+                        android:textSize="17sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvPassbookPrice"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="¥20.0元"
+                        android:textColor="@color/railway_red"
+                        android:textSize="17sp"
+                        android:textStyle="bold" />
+
+                </LinearLayout>
+
+                <!-- Passenger Info & Condition -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="12dp">
+
+                    <TextView
+                        android:id="@+id/tvPassbookPassenger"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="420106********1234 张*"
+                        android:textColor="#3A5C7C"
+                        android:textSize="12sp"
+                        android:fontFamily="monospace" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="限乘当日当次车"
+                        android:textColor="#3A5C7C"
+                        android:textSize="12sp" />
+
+                </LinearLayout>
+
+                <!-- Bottom Magnetic Serial & QR Code Simulation -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:background="#D1E7F8"
+                    android:paddingHorizontal="10dp"
+                    android:paddingVertical="8dp">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/tvPassbookTicketCode"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="monospace"
+                            android:text="W083921 09/28 07:02 882049103948291034"
+                            android:textColor="#264563"
+                            android:textSize="10sp" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:text="中国铁路电子客票磁介质仿真凭证"
+                            android:textColor="#5A7C9D"
+                            android:textSize="9sp" />
+
+                    </LinearLayout>
+
+                    <ImageView
+                        android:id="@+id/ivPassbookQrMini"
+                        android:layout_width="38dp"
+                        android:layout_height="38dp"
+                        android:contentDescription="防伪验票码"
+                        android:background="@color/white"
+                        android:padding="2dp" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- BACK: Passenger Rules & Regulations (Flip View) -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardTicketBack"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            app:cardBackgroundColor="#F7FAFD"
+            app:cardCornerRadius="18dp"
+            app:cardElevation="4dp"
+            app:strokeColor="#7FBDE8"
+            app:strokeWidth="1dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="18dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:text="中国铁路旅客乘车须知"
+                    android:textColor="#0F2D4A"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:lineSpacingExtra="3dp"
+                    android:text="1. 车票当日当次有效，请凭有效二代居民身份证原件通过闸机核验进出站。\n2. 请于发车前提前到达车站候车，列车发车前5分钟停止检票。\n3. 每位旅客免费携带品上限：成人20千克，儿童10千克，长宽高之和不超过130厘米。\n4. 严禁携带易燃、易爆、有毒、腐蚀等危险品进站上车。\n5. 如需纸质报销凭证，可在乘车之日起180天内凭有效证件在车站自动售取票机打印。\n6. 本卡片为拟物化数字车票展示，实际乘车直接刷身份证原件即可通行。"
+                    android:textColor="#264563"
+                    android:textSize="11sp" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginVertical="12dp"
+                    android:background="#D0E3F3" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="全国铁路统一客服电话：12306"
+                    android:textColor="@color/railway_blue"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
+    </FrameLayout>
+
+    <!-- Interactive Action Buttons -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_marginBottom="6dp">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnFlipTicket"
+            style="@style/App.Button.Quiet"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:layout_marginEnd="8dp"
+            android:text="翻转票面"
+            android:textColor="@color/railway_blue"
+            android:textSize="14sp"
+            app:cornerRadius="999dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnSaveTicket"
+            style="@style/App.Button.Primary"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:layout_marginStart="8dp"
+            android:text="保存到相册"
+            android:textColor="@color/white"
+            android:textSize="14sp"
+            app:cornerRadius="999dp" />
+
+    </LinearLayout>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnClosePassbook"
+        style="@style/App.Button.Quiet"
+        android:layout_width="match_parent"
+        android:layout_height="44dp"
+        android:text="完成"
+        android:textColor="@color/text_secondary"
+        android:textSize="14sp"
+        app:cornerRadius="999dp" />
+
+</LinearLayout>

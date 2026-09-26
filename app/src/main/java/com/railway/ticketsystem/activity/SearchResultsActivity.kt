@@ -5,19 +5,23 @@ import android.content.res.ColorStateList
 import android.os.Build
 import android.os.Bundle
 import android.view.View
-import android.graphics.Color
-import android.widget.LinearLayout
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.railway.ticketsystem.R
 import com.railway.ticketsystem.adapter.TrainResultAdapter
-import com.railway.ticketsystem.data.DepartureTimingPolicy
-import com.railway.ticketsystem.data.RailwayData
 import com.railway.ticketsystem.data.SeatInventoryRepository
 import com.railway.ticketsystem.databinding.ActivitySearchResultsBinding
 import com.railway.ticketsystem.model.Train
 import com.railway.ticketsystem.model.TransferTrain
+import com.railway.ticketsystem.viewmodel.SearchResultsViewModel
+import com.railway.ticketsystem.viewmodel.SearchSortMode
+import com.railway.ticketsystem.viewmodel.SearchUiState
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -26,6 +30,8 @@ class SearchResultsActivity : ImmersiveActivity() {
     private lateinit var binding: ActivitySearchResultsBinding
     private lateinit var trainAdapter: TrainResultAdapter
     private lateinit var seatInventoryRepository: SeatInventoryRepository
+    private val viewModel: SearchResultsViewModel by viewModels()
+
     private var departureStation = ""
     private var arrivalStation = ""
     private var selectedDate = ""
@@ -51,64 +57,113 @@ class SearchResultsActivity : ImmersiveActivity() {
         seatInventoryRepository = SeatInventoryRepository(this)
         
         setupUI()
-        // 日期选择器已删除
         setupRecyclerView()
         setupSortBar()
-        // 确保排序栏在最上层并可点击
         binding.sortBar.bringToFront()
 
-        // 兜底：通过 findViewById 再次绑定点击，避免绑定异常导致不触发
-        try {
-            val btnEarliest = findViewById<com.google.android.material.button.MaterialButton>(R.id.btnSortEarliest)
-            val btnShortest = findViewById<com.google.android.material.button.MaterialButton>(R.id.btnSortShortest)
-            val btnCheapest = findViewById<com.google.android.material.button.MaterialButton>(R.id.btnSortCheapest)
-            val bar = findViewById<android.view.View>(R.id.sortBar)
-            bar?.setOnClickListener {
-                android.util.Log.d("SearchResults", "点击 SortBar 容器")
-            }
-            btnEarliest?.setOnClickListener {
-                android.util.Log.d("SearchResults", "[fallback] 点击 发时最早")
-                Toast.makeText(this, "已按发时最早排序", Toast.LENGTH_SHORT).show()
-                sortMode = SortMode.EARLIEST
-                highlightSort(sortMode)
-                applySort()
-            }
-            btnShortest?.setOnClickListener {
-                android.util.Log.d("SearchResults", "[fallback] 点击 耗时最短")
-                Toast.makeText(this, "已按耗时最短排序", Toast.LENGTH_SHORT).show()
-                sortMode = SortMode.SHORTEST
-                highlightSort(sortMode)
-                applySort()
-            }
-            btnCheapest?.setOnClickListener {
-                android.util.Log.d("SearchResults", "[fallback] 点击 价格最低")
-                Toast.makeText(this, "已按价格最低排序", Toast.LENGTH_SHORT).show()
-                sortMode = SortMode.CHEAPEST
-                highlightSort(sortMode)
-                applySort()
-            }
-        } catch (_: Exception) { }
+        observeViewModel()
         searchTickets()
+    }
+
+    private fun observeViewModel() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.uiState.collect { state ->
+                    when (state) {
+                        is SearchUiState.Loading -> {
+                            binding.layoutLoadingSkeleton.visibility = View.VISIBLE
+                            binding.rvTrains.visibility = View.GONE
+                            binding.llEmptyState.visibility = View.GONE
+                        }
+                        is SearchUiState.Empty -> {
+                            binding.layoutLoadingSkeleton.visibility = View.GONE
+                            binding.rvTrains.visibility = View.GONE
+                            binding.llEmptyState.visibility = View.VISIBLE
+                            binding.tvEmptyMessage.text = state.message
+                            binding.btnEmptySwitchTransfer.visibility = if (state.isDirect) View.VISIBLE else View.GONE
+                        }
+                        is SearchUiState.DirectSuccess -> {
+                            binding.layoutLoadingSkeleton.visibility = View.GONE
+                            binding.llEmptyState.visibility = View.GONE
+                            binding.rvTrains.visibility = View.VISIBLE
+                            currentTrains = state.displayTrains
+                            trainAdapter.updateTrains(state.displayTrains)
+                            highlightSort(when (state.sortMode) {
+                                SearchSortMode.EARLIEST -> SortMode.EARLIEST
+                                SearchSortMode.SHORTEST -> SortMode.SHORTEST
+                                SearchSortMode.CHEAPEST -> SortMode.CHEAPEST
+                            })
+                        }
+                        is SearchUiState.TransferSuccess -> {
+                            binding.layoutLoadingSkeleton.visibility = View.GONE
+                            binding.llEmptyState.visibility = View.GONE
+                            binding.rvTrains.visibility = View.VISIBLE
+                            val transferTrains = state.transferTrains.map { transferTrain ->
+                                Train(
+                                    number = transferTrain.displayNumber,
+                                    departureStation = transferTrain.departureStation,
+                                    arrivalStation = transferTrain.arrivalStation,
+                                    departureTime = transferTrain.departureTime,
+                                    arrivalTime = transferTrain.arrivalTime,
+                                    duration = transferTrain.totalDuration,
+                                    price = transferTrain.totalPrice,
+                                    availableSeats = transferTrain.availableSeats
+                                )
+                            }
+                            currentTrains = transferTrains
+                            trainAdapter.updateTrains(transferTrains)
+                        }
+                        is SearchUiState.Error -> {
+                            binding.layoutLoadingSkeleton.visibility = View.GONE
+                            Toast.makeText(this@SearchResultsActivity, state.message, Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }
+            }
+        }
     }
     
     private fun setupUI() {
+        binding.btnBack.setOnClickListener { finish() }
+        val routeTitle = if (departureStation.isNotEmpty() && arrivalStation.isNotEmpty()) {
+            "$departureStation ➔ $arrivalStation"
+        } else {
+            "车票查询"
+        }
+        binding.tvHeaderRoute.text = routeTitle
+        binding.tvHeaderDate.text = formatDisplayDate(selectedDate)
+
         // 分段选择条：选中哪半边由 ToggleGroup 自己管，这里只跟随业务状态。
+        binding.hsvQuickFilters.visibility = View.GONE
         binding.routeTypeToggle.addOnButtonCheckedListener { _, checkedId, isChecked ->
             if (isChecked) selectRouteType(checkedId == R.id.btnDirect)
         }
         // 走 ToggleGroup 而不是直接调 selectRouteType，这样分段条的选中态会一起更新
         binding.btnEmptySwitchTransfer.setOnClickListener { binding.routeTypeToggle.check(R.id.btnTransfer) }
-        // 顶部导航栏已删除
-        
-        // 选中态由 ToggleGroup 的监听器统一处理，这里不再重复挂点击，否则一次点击会跑两遍查询
         
         // 设置初始按钮状态（默认选择直达）
         selectRouteType(true)
     }
+
+    private fun formatDisplayDate(dateStr: String): String {
+        return try {
+            val date = dateFormat.parse(dateStr) ?: return dateStr
+            val cal = Calendar.getInstance()
+            val todayStr = dateFormat.format(cal.time)
+            cal.add(Calendar.DAY_OF_YEAR, 1)
+            val tomorrowStr = dateFormat.format(cal.time)
+            val dayDesc = when (dateStr) {
+                todayStr -> "今天"
+                tomorrowStr -> "明天"
+                else -> weekDateFormat.format(date)
+            }
+            "${displayDateFormat.format(date)} · $dayDesc"
+        } catch (_: Exception) {
+            dateStr
+        }
+    }
     
     private fun setupSortBar() {
-        android.util.Log.d("SearchResults", "setupSortBar 开始")
-        // 确保可点击
         binding.sortBar.isClickable = true
         binding.btnSortEarliest.isClickable = true
         binding.btnSortShortest.isClickable = true
@@ -116,30 +171,19 @@ class SearchResultsActivity : ImmersiveActivity() {
         binding.btnSortEarliest.isEnabled = true
         binding.btnSortShortest.isEnabled = true
         binding.btnSortCheapest.isEnabled = true
-        android.util.Log.d("SearchResults", "sortBar clickable=${binding.sortBar.isClickable}")
-        // 默认选中“发时最早”
         highlightSort(SortMode.EARLIEST)
         
         binding.btnSortEarliest.setOnClickListener {
-            android.util.Log.d("SearchResults", "点击 发时最早")
+            viewModel.setSortMode(SearchSortMode.EARLIEST)
             Toast.makeText(this, "已按发时最早排序", Toast.LENGTH_SHORT).show()
-            sortMode = SortMode.EARLIEST
-            highlightSort(sortMode)
-            applySort()
         }
         binding.btnSortShortest.setOnClickListener {
-            android.util.Log.d("SearchResults", "点击 耗时最短")
+            viewModel.setSortMode(SearchSortMode.SHORTEST)
             Toast.makeText(this, "已按耗时最短排序", Toast.LENGTH_SHORT).show()
-            sortMode = SortMode.SHORTEST
-            highlightSort(sortMode)
-            applySort()
         }
         binding.btnSortCheapest.setOnClickListener {
-            android.util.Log.d("SearchResults", "点击 价格最低")
+            viewModel.setSortMode(SearchSortMode.CHEAPEST)
             Toast.makeText(this, "已按价格最低排序", Toast.LENGTH_SHORT).show()
-            sortMode = SortMode.CHEAPEST
-            highlightSort(sortMode)
-            applySort()
         }
     }
 
@@ -167,80 +211,28 @@ class SearchResultsActivity : ImmersiveActivity() {
         }
     }
 
-    private fun applySort() {
-        if (!isDirectRoute) return // 仅直达使用底部排序栏
-        val sorted = when (sortMode) {
-            SortMode.EARLIEST -> currentTrains.sortedBy { parseTimeToMinutes(it.departureTime) }
-            SortMode.SHORTEST -> currentTrains.sortedBy { parseDurationToMinutes(it.duration) }
-            SortMode.CHEAPEST -> currentTrains.sortedBy { it.price } // 价格最低优先（从小到大）
-        }
-        trainAdapter.updateTrains(sorted)
-        // 排序后回到顶部，方便用户观察变化
-        binding.rvTrains.scrollToPosition(0)
-    }
-
     // XML onClick 回调（兜底）
     fun onSortEarliest(view: android.view.View) {
-        android.util.Log.d("SearchResults", "[xml] 点击 发时最早")
+        viewModel.setSortMode(SearchSortMode.EARLIEST)
         Toast.makeText(this, "已按发时最早排序", Toast.LENGTH_SHORT).show()
-        sortMode = SortMode.EARLIEST
-        highlightSort(sortMode)
-        applySort()
     }
 
     fun onSortShortest(view: android.view.View) {
-        android.util.Log.d("SearchResults", "[xml] 点击 耗时最短")
+        viewModel.setSortMode(SearchSortMode.SHORTEST)
         Toast.makeText(this, "已按耗时最短排序", Toast.LENGTH_SHORT).show()
-        sortMode = SortMode.SHORTEST
-        highlightSort(sortMode)
-        applySort()
     }
 
     fun onSortCheapest(view: android.view.View) {
-        android.util.Log.d("SearchResults", "[xml] 点击 价格最低")
+        viewModel.setSortMode(SearchSortMode.CHEAPEST)
         Toast.makeText(this, "已按价格最低排序", Toast.LENGTH_SHORT).show()
-        sortMode = SortMode.CHEAPEST
-        highlightSort(sortMode)
-        applySort()
-    }
-    
-    // 日期选择器相关方法已删除
-    
-    private fun formatSelectedDate(dateStr: String): String {
-        try {
-            val date = dateFormat.parse(dateStr)
-            val calendar = Calendar.getInstance()
-            calendar.time = date ?: Date()
-            
-            val weekDay = when (calendar.get(Calendar.DAY_OF_WEEK)) {
-                Calendar.SUNDAY -> "周日"
-                Calendar.MONDAY -> "周一"
-                Calendar.TUESDAY -> "周二"
-                Calendar.WEDNESDAY -> "周三"
-                Calendar.THURSDAY -> "周四"
-                Calendar.FRIDAY -> "周五"
-                Calendar.SATURDAY -> "周六"
-                else -> ""
-            }
-            
-            return "$weekDay ${displayDateFormat.format(date)}"
-        } catch (e: Exception) {
-            return "今天"
-        }
     }
     
     private fun setupRecyclerView() {
         trainAdapter = TrainResultAdapter(seatInventoryRepository, { selectedDate }) { train ->
-            // 跳转到车次详情页面显示沿途车站
-            android.util.Log.d("SearchResultsActivity", "点击车次: ${train.number}")
-            android.util.Log.d("SearchResultsActivity", "起点: ${train.departureStation}, 终点: ${train.arrivalStation}")
-            
             val intent = Intent(this, TrainDetailActivity::class.java)
             intent.putExtra("train", train)
             intent.putExtra("departureDate", selectedDate)
             startActivity(intent)
-            
-            android.util.Log.d("SearchResultsActivity", "已启动TrainDetailActivity")
         }
         
         binding.rvTrains.apply {
@@ -250,257 +242,24 @@ class SearchResultsActivity : ImmersiveActivity() {
     }
     
     private fun searchTickets() {
-        try {
-            val trains = if (isDirectRoute) {
-                // 直达车次：直接从出发站到到达站（按时间排序）
-                RailwayData.getTrainsSortedByTime(departureStation, arrivalStation)
-            } else {
-                // 中转车次：需要中转的车次组合
-                findTransferRoutes()
-            }
-
-            // Trains that already left are not sellable; the generated timetable does not
-            // look at the clock, so a same-day search otherwise lists them all day.
-            currentTrains = trains.filter {
-                DepartureTimingPolicy.isBookable(selectedDate, it.departureTime)
-            }
-
-            // 判空必须放在 applySort() 之前。初始化阶段 setupUI() 会先触发一次搜索，
-            // 那时 trainAdapter 还没建好，applySort() 抛出的异常会被下面的 catch 吞掉，
-            // 连带把这段判空整个跳过 —— 结果就是列表空白却没有任何提示。
-            val displayed = if (isDirectRoute) currentTrains else trains
-            if (displayed.isEmpty()) {
-                showEmptyState()
-            } else {
-                hideEmptyState()
-            }
-
-            if (isDirectRoute) {
-                applySort()
-            } else {
-                trainAdapter.updateTrains(trains)
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-            Toast.makeText(this, "查询失败: ${e.message}", Toast.LENGTH_LONG).show()
-        }
-    }
-    
-    private fun showEmptyState() {
-        // 常驻空状态而不是 Toast：这段文案要读完，其中"改用中转换乘"还要引导操作。
-        binding.tvEmptyMessage.text = if (isDirectRoute) {
-            "很抱歉，按您的查询条件，当前未找到从${departureStation}到${arrivalStation}的列车。" +
-                "您可使用中转换乘功能，查询途中换乘一次的部分列车余票情况。"
-        } else {
-            "很抱歉，按您的查询条件，当前未找到从${departureStation}到${arrivalStation}的中转列车。"
-        }
-        // 只有直达查不到时，换成中转才有意义。
-        binding.btnEmptySwitchTransfer.visibility = if (isDirectRoute) View.VISIBLE else View.GONE
-        binding.rvTrains.visibility = View.GONE
-        binding.llEmptyState.visibility = View.VISIBLE
+        viewModel.searchTickets(departureStation, arrivalStation, selectedDate, isDirectRoute)
     }
 
-    private fun hideEmptyState() {
-        binding.llEmptyState.visibility = View.GONE
-        binding.rvTrains.visibility = View.VISIBLE
-    }
-    
-    private fun findTransferRoutes(): List<Train> {
-        val transferTrains = mutableListOf<TransferTrain>()
-        com.railway.ticketsystem.model.RailwayRouteManager.Probe.reset()
-        val probeStartedAt = System.nanoTime()
-
-        // 获取所有真实线路，查找可能的中转站
-        val allRoutes = com.railway.ticketsystem.data.RealRailwayRoutes.getAllRoutes()
-        val possibleTransferStations = mutableSetOf<String>()
-        
-        // 从所有线路中收集可能的中转站
-        allRoutes.forEach { route ->
-            val stationNames = route.stations.map { it.name }
-            if (stationNames.contains(departureStation) && stationNames.contains(arrivalStation)) {
-                // 如果线路同时包含出发站和到达站，查找中间站作为中转站
-                val departureIndex = stationNames.indexOf(departureStation)
-                val arrivalIndex = stationNames.indexOf(arrivalStation)
-                
-                if (departureIndex != -1 && arrivalIndex != -1) {
-                    val startIndex = minOf(departureIndex, arrivalIndex)
-                    val endIndex = maxOf(departureIndex, arrivalIndex)
-                    
-                    // 添加中间站作为可能的中转站
-                    for (i in startIndex + 1 until endIndex) {
-                        possibleTransferStations.add(stationNames[i])
-                    }
-                }
-            } else if (stationNames.contains(departureStation)) {
-                // 如果线路包含出发站，添加后续站作为可能的中转站
-                val departureIndex = stationNames.indexOf(departureStation)
-                for (i in departureIndex + 1 until stationNames.size) {
-                    possibleTransferStations.add(stationNames[i])
-                }
-            } else if (stationNames.contains(arrivalStation)) {
-                // 如果线路包含到达站，添加前面的站作为可能的中转站
-                val arrivalIndex = stationNames.indexOf(arrivalStation)
-                for (i in 0 until arrivalIndex) {
-                    possibleTransferStations.add(stationNames[i])
-                }
-            }
-        }
-        
-        // 为每个可能的中转站查找车次组合
-        for (transferStation in possibleTransferStations) {
-            if (transferStation != departureStation && transferStation != arrivalStation) {
-                // 查找出发站到中转站的车次
-                val firstLegTrains = RailwayData.getTrainsSortedByTime(departureStation, transferStation)
-                
-                // 查找中转站到到达站的车次
-                val secondLegTrains = RailwayData.getTrainsSortedByTime(transferStation, arrivalStation)
-                
-                // 如果两段都有车次，则组合成中转路线
-                if (firstLegTrains.isNotEmpty() && secondLegTrains.isNotEmpty()) {
-                    // 为每个中转站生成多个合理的车次组合
-                    val combinations = findTransferCombinations(firstLegTrains, secondLegTrains, transferStation)
-                    transferTrains.addAll(combinations)
-                }
-            }
-        }
-        
-        // 中转搜索慢在哪里：候选站数、生成了几对、图搜索各占多久。归因前先看这行。
-        android.util.Log.d(
-            "SearchResults",
-            "中转搜索耗时 ${(System.nanoTime() - probeStartedAt) / 1_000_000}ms " +
-                "候选中转站=${possibleTransferStations.size} " +
-                com.railway.ticketsystem.model.RailwayRouteManager.Probe.summary()
-        )
-
-        // 按总时间排序，返回前20个最佳方案，并转换为Train对象
-        return transferTrains.sortedBy { parseDurationToMinutes(it.totalDuration) }.take(20).map { transferTrain ->
-            // 将TransferTrain转换为Train对象用于显示
-            Train(
-                number = transferTrain.displayNumber,
-                departureStation = transferTrain.departureStation,
-                arrivalStation = transferTrain.arrivalStation,
-                departureTime = transferTrain.departureTime,
-                arrivalTime = transferTrain.arrivalTime,
-                duration = transferTrain.totalDuration,
-                price = transferTrain.totalPrice,
-                availableSeats = transferTrain.availableSeats
-            )
-        }
-    }
-    
-    private fun findTransferCombinations(
-        firstLegTrains: List<Train>, 
-        secondLegTrains: List<Train>,
-        transferStation: String
-    ): List<TransferTrain> {
-        val combinations = mutableListOf<TransferTrain>()
-        
-        for (firstTrain in firstLegTrains) {
-            for (secondTrain in secondLegTrains) {
-                // 计算实际的中转时间
-                val transferTime = calculateTransferTime(firstTrain, secondTrain)
-                
-                // 检查中转时间是否合理（20分钟以上，最多6小时）
-                if (transferTime >= 20 && transferTime <= 360) {
-                    val totalPrice = firstTrain.price + secondTrain.price
-                    val totalDuration = calculateTotalDuration(firstTrain.duration, secondTrain.duration, transferTime)
-                    
-                    val transferTrain = TransferTrain(
-                        firstLeg = firstTrain,
-                        secondLeg = secondTrain,
-                        transferStation = transferStation,
-                        transferTime = transferTime,
-                        totalPrice = totalPrice,
-                        totalDuration = totalDuration
-                    )
-                    combinations.add(transferTrain)
-                }
-            }
-        }
-        
-        return combinations
-    }
-    
-    private fun calculateTransferTime(firstTrain: Train, secondTrain: Train): Int {
-        // 解析第一段车次的到达时间
-        val firstArrivalTime = parseTimeToMinutes(firstTrain.arrivalTime)
-        // 解析第二段车次的出发时间
-        val secondDepartureTime = parseTimeToMinutes(secondTrain.departureTime)
-        
-        // 计算中转时间（分钟）
-        var transferTime = secondDepartureTime - firstArrivalTime
-        
-        // 如果第二段车次是第二天，需要加上24小时
-        if (transferTime < 0) {
-            transferTime += 24 * 60
-        }
-        
-        return transferTime
-    }
-    
-    private fun parseTimeToMinutes(time: String): Int {
-        val parts = time.split(":")
-        val hour = parts[0].toInt()
-        val minute = parts[1].toInt()
-        return hour * 60 + minute
-    }
-    
-    
-    private fun calculateTotalDuration(firstDuration: String, secondDuration: String, transferMinutes: Int): String {
-        val firstMinutes = parseDurationToMinutes(firstDuration)
-        val secondMinutes = parseDurationToMinutes(secondDuration)
-        val totalMinutes = firstMinutes + secondMinutes + transferMinutes
-        
-        val hours = totalMinutes / 60
-        val minutes = totalMinutes % 60
-        
-        return if (hours > 0) {
-            "${hours}小时${minutes}分"
-        } else {
-            "${minutes}分"
-        }
-    }
-    
-    private fun parseDurationToMinutes(duration: String): Int {
-        return try {
-            if (duration.contains("小时")) {
-                val parts = duration.split("小时")
-                val hours = parts[0].toInt()
-                val minutes = if (parts.size > 1) {
-                    parts[1].replace("分钟", "").trim().toIntOrNull() ?: 0
-                } else 0
-                hours * 60 + minutes
-            } else {
-                duration.replace("分钟", "").trim().toIntOrNull() ?: 0
-            }
-        } catch (e: Exception) {
-            0
-        }
-    }
-    
-    
     private fun getCurrentDate(): String {
         return dateFormat.format(Date())
     }
     
     private fun selectRouteType(isDirect: Boolean) {
-        android.util.Log.d("SearchResults", "selectRouteType被调用: isDirect=$isDirect")
         isDirectRoute = isDirect
-        
         if (isDirect) {
-                binding.btnDirect.isSelected = true
+            binding.btnDirect.isSelected = true
             binding.btnTransfer.isSelected = false
-            android.util.Log.d("SearchResults", "设置直达按钮为选中状态")
-            binding.sortBar.visibility = android.view.View.VISIBLE
+            binding.sortBar.visibility = View.VISIBLE
         } else {
             binding.btnDirect.isSelected = false
             binding.btnTransfer.isSelected = true
-            android.util.Log.d("SearchResults", "设置中转按钮为选中状态")
-            binding.sortBar.visibility = android.view.View.GONE
+            binding.sortBar.visibility = View.GONE
         }
-        
-        // 重新搜索车次
-        android.util.Log.d("SearchResults", "开始重新搜索车次")
         searchTickets()
     }
 }

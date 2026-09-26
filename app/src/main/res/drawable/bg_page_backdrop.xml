@@ -1,17 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- A near-white canvas with restrained blue refraction: no opaque cyan sheet. -->
-    <item android:alpha="68">
-        <bitmap android:gravity="fill" android:src="@drawable/glass_refraction_backdrop" android:tileMode="disabled" />
+    <!-- Authentic Apple iOS 17/18 White & Sky Blue Luminous Canvas -->
+    <item>
+        <shape android:shape="rectangle">
+            <gradient
+                android:angle="270"
+                android:startColor="#FFFFFF"
+                android:centerColor="#F3F8FD"
+                android:endColor="#E8F2FB" />
+        </shape>
     </item>
-    <item><shape android:shape="rectangle"><solid android:color="#F9FDFF" /></shape></item>
-    <item android:width="500dp" android:height="500dp" android:gravity="top|start" android:left="-180dp" android:top="-190dp">
-        <shape android:shape="oval"><gradient android:type="radial" android:gradientRadius="270dp" android:startColor="#38A8DEFF" android:centerColor="#18BEEBFF" android:endColor="#00CDEBFF" /></shape>
+    <!-- Soft Apple Sky Blue ambient light at the top -->
+    <item android:width="500dp" android:height="500dp" android:gravity="top|start" android:left="-120dp" android:top="-140dp">
+        <shape android:shape="oval">
+            <gradient
+                android:type="radial"
+                android:gradientRadius="280dp"
+                android:startColor="#25007AFF"
+                android:centerColor="#0C007AFF"
+                android:endColor="#00007AFF" />
+        </shape>
     </item>
-    <item android:width="440dp" android:height="440dp" android:gravity="top|end" android:right="-210dp" android:top="140dp">
-        <shape android:shape="oval"><gradient android:type="radial" android:gradientRadius="250dp" android:startColor="#2492CEFF" android:centerColor="#109ED8FF" android:endColor="#009ED8FF" /></shape>
+    <!-- Ambient delicate soft blue glow at the right side -->
+    <item android:width="440dp" android:height="440dp" android:gravity="top|end" android:right="-160dp" android:top="100dp">
+        <shape android:shape="oval">
+            <gradient
+                android:type="radial"
+                android:gradientRadius="260dp"
+                android:startColor="#183888FF"
+                android:centerColor="#083888FF"
+                android:endColor="#003888FF" />
+        </shape>
     </item>
-    <item android:width="520dp" android:height="400dp" android:gravity="bottom|start" android:left="-220dp" android:bottom="-230dp">
-        <shape android:shape="oval"><gradient android:type="radial" android:gradientRadius="275dp" android:startColor="#1D8CC9FF" android:centerColor="#0DABE0FF" android:endColor="#00ABE0FF" /></shape>
+    <!-- Soft bottom horizon ambient aura -->
+    <item android:width="480dp" android:height="400dp" android:gravity="bottom|start" android:left="-140dp" android:bottom="-160dp">
+        <shape android:shape="oval">
+            <gradient
+                android:type="radial"
+                android:gradientRadius="270dp"
+                android:startColor="#1A007AFF"
+                android:centerColor="#08007AFF"
+                android:endColor="#00007AFF" />
+        </shape>
     </item>
 </layer-list>

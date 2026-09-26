@@ -12,7 +12,18 @@ object ServiceSeparatedTrainCatalog {
     private val lock = Any()
     private val cache = mutableMapOf<String, List<Train>>()
 
+    fun clearCache() = synchronized(lock) {
+        cache.clear()
+    }
+
     fun find(from: String, to: String): List<Train> = synchronized(lock) {
+        if (DataSourceModePreferences.isRealMode()) {
+            val realTrains = RealTrainCatalog.find(from, to)
+            if (realTrains.isNotEmpty()) {
+                return@synchronized realTrains
+            }
+        }
+
         val types = listOf(RouteType.HIGH_SPEED, RouteType.CONVENTIONAL)
         types.flatMap { type ->
             val path = RailwayRouteManager.getRouteStationsMinStops(from, to, type)
@@ -28,6 +39,13 @@ object ServiceSeparatedTrainCatalog {
     }
 
     fun find(from: String, to: String, routeType: RouteType): List<Train> = synchronized(lock) {
+        if (DataSourceModePreferences.isRealMode()) {
+            val realTrains = RealTrainCatalog.find(from, to).filter { it.routeType == routeType }
+            if (realTrains.isNotEmpty()) {
+                return@synchronized realTrains
+            }
+        }
+
         if (RailwayRouteManager.getRouteStationsMinStops(from, to, routeType).size < 2) return@synchronized emptyList()
         cache.getOrPut("${routeType.name}:$from→$to") {
             generate(from, to, routeType)

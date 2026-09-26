@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <item><shape android:shape="rectangle"><gradient android:angle="270" android:startColor="#F2FFFFFF" android:endColor="#D7EEF9FF" /></shape></item>
-    <item android:height="1dp" android:gravity="bottom"><shape android:shape="rectangle"><solid android:color="#2B8CC9EE" /></shape></item>
-    <item android:height="2dp" android:gravity="top"><shape android:shape="rectangle"><gradient android:angle="0" android:startColor="#00FFFFFF" android:centerColor="#FFFFFFFF" android:endColor="#00FFFFFF" /></shape></item>
+    <!-- Apple iOS Navigation Bar Frosted Header in White-Blue Palette -->
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="#F7FFFFFF" />
+        </shape>
+    </item>
+    <item android:height="0.5dp" android:gravity="bottom">
+        <shape android:shape="rectangle">
+            <solid android:color="#D6E5F5" />
+        </shape>
+    </item>
 </layer-list>

@@ -34,21 +34,6 @@ open class ImmersiveActivity : AccessibleActivity() {
 
     override fun onPostCreate(savedInstanceState: Bundle?) {
         super.onPostCreate(savedInstanceState)
-        val contentRoot = findViewById<ViewGroup>(android.R.id.content)?.getChildAt(0) ?: return
-        val initialLeft = contentRoot.paddingLeft
-        val initialTop = contentRoot.paddingTop
-        val initialRight = contentRoot.paddingRight
-        val initialBottom = contentRoot.paddingBottom
-        ViewCompat.setOnApplyWindowInsetsListener(contentRoot) { view, insets ->
-            val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            view.setPadding(
-                initialLeft + bars.left,
-                initialTop + bars.top,
-                initialRight + bars.right,
-                initialBottom + bars.bottom
-            )
-            insets
-        }
-        ViewCompat.requestApplyInsets(contentRoot)
+        com.railway.ticketsystem.util.EdgeToEdgeHelper.applyEdgeToEdge(this)
     }
 }

@@ -1,6 +1,12 @@
 package com.railway.ticketsystem.data
 
+import com.railway.ticketsystem.model.RailwayRouteManager
+import com.railway.ticketsystem.model.RouteType
 import kotlin.math.abs
+import kotlin.math.atan2
+import kotlin.math.cos
+import kotlin.math.sin
+import kotlin.math.sqrt
 
 /**
  * Builds the published calls for one opened train-detail page.
@@ -53,10 +59,14 @@ object TrainStopSchedulePlanner {
             resolvedDuration(duration, stopCount)
         )
         val dwellMinutes = buildDwellMinutes(stations, trainNumber, totalMinutes, segmentCount)
+        val segmentWeights = stations.zipWithNext().map { (from, to) ->
+            segmentRunningMinutes(from, to, trainNumber)
+        }
         val runningMinutes = distributeRunningMinutes(
             (totalMinutes - dwellMinutes.sum()).coerceAtLeast(segmentCount),
             segmentCount,
-            trainNumber
+            trainNumber,
+            segmentWeights
         )
 
         var clock = toMinutes(departureTime)
@@ -107,6 +117,13 @@ object TrainStopSchedulePlanner {
         queryDepartureTime: String,
         queryDuration: String
     ): AnchoredTimetable {
+        if (RealTrainCatalog.hasTimetable(trainNumber)) {
+            val anchored = RealTrainCatalog.getAnchoredTimetable(trainNumber, queryDepartureStation, queryArrivalStation)
+            if (anchored != null) {
+                return anchored
+            }
+        }
+
         val startIndex = stations.indexOf(queryDepartureStation)
         val endIndex = stations.indexOf(queryArrivalStation)
         if (startIndex < 0 || endIndex <= startIndex) {
@@ -125,11 +142,15 @@ object TrainStopSchedulePlanner {
         val queryMinimum = segmentCount +
             (startIndex + 1 until endIndex).sumOf { dwellMinutes[it] }
         val queryTotal = maxOf(RoutePresentationPlanner.durationMinutes(queryDuration), queryMinimum)
+        val queryWeights = (startIndex until endIndex).map { idx ->
+            segmentRunningMinutes(stations[idx], stations[idx + 1], trainNumber)
+        }
         val queryRunning = distributeRunningMinutes(
             (queryTotal - (startIndex + 1 until endIndex).sumOf { dwellMinutes[it] })
                 .coerceAtLeast(segmentCount),
             segmentCount,
-            "$trainNumber#query"
+            "$trainNumber#query",
+            queryWeights
         )
 
         val arrivals = IntArray(stations.size)
@@ -148,12 +169,12 @@ object TrainStopSchedulePlanner {
         // Then work backwards to the actual origin and forward to the actual
         // terminal. These are generated only when this timetable is requested.
         for (index in startIndex - 1 downTo 0) {
-            departures[index] = arrivals[index + 1] - outerSegmentMinutes(trainNumber, index)
+            departures[index] = arrivals[index + 1] - segmentRunningMinutes(stations[index], stations[index + 1], trainNumber)
             if (index > 0) arrivals[index] = departures[index] - dwellMinutes[index]
         }
         if (endIndex < lastIndex) departures[endIndex] = arrivals[endIndex] + dwellMinutes[endIndex]
         for (index in endIndex until lastIndex) {
-            arrivals[index + 1] = departures[index] + outerSegmentMinutes(trainNumber, index)
+            arrivals[index + 1] = departures[index] + segmentRunningMinutes(stations[index], stations[index + 1], trainNumber)
             if (index + 1 < lastIndex) departures[index + 1] = arrivals[index + 1] + dwellMinutes[index + 1]
         }
 
@@ -203,17 +224,76 @@ object TrainStopSchedulePlanner {
         return if (LatestRailwayNetwork.isMajorHubStation(station)) 3 + seed % 3 else 2 + seed % 2
     }
 
-    private fun outerSegmentMinutes(trainNumber: String, index: Int): Int {
-        val seed = abs((trainNumber + "#outer" + index).hashCode())
-        return 14 + seed % 17
+    fun segmentRunningMinutes(
+        fromStation: String,
+        toStation: String,
+        trainNumber: String
+    ): Int {
+        val routeType = when {
+            trainNumber.startsWith("G", ignoreCase = true) || trainNumber.startsWith("D", ignoreCase = true) ->
+                RouteType.HIGH_SPEED
+            trainNumber.startsWith("C", ignoreCase = true) ->
+                RouteType.INTERCITY
+            else ->
+                RouteType.CONVENTIONAL
+        }
+
+        // 1. 获取两站之间真实的物理耗时（按相应路网类型寻径）
+        val durationStr = try {
+            RailwayRouteManager.getDurationBetweenStations(fromStation, toStation, routeType)
+        } catch (_: Throwable) {
+            ""
+        }
+        val parsed = RoutePresentationPlanner.durationMinutes(durationStr)
+        if (parsed > 0) return parsed
+
+        // 反向寻径作为保障
+        val altStr = try {
+            RailwayRouteManager.getDurationBetweenStations(toStation, fromStation, routeType)
+        } catch (_: Throwable) {
+            ""
+        }
+        val altParsed = RoutePresentationPlanner.durationMinutes(altStr)
+        if (altParsed > 0) return altParsed
+
+        // 2. 根据车站地理坐标距离与平均运行时速进行物理计算
+        val c1 = StationCoordinateCatalog.resolve(fromStation)
+        val c2 = StationCoordinateCatalog.resolve(toStation)
+        if (c1 != null && c2 != null) {
+            val dist = approximateDistanceKm(c1.latitude, c1.longitude, c2.latitude, c2.longitude)
+            if (dist > 5.0) {
+                val speed = when (routeType) {
+                    RouteType.HIGH_SPEED -> 240.0
+                    RouteType.INTERCITY -> 160.0
+                    RouteType.CONVENTIONAL -> 85.0
+                }
+                return (dist / speed * 60).toInt().coerceAtLeast(12)
+            }
+        }
+
+        // 3. 兜底方案：基于车站名哈希保证运行时间在合理区间
+        val seed = abs((trainNumber + fromStation + toStation).hashCode())
+        val base = if (routeType == RouteType.CONVENTIONAL) 65 else 35
+        return base + (seed % 35)
+    }
+
+    private fun approximateDistanceKm(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Double {
+        val dLat = Math.toRadians(lat2 - lat1)
+        val dLon = Math.toRadians(lon2 - lon1)
+        val a = sin(dLat / 2) * sin(dLat / 2) +
+                cos(Math.toRadians(lat1)) * cos(Math.toRadians(lat2)) *
+                sin(dLon / 2) * sin(dLon / 2)
+        val c = 2 * atan2(sqrt(a), sqrt(1 - a))
+        return 6371.0 * c
     }
 
     private fun distributeRunningMinutes(
         total: Int,
         segmentCount: Int,
-        trainNumber: String
+        trainNumber: String,
+        segmentWeights: List<Int>? = null
     ): List<Int> {
-        val weights = (0 until segmentCount).map { index ->
+        val weights = segmentWeights?.takeIf { it.size == segmentCount } ?: (0 until segmentCount).map { index ->
             1 + abs((trainNumber + "#segment" + index).hashCode() % 7)
         }
         val base = MutableList(segmentCount) { 1 }

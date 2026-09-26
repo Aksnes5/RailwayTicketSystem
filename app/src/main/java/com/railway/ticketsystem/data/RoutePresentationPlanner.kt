@@ -23,6 +23,12 @@ object RoutePresentationPlanner {
         originalDuration: String,
         requiredCalls: Set<String> = emptySet()
     ): RouteDisplayPlan {
+        if (RealTrainCatalog.hasTimetable(trainNumber)) {
+            val def = RealTrainCatalog.findTrain(trainNumber)
+            if (def != null) {
+                return RouteDisplayPlan(def.stops.map { it.station }, 0, originalDuration)
+            }
+        }
         val route = fullStations.filter { it.isNotBlank() }
         if (route.size <= 2) {
             return RouteDisplayPlan(route, 0, originalDuration)

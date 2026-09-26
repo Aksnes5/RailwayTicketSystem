@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Apple iOS Segmented Control Text Colors -->
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:color="@color/railway_blue_deep" android:state_checked="true" />
-    <item android:color="#5C7085" />
+    <item android:color="@color/text_primary" android:state_checked="true" />
+    <item android:color="@color/text_secondary" />
 </selector>

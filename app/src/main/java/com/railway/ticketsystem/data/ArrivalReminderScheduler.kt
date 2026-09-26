@@ -43,10 +43,35 @@ object ArrivalReminderScheduler {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S || manager.canScheduleExactAlarms()) {
             try {
                 manager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAt, pending)
-                return
-            } catch (_: SecurityException) { /* fall through to inexact scheduling */ }
+            } catch (_: SecurityException) {
+                manager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAt, pending)
+            }
+        } else {
+            manager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAt, pending)
         }
-        manager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAt, pending)
+
+        // 双保险：同步注册系统级 JobScheduler，防止设备进入深度 Doze 省电模式漏报
+        scheduleJobBackup(context, order, triggerAt)
+    }
+
+    private fun scheduleJobBackup(context: Context, order: Order, triggerAt: Long) {
+        val jobScheduler = context.applicationContext.getSystemService(Context.JOB_SCHEDULER_SERVICE) as? android.app.job.JobScheduler ?: return
+        val delayMillis = maxOf(1000L, triggerAt - System.currentTimeMillis())
+        val extras = android.os.PersistableBundle().apply {
+            putString(EXTRA_ORDER_ID, order.id)
+            putString(EXTRA_USER_ID, order.userId)
+        }
+        val jobId = "arrival_${order.id}".hashCode()
+        val jobInfo = android.app.job.JobInfo.Builder(
+            jobId,
+            android.content.ComponentName(context.applicationContext, com.railway.ticketsystem.service.ArrivalReminderJobService::class.java)
+        )
+            .setMinimumLatency(delayMillis)
+            .setOverrideDeadline(delayMillis + 5 * 60 * 1000L)
+            .setExtras(extras)
+            .setPersisted(false)
+            .build()
+        jobScheduler.schedule(jobInfo)
     }
 
     fun deliver(context: Context, orderId: String, userId: String) {
@@ -71,11 +96,14 @@ object ArrivalReminderScheduler {
     }
 
     fun cancel(context: Context, order: Order) {
-        val manager = context.applicationContext.getSystemService(Context.ALARM_SERVICE) as? AlarmManager ?: return
+        val manager = context.applicationContext.getSystemService(Context.ALARM_SERVICE) as? AlarmManager
         pendingIntent(context, order, PendingIntent.FLAG_NO_CREATE)?.let {
-            manager.cancel(it)
+            manager?.cancel(it)
             it.cancel()
         }
+        val jobScheduler = context.applicationContext.getSystemService(Context.JOB_SCHEDULER_SERVICE) as? android.app.job.JobScheduler
+        val jobId = "arrival_${order.id}".hashCode()
+        jobScheduler?.cancel(jobId)
     }
 
     private fun pendingIntent(context: Context, order: Order, flag: Int): PendingIntent? = PendingIntent.getBroadcast(

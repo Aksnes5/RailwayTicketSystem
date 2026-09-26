@@ -22,6 +22,8 @@ import com.railway.ticketsystem.model.Train
 import com.railway.ticketsystem.model.RouteType
 import com.railway.ticketsystem.model.TransferRisk
 
+import com.railway.ticketsystem.data.TransferStationRule
+
 /**
  * Detail screen for a transfer itinerary.
  *
@@ -104,6 +106,17 @@ class TransferDetailActivity : ImmersiveActivity() {
             TransferRisk.TIGHT -> R.color.railway_orange
             TransferRisk.NOT_RECOMMENDED -> R.color.railway_red
         }))
+
+        // 同城跨站换乘接驳指引
+        val metroGuide = TransferStationRule.getCrossStationMetroGuide(firstLeg.arrivalStation, secondLeg.departureStation)
+        if (metroGuide != null) {
+            binding.layoutCrossStationMetro.visibility = View.VISIBLE
+            binding.tvMetroRouteSummary.text = "${metroGuide.fromStation} ⇋ ${metroGuide.toStation}：${metroGuide.metroLineSummary}"
+            binding.tvMetroDetails.text = "预计耗时约 ${metroGuide.estimatedMinutes} 分钟 · 途经 ${metroGuide.stopsCount} 站 · 票价 ${metroGuide.ticketPrice}"
+            binding.tvMetroTip.text = "⚠️ ${metroGuide.transferTip}"
+        } else {
+            binding.layoutCrossStationMetro.visibility = View.GONE
+        }
     }
 
     private fun renderLeg(container: LinearLayout, label: String, train: Train) {

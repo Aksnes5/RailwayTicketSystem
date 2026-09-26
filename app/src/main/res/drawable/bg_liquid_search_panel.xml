@@ -1,23 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- A translucent sheet lets the moving illustration and blue sky remain visible underneath. -->
+    <!-- Authentic Apple iOS 17/18 frosted glass search container with subtle border -->
     <item>
         <shape android:shape="rectangle">
-            <corners android:radius="30dp" />
-            <!-- Transparent at the image-facing edge; the glass gains density as it enters the form. -->
-            <gradient android:angle="270" android:startColor="#1FFFFFFF" android:centerColor="#86FFFFFF" android:endColor="#A6E1F2FF" />
-            <stroke android:width="1dp" android:color="#40FFFFFF" />
+            <corners android:radius="22dp" />
+            <gradient
+                android:angle="270"
+                android:startColor="#FAFFFFFF"
+                android:endColor="#EEF4F8FA" />
+            <stroke android:width="0.5dp" android:color="#E5E5EA" />
         </shape>
     </item>
-    <item android:height="46dp" android:gravity="top" android:left="28dp" android:right="28dp">
+    <item android:height="36dp" android:gravity="top" android:left="16dp" android:right="16dp">
         <shape android:shape="rectangle">
-            <corners android:radius="24dp" />
-            <gradient android:angle="0" android:startColor="#00FFFFFF" android:centerColor="#42FFFFFF" android:endColor="#00FFFFFF" />
-        </shape>
-    </item>
-    <item android:width="170dp" android:height="170dp" android:gravity="bottom|end" android:right="-62dp" android:bottom="-78dp">
-        <shape android:shape="oval">
-            <gradient android:startColor="#4DC8EBFF" android:endColor="#00C8EBFF" android:gradientRadius="94dp" android:type="radial" />
+            <corners android:radius="18dp" />
+            <gradient android:angle="0" android:startColor="#00FFFFFF" android:centerColor="#50FFFFFF" android:endColor="#00FFFFFF" />
         </shape>
     </item>
 </layer-list>

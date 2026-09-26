@@ -6,23 +6,96 @@
     android:orientation="vertical"
     android:background="@drawable/bg_results_liquid_backdrop">
 
+    <!-- iOS 原生毛玻璃顶部导航栏 -->
+    <FrameLayout
+        android:id="@+id/headerNavBar"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:background="@drawable/bg_secondary_header_glass"
+        android:paddingHorizontal="8dp">
 
-    <!-- 路线类型选择 -->
+        <ImageButton
+            android:id="@+id/btnBack"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:layout_gravity="start|center_vertical"
+            android:background="@drawable/ripple_glass"
+            android:contentDescription="返回"
+            android:padding="10dp"
+            android:src="@drawable/ic_arrow_back"
+            app:tint="@color/railway_blue" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center_horizontal"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tvHeaderRoute"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="线路查询"
+                android:textColor="@color/text_primary"
+                android:textSize="17sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvHeaderDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="今天"
+                android:textColor="@color/text_secondary"
+                android:textSize="11.5sp"
+                android:layout_marginTop="1dp" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/capsuleSearchModeIndicator"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end|center_vertical"
+            android:layout_marginEnd="8dp"
+            android:background="@drawable/bg_data_mode_capsule"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="8dp"
+            android:paddingVertical="4dp">
+
+            <View
+                android:id="@+id/vSearchModeDot"
+                android:layout_width="6dp"
+                android:layout_height="6dp"
+                android:background="@drawable/bg_dot_live_green" />
+
+            <TextView
+                android:id="@+id/tvSearchModeText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:text="官方实盘"
+                android:textColor="@color/railway_blue"
+                android:textSize="11sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+    </FrameLayout>
+
+    <!-- 路线类型分段选择 (Apple iOS Segmented Control) -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:background="@android:color/transparent"
-        android:paddingVertical="10dp"
-        android:paddingHorizontal="18dp"
-        android:layout_marginTop="0dp">
+        android:paddingVertical="8dp"
+        android:paddingHorizontal="18dp">
 
-        <!-- 直达 / 中转：一条圆角长条均分两半，选中半边填充蓝色 -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
-            android:layout_height="56dp"
+            android:layout_height="48dp"
             app:cardBackgroundColor="@android:color/transparent"
-            app:cardCornerRadius="28dp"
+            app:cardCornerRadius="24dp"
             app:cardElevation="0dp"
             app:strokeWidth="0dp">
 
@@ -31,7 +104,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="@drawable/bg_segment_track"
-                android:padding="4dp"
+                android:padding="3dp"
                 app:checkedButton="@id/btnDirect"
                 app:selectionRequired="true"
                 app:singleSelection="true">
@@ -45,13 +118,14 @@
                     android:insetBottom="0dp"
                     android:text="直达"
                     android:textColor="@color/route_type_toggle_text"
-                    android:textSize="15sp"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
                     app:backgroundTint="@color/route_type_toggle_bg"
-                    app:cornerRadius="22dp"
+                    app:cornerRadius="21dp"
                     app:icon="@drawable/ic_route_direct"
                     app:iconGravity="textStart"
-                    app:iconPadding="6dp"
-                    app:iconSize="20dp"
+                    app:iconPadding="5dp"
+                    app:iconSize="18dp"
                     app:iconTint="@color/route_type_toggle_text"
                     app:strokeWidth="0dp" />
 
@@ -64,13 +138,14 @@
                     android:insetBottom="0dp"
                     android:text="中转"
                     android:textColor="@color/route_type_toggle_text"
-                    android:textSize="15sp"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
                     app:backgroundTint="@color/route_type_toggle_bg"
-                    app:cornerRadius="22dp"
+                    app:cornerRadius="21dp"
                     app:icon="@drawable/ic_route_transfer"
                     app:iconGravity="textStart"
-                    app:iconPadding="6dp"
-                    app:iconSize="20dp"
+                    app:iconPadding="5dp"
+                    app:iconSize="18dp"
                     app:iconTint="@color/route_type_toggle_text"
                     app:strokeWidth="0dp" />
 
@@ -78,6 +153,66 @@
 
         </com.google.android.material.card.MaterialCardView>
 
+    </LinearLayout>
+
+    <!-- iOS 风格胶囊即时筛选条 (只看高铁/动车 / 只看有票) -->
+    <HorizontalScrollView
+        android:id="@+id/hsvQuickFilters"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:scrollbars="none"
+        android:paddingHorizontal="18dp"
+        android:layout_marginBottom="6dp">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/filterHighSpeed"
+                android:layout_width="wrap_content"
+                android:layout_height="30dp"
+                android:background="@drawable/bg_quick_date_pill"
+                android:gravity="center"
+                android:paddingHorizontal="12dp"
+                android:text="只看高铁/动车"
+                android:textColor="@color/text_secondary"
+                android:textSize="12sp"
+                android:clickable="true"
+                android:focusable="true" />
+
+            <TextView
+                android:id="@+id/filterAvailableOnly"
+                android:layout_width="wrap_content"
+                android:layout_height="30dp"
+                android:layout_marginStart="8dp"
+                android:background="@drawable/bg_quick_date_pill"
+                android:gravity="center"
+                android:paddingHorizontal="12dp"
+                android:text="只看有票"
+                android:textColor="@color/text_secondary"
+                android:textSize="12sp"
+                android:clickable="true"
+                android:focusable="true" />
+
+        </LinearLayout>
+    </HorizontalScrollView>
+
+    <!-- 骨架屏加载占位 -->
+    <LinearLayout
+        android:id="@+id/layoutLoadingSkeleton"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <include layout="@layout/layout_train_item_skeleton" />
+        <include layout="@layout/layout_train_item_skeleton" />
+        <include layout="@layout/layout_train_item_skeleton" />
+        <include layout="@layout/layout_train_item_skeleton" />
     </LinearLayout>
 
     <!-- 车次列表 -->
@@ -91,8 +226,7 @@
         android:clipToPadding="false"
         android:paddingBottom="72dp" />
 
-    <!-- 空状态：查不到车时替代列表常驻显示。用 Toast 的话这段引导文案
-         会在读完之后才消失，而其中"可改用中转换乘"是要引导用户去操作的。 -->
+    <!-- 空状态：查不到车时常驻引导 -->
     <LinearLayout
         android:id="@+id/llEmptyState"
         android:layout_width="match_parent"
@@ -124,7 +258,7 @@
             android:textSize="14sp" />
     </LinearLayout>
 
-    <!-- 底部排序栏：耗时最短 / 发时最早 / 价格最低 -->
+    <!-- 底部排序栏：耗时最短 / 发时最早 / 价格最低 (iOS Frosted Pill Bar) -->
     <LinearLayout
         android:id="@+id/sortBar"
         android:layout_width="match_parent"
@@ -136,73 +270,73 @@
         android:elevation="10dp">
 
         <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnSortShortest"
-                android:layout_width="0dp"
-                android:layout_height="58dp"
-                android:layout_weight="1"
-                android:text="耗时最短"
-                android:textSize="12sp"
-                android:layout_marginEnd="8dp"
-                android:clickable="true"
-                android:enabled="true"
-                android:onClick="onSortShortest"
-                android:backgroundTint="@android:color/transparent"
-                android:insetTop="0dp"
-                android:insetBottom="0dp"
-                android:minHeight="0dp"
-                android:padding="0dp"
-                app:icon="@drawable/ic_sort_duration"
-                app:iconGravity="textTop"
-                app:iconPadding="3dp"
-                app:iconSize="20dp"
-                app:strokeWidth="0dp"
-                style="@style/App.Button.Quiet" />
+            android:id="@+id/btnSortShortest"
+            android:layout_width="0dp"
+            android:layout_height="56dp"
+            android:layout_weight="1"
+            android:text="耗时最短"
+            android:textSize="12sp"
+            android:layout_marginEnd="8dp"
+            android:clickable="true"
+            android:enabled="true"
+            android:onClick="onSortShortest"
+            android:backgroundTint="@android:color/transparent"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:minHeight="0dp"
+            android:padding="0dp"
+            app:icon="@drawable/ic_sort_duration"
+            app:iconGravity="textTop"
+            app:iconPadding="3dp"
+            app:iconSize="20dp"
+            app:strokeWidth="0dp"
+            style="@style/App.Button.Quiet" />
 
         <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnSortEarliest"
-                android:layout_width="0dp"
-                android:layout_height="58dp"
-                android:layout_weight="1"
-                android:text="发时最早"
-                android:textSize="12sp"
+            android:id="@+id/btnSortEarliest"
+            android:layout_width="0dp"
+            android:layout_height="56dp"
+            android:layout_weight="1"
+            android:text="发时最早"
+            android:textSize="12sp"
             android:layout_marginHorizontal="8dp"
-                android:clickable="true"
-                android:enabled="true"
-                android:onClick="onSortEarliest"
-                android:backgroundTint="@android:color/transparent"
-                android:insetTop="0dp"
-                android:insetBottom="0dp"
-                android:minHeight="0dp"
-                android:padding="0dp"
-                app:icon="@drawable/ic_sort_departure"
-                app:iconGravity="textTop"
-                app:iconPadding="3dp"
-                app:iconSize="20dp"
-                app:strokeWidth="0dp"
-                style="@style/App.Button.Quiet" />
+            android:clickable="true"
+            android:enabled="true"
+            android:onClick="onSortEarliest"
+            android:backgroundTint="@android:color/transparent"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:minHeight="0dp"
+            android:padding="0dp"
+            app:icon="@drawable/ic_sort_departure"
+            app:iconGravity="textTop"
+            app:iconPadding="3dp"
+            app:iconSize="20dp"
+            app:strokeWidth="0dp"
+            style="@style/App.Button.Quiet" />
 
         <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnSortCheapest"
-                android:layout_width="0dp"
-                android:layout_height="58dp"
-                android:layout_weight="1"
-                android:text="价格最低"
-                android:textSize="12sp"
+            android:id="@+id/btnSortCheapest"
+            android:layout_width="0dp"
+            android:layout_height="56dp"
+            android:layout_weight="1"
+            android:text="价格最低"
+            android:textSize="12sp"
             android:layout_marginStart="8dp"
-                android:clickable="true"
-                android:enabled="true"
-                android:onClick="onSortCheapest"
-                android:backgroundTint="@android:color/transparent"
-                android:insetTop="0dp"
-                android:insetBottom="0dp"
-                android:minHeight="0dp"
-                android:padding="0dp"
-                app:icon="@drawable/ic_sort_price"
-                app:iconGravity="textTop"
-                app:iconPadding="3dp"
-                app:iconSize="20dp"
-                app:strokeWidth="0dp"
-                style="@style/App.Button.Quiet" />
+            android:clickable="true"
+            android:enabled="true"
+            android:onClick="onSortCheapest"
+            android:backgroundTint="@android:color/transparent"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:minHeight="0dp"
+            android:padding="0dp"
+            app:icon="@drawable/ic_sort_price"
+            app:iconGravity="textTop"
+            app:iconPadding="3dp"
+            app:iconSize="20dp"
+            app:strokeWidth="0dp"
+            style="@style/App.Button.Quiet" />
 
     </LinearLayout>
 
