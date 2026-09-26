@@ -8,6 +8,8 @@ import android.graphics.Typeface
 import android.os.Bundle
 import android.view.Gravity
 import android.view.View
+import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
@@ -63,7 +65,7 @@ class StationServiceDetailActivity : ImmersiveActivity() {
             orientation = LinearLayout.VERTICAL
             setPadding(dp(18), dp(14), dp(18), dp(34))
             addView(header())
-            addView(label("车站服务 · 独立预约", 14, R.color.text_secondary), lp(bottom = 16))
+            addView(label("车站服务 · 独立预约", 14, R.color.text_secondary), lp(top = 4, bottom = 16))
             addView(overview())
             addView(label("服务内容", 18, R.color.text_primary, true), lp(top = 22))
             addView(highlights(), lp(top = 10))
@@ -74,15 +76,22 @@ class StationServiceDetailActivity : ImmersiveActivity() {
 
     private fun header() = LinearLayout(this).apply {
         gravity = Gravity.CENTER_VERTICAL
-        addView(back(), LinearLayout.LayoutParams(dp(48), dp(48)))
-        addView(label(spec.label, 23, R.color.text_primary, true), LinearLayout.LayoutParams(0, -2, 1f))
+        val backBtn = ImageView(this@StationServiceDetailActivity).apply {
+            setImageResource(R.drawable.ic_arrow_back)
+            imageTintList = ColorStateList.valueOf(ContextCompat.getColor(this@StationServiceDetailActivity, R.color.railway_blue_deep))
+            contentDescription = "返回"
+            setPadding(dp(8), dp(8), dp(8), dp(8))
+            setOnClickListener { finish() }
+        }
+        addView(backBtn, LinearLayout.LayoutParams(dp(40), dp(40)).apply { marginEnd = dp(8) })
+        addView(label(spec.label, 21, R.color.text_primary, true), LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
     }
 
     private fun overview() = card().apply {
         addView(LinearLayout(this@StationServiceDetailActivity).apply {
             orientation = LinearLayout.VERTICAL
             setPadding(dp(19), dp(18), dp(19), dp(18))
-            addView(label(spec.label, 22, R.color.text_primary, true))
+            addView(label(spec.label, 20, R.color.text_primary, true))
             addView(label(spec.subtitle, 14, R.color.text_secondary).apply { setLineSpacing(dp(3).toFloat(), 1f) }, lp(top = 7))
             val fee = if (spec.priceCents > 0L) "服务费 ¥%.2f".format(Locale.CHINA, spec.priceCents / 100.0) else "预约不收取服务费"
             addView(label("当前可预约 · " + fee, 13, R.color.railway_blue, true), lp(top = 13))
@@ -113,13 +122,20 @@ class StationServiceDetailActivity : ImmersiveActivity() {
             }
             addView(stationView, lp())
             addView(divider(), lp(height = 1))
-            schedule = field(spec.scheduleHint, spec.scheduleHint)
-            addView(schedule.parent as View, lp(top = 12))
-            contact = field("联系人及联系方式", "姓名 · 手机号")
+
+            val (scheduleWrap, scheduleEdit) = createInputField(spec.scheduleHint, spec.scheduleHint)
+            schedule = scheduleEdit
+            addView(scheduleWrap, lp(top = 12))
+
+            val (contactWrap, contactEdit) = createInputField("联系人及联系方式", "姓名 · 手机号")
+            contact = contactEdit
             contact.setText(users.getCurrentUser()?.let { listOf(it.realName.ifBlank { it.username }, it.phone).filter(String::isNotBlank).joinToString(" · ") }.orEmpty())
-            addView(contact.parent as View, lp(top = 10))
-            detail = field(spec.detailHint, spec.detailHint, true)
-            addView(detail.parent as View, lp(top = 10))
+            addView(contactWrap, lp(top = 10))
+
+            val (detailWrap, detailEdit) = createInputField(spec.detailHint, spec.detailHint, true)
+            detail = detailEdit
+            addView(detailWrap, lp(top = 10))
+
             addView(label(spec.notice, 12, R.color.text_secondary).apply { setLineSpacing(dp(2).toFloat(), 1f) }, lp(top = 13))
             addView(submit(), lp(top = 16, height = 52))
             result = label("", 13, R.color.success)
@@ -128,24 +144,33 @@ class StationServiceDetailActivity : ImmersiveActivity() {
         })
     }
 
-    private fun field(title: String, hint: String, multi: Boolean = false): TextInputEditText {
-        val wrap = TextInputLayout(this, null, com.google.android.material.R.attr.textInputOutlinedStyle).apply {
-            this.hint = title
+    private fun createInputField(title: String, hintText: String, multi: Boolean = false): Pair<TextInputLayout, TextInputEditText> {
+        val wrap = TextInputLayout(this).apply {
+            hint = title
             boxBackgroundMode = TextInputLayout.BOX_BACKGROUND_OUTLINE
             boxStrokeColor = ContextCompat.getColor(this@StationServiceDetailActivity, R.color.divider)
             defaultHintTextColor = ColorStateList.valueOf(ContextCompat.getColor(this@StationServiceDetailActivity, R.color.text_secondary))
-            setBoxCornerRadii(dp(20).toFloat(), dp(20).toFloat(), dp(20).toFloat(), dp(20).toFloat())
+            setBoxCornerRadii(dp(16).toFloat(), dp(16).toFloat(), dp(16).toFloat(), dp(16).toFloat())
         }
-        return TextInputEditText(this).apply {
-            this.hint = hint; textSize = 15f
+        val editText = TextInputEditText(wrap.context).apply {
+            hint = hintText
+            textSize = 15f
             setTextColor(ContextCompat.getColor(this@StationServiceDetailActivity, R.color.text_primary))
-            if (multi) { minLines = 3; maxLines = 5; gravity = Gravity.TOP or Gravity.START; inputType = android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_FLAG_MULTI_LINE }
-            wrap.addView(this, LinearLayout.LayoutParams(-1, -2))
+            if (multi) {
+                minLines = 3
+                maxLines = 5
+                gravity = Gravity.TOP or Gravity.START
+                inputType = android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_FLAG_MULTI_LINE
+            }
         }
+        wrap.addView(editText, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
+        return Pair(wrap, editText)
     }
 
     private fun submit() = MaterialButton(this).apply {
-        isAllCaps = false; textSize = 16f; cornerRadius = dp(26)
+        isAllCaps = false
+        textSize = 16f
+        cornerRadius = dp(26)
         text = if (spec.priceCents > 0L) "确认并支付 ¥%.2f".format(Locale.CHINA, spec.priceCents / 100.0) else "提交" + spec.label + "预约"
         backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(this@StationServiceDetailActivity, R.color.railway_blue))
         setTextColor(Color.WHITE)
@@ -166,8 +191,7 @@ class StationServiceDetailActivity : ImmersiveActivity() {
         Toast.makeText(this, "预约已提交", Toast.LENGTH_SHORT).show()
     }
 
-    private fun card() = MaterialCardView(this).apply { radius = dp(28).toFloat(); cardElevation = 0f; strokeWidth = dp(1); strokeColor = ContextCompat.getColor(this@StationServiceDetailActivity, R.color.divider); setCardBackgroundColor(Color.parseColor("#B8FFFFFF")) }
-    private fun back() = MaterialButton(this).apply { text = "‹"; textSize = 31f; isAllCaps = false; insetTop = 0; insetBottom = 0; minWidth = 0; minHeight = 0; setPadding(0, 0, 0, dp(4)); backgroundTintList = ColorStateList.valueOf(Color.TRANSPARENT); setTextColor(ContextCompat.getColor(this@StationServiceDetailActivity, R.color.text_primary)); contentDescription = "返回"; setOnClickListener { finish() } }
+    private fun card() = MaterialCardView(this).apply { radius = dp(24).toFloat(); cardElevation = 0f; strokeWidth = dp(1); strokeColor = ContextCompat.getColor(this@StationServiceDetailActivity, R.color.divider); setCardBackgroundColor(Color.parseColor("#B8FFFFFF")) }
     private fun divider() = View(this).apply { setBackgroundColor(ContextCompat.getColor(this@StationServiceDetailActivity, R.color.divider)) }
     private fun label(value: String, size: Int, color: Int, bold: Boolean = false) = TextView(this).apply { text = value; textSize = size.toFloat(); setTextColor(ContextCompat.getColor(this@StationServiceDetailActivity, color)); if (bold) setTypeface(typeface, Typeface.BOLD) }
     private fun lp(top: Int = 0, bottom: Int = 0, height: Int = -2) = LinearLayout.LayoutParams(-1, if (height > 0) dp(height) else height).apply { topMargin = dp(top); bottomMargin = dp(bottom) }

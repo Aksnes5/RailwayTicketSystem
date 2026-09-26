@@ -1,6 +1,7 @@
 package com.railway.ticketsystem.activity
 
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
 import android.view.Gravity
 import android.view.ViewGroup
@@ -49,10 +50,33 @@ class StationFacilityActivity : ImmersiveActivity() {
         orientation = LinearLayout.VERTICAL; setPadding(dp(17), dp(15), dp(17), dp(15)); addView(text(title, 17, R.color.text_primary, true)); addView(text(detail, 13, R.color.text_secondary, false).apply { setLineSpacing(dp(2).toFloat(), 1f) }, margin(top = 5)); addView(quietButton(action, click), margin(top = 12))
     }) }
     private fun openMap(target: String) = startActivity(Intent(this, StationGuideMapActivity::class.java).putExtra(StationGuideMapActivity.EXTRA_STATION, station).putExtra(StationGuideMapActivity.EXTRA_TARGET, target).putExtra(StationGuideMapActivity.EXTRA_TICKET_ORDER_ID, ticketId))
-    private fun header() = LinearLayout(this).apply { gravity = Gravity.CENTER_VERTICAL; addView(MaterialButton(this@StationFacilityActivity).apply { text = "‹"; textSize = 30f; minWidth = dp(48); insetTop = 0; insetBottom = 0; contentDescription = "返回"; setOnClickListener { finish() } }, LinearLayout.LayoutParams(dp(52), dp(48))); addView(text("车站实时服务", 23, R.color.text_primary, true), LinearLayout.LayoutParams(0, -2, 1f)) }
-    private fun card() = MaterialCardView(this).apply { radius = dp(28).toFloat(); cardElevation = 0f; strokeWidth = dp(1); strokeColor = ContextCompat.getColor(this@StationFacilityActivity, R.color.divider); setCardBackgroundColor(ContextCompat.getColor(this@StationFacilityActivity, R.color.surface_container)) }
+    private fun header() = LinearLayout(this).apply {
+        gravity = Gravity.CENTER_VERTICAL
+        val backBtn = android.widget.ImageView(this@StationFacilityActivity).apply {
+            setImageResource(R.drawable.ic_arrow_back)
+            imageTintList = android.content.res.ColorStateList.valueOf(ContextCompat.getColor(this@StationFacilityActivity, R.color.railway_blue_deep))
+            contentDescription = "返回"
+            setPadding(dp(8), dp(8), dp(8), dp(8))
+            setOnClickListener { finish() }
+        }
+        addView(backBtn, LinearLayout.LayoutParams(dp(40), dp(40)).apply { marginEnd = dp(8) })
+        addView(text("车站实时服务", 21, R.color.text_primary, true), LinearLayout.LayoutParams(0, -2, 1f))
+    }
+    private fun card() = MaterialCardView(this).apply { radius = dp(24).toFloat(); cardElevation = 0f; strokeWidth = dp(1); strokeColor = ContextCompat.getColor(this@StationFacilityActivity, R.color.divider); setCardBackgroundColor(Color.parseColor("#B8FFFFFF")) }
     private fun text(value: String, size: Int, color: Int, bold: Boolean) = TextView(this).apply { text = value; textSize = size.toFloat(); setTextColor(ContextCompat.getColor(this@StationFacilityActivity, color)); if (bold) setTypeface(typeface, android.graphics.Typeface.BOLD) }
-    private fun quietButton(value: String, click: () -> Unit) = MaterialButton(this, null, com.google.android.material.R.attr.materialButtonOutlinedStyle).apply { text = value; textSize = 14f; isAllCaps = false; insetTop = 0; insetBottom = 0; setOnClickListener { click() } }
+    private fun quietButton(value: String, click: () -> Unit) = MaterialButton(this).apply {
+        text = value
+        textSize = 14f
+        isAllCaps = false
+        insetTop = 0
+        insetBottom = 0
+        cornerRadius = dp(16)
+        strokeWidth = dp(1)
+        strokeColor = android.content.res.ColorStateList.valueOf(ContextCompat.getColor(this@StationFacilityActivity, R.color.divider))
+        backgroundTintList = android.content.res.ColorStateList.valueOf(ContextCompat.getColor(this@StationFacilityActivity, R.color.surface_container))
+        setTextColor(ContextCompat.getColor(this@StationFacilityActivity, R.color.railway_blue))
+        setOnClickListener { click() }
+    }
     private fun margin(top: Int = 0, bottom: Int = 0) = LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(top); bottomMargin = dp(bottom) }
     private fun dp(value: Int) = (value * resources.displayMetrics.density).toInt()
     companion object { const val EXTRA_STATION = "station_facility_station"; const val EXTRA_TICKET_ORDER_ID = "station_facility_ticket_order_id" }

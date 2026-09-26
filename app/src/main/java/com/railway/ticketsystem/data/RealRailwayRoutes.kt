@@ -1207,7 +1207,7 @@ object RealRailwayRoutes {
                 Station("宜昌东", "Yichang East", "YCD")
             ),
             segmentPrices = mapOf(
-                "汉口-汉川北" to 15.0,
+                "汉口-汉川北" to 21.0,
                 "汉川北-天门" to 18.0,
                 "天门-京山南" to 20.0,
                 "京山南-钟祥南" to 22.0,

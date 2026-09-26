@@ -18,10 +18,8 @@ object ServiceSeparatedTrainCatalog {
 
     fun find(from: String, to: String): List<Train> = synchronized(lock) {
         if (DataSourceModePreferences.isRealMode()) {
-            val realTrains = RealTrainCatalog.find(from, to)
-            if (realTrains.isNotEmpty()) {
-                return@synchronized realTrains
-            }
+            // 官方实盘模式：严格只返回真实官方车次，若两地无直达官方车次，如实返回空列表，绝不混杂模拟车次
+            return@synchronized RealTrainCatalog.find(from, to)
         }
 
         val types = listOf(RouteType.HIGH_SPEED, RouteType.CONVENTIONAL)
@@ -40,10 +38,8 @@ object ServiceSeparatedTrainCatalog {
 
     fun find(from: String, to: String, routeType: RouteType): List<Train> = synchronized(lock) {
         if (DataSourceModePreferences.isRealMode()) {
-            val realTrains = RealTrainCatalog.find(from, to).filter { it.routeType == routeType }
-            if (realTrains.isNotEmpty()) {
-                return@synchronized realTrains
-            }
+            // 官方实盘模式：严格只返回真实官方车次，若两地无直达官方车次，如实返回空列表，绝不混杂模拟车次
+            return@synchronized RealTrainCatalog.find(from, to).filter { it.routeType == routeType }
         }
 
         if (RailwayRouteManager.getRouteStationsMinStops(from, to, routeType).size < 2) return@synchronized emptyList()

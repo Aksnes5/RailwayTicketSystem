@@ -75,8 +75,15 @@ object RealTrainCatalog {
                 val arrTime = if (arrStop.arrivalTime != "—") arrStop.arrivalTime else arrStop.departureTime
                 val duration = computeDuration(depTime, arrTime)
 
-                val fraction = (endIndex - startIndex).toDouble() / (def.stops.size - 1).coerceAtLeast(1)
-                val price = (Math.round(def.fullSecondClassPrice * fraction * 10.0) / 10.0).coerceAtLeast(20.0)
+                val officialPrice = runCatching {
+                    RailwayData.getPriceBetweenStations(from, to, def.routeType)
+                }.getOrNull()
+                val price = if (officialPrice != null && officialPrice > 0) {
+                    officialPrice
+                } else {
+                    val fraction = (endIndex - startIndex).toDouble() / (def.stops.size - 1).coerceAtLeast(1)
+                    (Math.round(def.fullSecondClassPrice * fraction * 10.0) / 10.0).coerceAtLeast(11.0)
+                }
 
                 val viaStations = def.stops.subList(startIndex, endIndex + 1).map { it.station }
                 val serviceStations = def.stops.map { it.station }
@@ -1082,6 +1089,9 @@ object RealTrainCatalog {
                 fullSecondClassPrice = 368.0
             )
         )
+
+        // 湖北省内及周边城际实盘线路 (武宜高铁、汉宜客专、汉十高铁、武孝城际等)
+        list.addAll(RealTrainCatalogHubei.buildAllHubeiTrains())
 
         return list
     }

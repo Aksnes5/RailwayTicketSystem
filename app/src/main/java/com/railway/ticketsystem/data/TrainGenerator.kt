@@ -250,10 +250,11 @@ object TrainGenerator {
         
         val number = when (prefix) {
             "T", "Z" -> (1..998).random() // T/Z 严格 1-3 位数 (1-998)
-            "K" -> if (random.nextDouble() < 0.25) (1..998).random() else (1001..9998).random() // K 字头有大量四位数
-            "G", "D" -> if (random.nextDouble() < 0.3) (1..998).random() else (1001..9998).random()
-            "C" -> if (random.nextDouble() < 0.2) (1..998).random() else (1001..9998).random()
-            else -> (1..998).random()
+            "K" -> if (random.nextDouble() < 0.25) (1..998).random() else (1001..9998).random()
+            "G" -> if (random.nextDouble() < 0.2) (1..98).random() * 2 else (1001..9998).random()
+            "D" -> (2001..9998).random() // D 字头动车严格 4 位数 (如 D5801、D2206)，杜绝单双位数 D8/D38!
+            "C" -> (5001..8998).random() // C 字头城际严格 4 位数 (如 C5301)
+            else -> (1001..9998).random()
         }
         
         return "$prefix$number"
@@ -274,19 +275,15 @@ object TrainGenerator {
                     val timestamp = System.currentTimeMillis()
                     val randomSuffix = random.nextInt(1000)
                     val num = when (prefix) {
-                        "T", "Z" -> ((timestamp + randomSuffix) % 998 + 1).toInt() // T/Z 严格 1-3 位数 (1-998)
-                        else -> if (random.nextDouble() < 0.25) {
-                            ((timestamp + randomSuffix) % 998 + 1).toInt()
-                        } else {
-                            (1001 + ((timestamp + randomSuffix) % 8998)).toInt()
-                        }
+                        "T", "Z" -> ((timestamp + randomSuffix) % 998 + 1).toInt()
+                        else -> (1001 + ((timestamp + randomSuffix) % 8998)).toInt()
                     }
                     "$prefix$num"
                 }
                 com.railway.ticketsystem.model.RouteType.HIGH_SPEED,
                 com.railway.ticketsystem.model.RouteType.INTERCITY -> {
-                    // 凌晨/夜间除了普速只应该出现动卧（D1-D300）
-                    val num = assignedDongwoNumber ?: (1..300).random()
+                    // 动卧夜间专列统一使用正规 900+ 编号 (如 D901-D930)，杜绝 D8、D38!
+                    val num = assignedDongwoNumber ?: (901 + random.nextInt(30))
                     "D$num"
                 }
             }
@@ -302,22 +299,11 @@ object TrainGenerator {
         val timestamp = System.currentTimeMillis()
         val randomSuffix = random.nextInt(1000)
         val number = when (prefix) {
-            "T", "Z" -> ((timestamp + randomSuffix) % 998 + 1).toInt() // T/Z 严格 1-3 位数 (1-998)
-            "K" -> if (random.nextDouble() < 0.25) {
-                ((timestamp + randomSuffix) % 998 + 1).toInt()
-            } else {
-                (1001 + ((timestamp + randomSuffix) % 8998)).toInt()
-            }
-            "G", "D" -> if (random.nextDouble() < 0.3) {
-                ((timestamp + randomSuffix) % 998 + 1).toInt()
-            } else {
-                (1001 + ((timestamp + randomSuffix) % 8998)).toInt()
-            }
-            "C" -> if (random.nextDouble() < 0.2) {
-                ((timestamp + randomSuffix) % 998 + 1).toInt()
-            } else {
-                (1001 + ((timestamp + randomSuffix) % 8998)).toInt()
-            }
+            "T", "Z" -> ((timestamp + randomSuffix) % 998 + 1).toInt()
+            "K" -> (1001 + ((timestamp + randomSuffix) % 8998)).toInt()
+            "G" -> if (random.nextDouble() < 0.2) ((timestamp + randomSuffix) % 98 + 1).toInt() else (1001 + ((timestamp + randomSuffix) % 8998)).toInt()
+            "D" -> (2001 + ((timestamp + randomSuffix) % 7998)).toInt() // 严格 4 位数 (D2001-D9998)
+            "C" -> (5001 + ((timestamp + randomSuffix) % 3998)).toInt() // 严格 4 位数 (C5001-C8998)
             else -> ((timestamp + randomSuffix) % 998 + 1).toInt()
         }
         
@@ -326,20 +312,22 @@ object TrainGenerator {
     
     /**
      * 生成出发时间
-     * 普速列车（K/T/Z）：全天候运行，在凌晨/夜间（22:00-06:00）安排大量普速车（约50%）。
-     * 高铁动车（HIGH_SPEED）：除普速外只允许动卧（D1-D300）在 22:00-06:00 运行（约15%）。
+     * 普速列车（K/T/Z）：全天候运行，在夜间（22:00-06:00）安排约 40% 车次。
+     * 高铁动车（HIGH_SPEED）：仅长途（历时 >= 6小时）允许极少量动卧夜间运行，短途城际与高铁日间 06:00-22:30 运营。
      * 城际列车（INTERCITY）：不在 22:00-06:00 运行，全部分布在日间 06:00-22:00。
      */
     private fun generateDepartureTime(duration: String, routeType: RouteType, forceOvernight: Boolean? = null): String {
+        val durationMins = parseDurationToMinutes(duration)
         val minute = when (forceOvernight) {
             true -> randomOvernightMinute()
             false -> randomDaytimeMinute()
             null -> when (routeType) {
                 RouteType.CONVENTIONAL -> {
-                    if (random.nextDouble() < 0.50) randomOvernightMinute() else randomDaytimeMinute()
+                    if (random.nextDouble() < 0.40) randomOvernightMinute() else randomDaytimeMinute()
                 }
                 RouteType.HIGH_SPEED -> {
-                    if (random.nextDouble() < 0.15) randomOvernightMinute() else randomDaytimeMinute()
+                    // 仅当历时大于等于 360 分钟（6小时）的长途跨局线路才允许动卧夜班车，短途高铁/城际日间 06:00-22:30 运营
+                    if (durationMins >= 360 && random.nextDouble() < 0.10) randomOvernightMinute() else randomDaytimeMinute()
                 }
                 RouteType.INTERCITY -> randomDaytimeMinute()
             }

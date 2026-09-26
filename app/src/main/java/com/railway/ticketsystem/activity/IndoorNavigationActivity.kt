@@ -84,11 +84,15 @@ class IndoorNavigationActivity : ImmersiveActivity() {
 
     private fun header() = LinearLayout(this).apply {
         gravity = Gravity.CENTER_VERTICAL
-        addView(MaterialButton(this@IndoorNavigationActivity).apply {
-            text = "‹"; textSize = 30f; minWidth = dp(48); insetTop = 0; insetBottom = 0
-            contentDescription = "返回"; setOnClickListener { finish() }
-        }, LinearLayout.LayoutParams(dp(52), dp(48)))
-        addView(text("站内导航", 23, R.color.text_primary, true), LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
+        val backBtn = android.widget.ImageView(this@IndoorNavigationActivity).apply {
+            setImageResource(R.drawable.ic_arrow_back)
+            imageTintList = ColorStateList.valueOf(ContextCompat.getColor(this@IndoorNavigationActivity, R.color.railway_blue_deep))
+            contentDescription = "返回"
+            setPadding(dp(8), dp(8), dp(8), dp(8))
+            setOnClickListener { finish() }
+        }
+        addView(backBtn, LinearLayout.LayoutParams(dp(40), dp(40)).apply { marginEnd = dp(8) })
+        addView(text("站内导航", 21, R.color.text_primary, true), LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
     }
 
     private fun targetCard() = card().apply {
@@ -104,9 +108,10 @@ class IndoorNavigationActivity : ImmersiveActivity() {
         })
     }
 
-    private fun targetButton(value: String) = MaterialButton(this, null, com.google.android.material.R.attr.materialButtonOutlinedStyle).apply {
+    private fun targetButton(value: String) = MaterialButton(this).apply {
         val selected = value == target
         text = value; textSize = 13f; insetTop = 0; insetBottom = 0; isAllCaps = false
+        cornerRadius = dp(14)
         strokeWidth = dp(1)
         backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(this@IndoorNavigationActivity, if (selected) R.color.action_surface_pressed else R.color.surface_container))
         strokeColor = ColorStateList.valueOf(ContextCompat.getColor(this@IndoorNavigationActivity, if (selected) R.color.railway_blue else R.color.divider))
@@ -188,10 +193,22 @@ class IndoorNavigationActivity : ImmersiveActivity() {
     }
 
     private fun emptyCard(title: String, detail: String) = card().apply { addView(LinearLayout(this@IndoorNavigationActivity).apply { orientation = LinearLayout.VERTICAL; setPadding(dp(18), dp(18), dp(18), dp(18)); addView(text(title, 17, R.color.text_primary, true)); addView(text(detail, 14, R.color.text_secondary, false), margin(top = 5)) }) }
-    private fun card() = MaterialCardView(this).apply { radius = dp(28).toFloat(); cardElevation = 0f; strokeWidth = dp(1); strokeColor = ContextCompat.getColor(this@IndoorNavigationActivity, R.color.divider); setCardBackgroundColor(ContextCompat.getColor(this@IndoorNavigationActivity, R.color.surface_container)) }
+    private fun card() = MaterialCardView(this).apply { radius = dp(24).toFloat(); cardElevation = 0f; strokeWidth = dp(1); strokeColor = ContextCompat.getColor(this@IndoorNavigationActivity, R.color.divider); setCardBackgroundColor(android.graphics.Color.parseColor("#B8FFFFFF")) }
     private fun text(value: String, size: Int, color: Int, bold: Boolean) = TextView(this).apply { text = value; textSize = size.toFloat(); setTextColor(ContextCompat.getColor(this@IndoorNavigationActivity, color)); if (bold) setTypeface(typeface, android.graphics.Typeface.BOLD) }
-    private fun primaryButton(value: String, click: () -> Unit) = MaterialButton(this).apply { text = value; textSize = 16f; insetTop = 0; insetBottom = 0; setOnClickListener { click() } }
-    private fun quietButton(value: String, click: () -> Unit) = MaterialButton(this, null, com.google.android.material.R.attr.materialButtonOutlinedStyle).apply { text = value; textSize = 15f; insetTop = 0; insetBottom = 0; isAllCaps = false; setOnClickListener { click() } }
+    private fun primaryButton(value: String, click: () -> Unit) = MaterialButton(this).apply {
+        text = value; textSize = 16f; cornerRadius = dp(26); insetTop = 0; insetBottom = 0
+        backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(this@IndoorNavigationActivity, R.color.railway_blue))
+        setTextColor(android.graphics.Color.WHITE)
+        setOnClickListener { click() }
+    }
+    private fun quietButton(value: String, click: () -> Unit) = MaterialButton(this).apply {
+        text = value; textSize = 14f; cornerRadius = dp(16); insetTop = 0; insetBottom = 0; isAllCaps = false
+        strokeWidth = dp(1)
+        strokeColor = ColorStateList.valueOf(ContextCompat.getColor(this@IndoorNavigationActivity, R.color.divider))
+        backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(this@IndoorNavigationActivity, R.color.surface_container))
+        setTextColor(ContextCompat.getColor(this@IndoorNavigationActivity, R.color.railway_blue))
+        setOnClickListener { click() }
+    }
     private fun margin(top: Int = 0, bottom: Int = 0) = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(top); bottomMargin = dp(bottom) }
     private fun dp(value: Int) = (value * resources.displayMetrics.density).toInt()
 
