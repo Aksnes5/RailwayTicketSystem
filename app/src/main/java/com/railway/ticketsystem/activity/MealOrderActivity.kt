@@ -154,7 +154,7 @@ class MealOrderActivity : ImmersiveActivity() {
         }
         content.addView(ImageView(this).apply {
             contentDescription = "${product.name}图片"
-            setImageResource(TravelVisualAssets.mealImage(product.id))
+            setImageDrawable(TravelVisualAssets.mealDrawable(this@MealOrderActivity, product.id))
             scaleType = ImageView.ScaleType.CENTER_CROP
             setBackgroundResource(R.drawable.bg_media_frame)
             clipToOutline = true
