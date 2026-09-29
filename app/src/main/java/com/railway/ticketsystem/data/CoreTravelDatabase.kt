@@ -73,30 +73,37 @@ internal class CoreTravelDatabase(context: Context) : SQLiteOpenHelper(
     )
 
     fun replaceOrders(orders: List<Order>, action: String = "snapshot"): Boolean = runCatching {
-        writableDatabase.beginTransaction()
+        val db = writableDatabase
+        val incoming = orders.associateBy { it.id }
+        db.beginTransaction()
         try {
-            writableDatabase.delete(TABLE_ORDERS, null, null)
+            val existing = readStoredPayloads(db, TABLE_ORDERS, "order_id")
             val timestamp = System.currentTimeMillis()
-            orders.forEach { order ->
-                writableDatabase.insertOrThrow(TABLE_ORDERS, null, ContentValues().apply {
-                    put("order_id", order.id)
-                    put("user_id", order.userId)
-                    put("status", order.status)
-                    put("departure_date", order.departureDate)
-                    put("departure_time", order.departureTime)
-                    put("arrival_date", order.arrivalDate)
-                    put("payload_json", gson.toJson(order))
-                    put("updated_at", timestamp)
-                })
-                appendAudit(writableDatabase, order.userId, "order", order.id, action, gson.toJson(order), timestamp)
+            existing.keys.filterNot(incoming::containsKey).forEach { id ->
+                db.delete(TABLE_ORDERS, "order_id = ?", arrayOf(id))
             }
-            writableDatabase.setTransactionSuccessful()
+            incoming.values.forEach { order ->
+                val payload = gson.toJson(order)
+                if (existing[order.id] != payload) {
+                    db.insertWithOnConflict(TABLE_ORDERS, null, ContentValues().apply {
+                        put("order_id", order.id)
+                        put("user_id", order.userId)
+                        put("status", order.status)
+                        put("departure_date", order.departureDate)
+                        put("departure_time", order.departureTime)
+                        put("arrival_date", order.arrivalDate)
+                        put("payload_json", payload)
+                        put("updated_at", timestamp)
+                    }, SQLiteDatabase.CONFLICT_REPLACE)
+                    appendAudit(db, order.userId, "order", order.id, action, payload, timestamp)
+                }
+            }
+            db.setTransactionSuccessful()
         } finally {
-            writableDatabase.endTransaction()
+            db.endTransaction()
         }
         true
     }.getOrDefault(false)
-
     fun readMessages(): List<AppMessage> = readPayloads(
         table = TABLE_MESSAGES,
         idColumn = "message_id",
@@ -104,28 +111,44 @@ internal class CoreTravelDatabase(context: Context) : SQLiteOpenHelper(
     )
 
     fun replaceMessages(messages: List<AppMessage>, action: String = "snapshot"): Boolean = runCatching {
-        writableDatabase.beginTransaction()
+        val db = writableDatabase
+        val incoming = messages.associateBy { it.id }
+        db.beginTransaction()
         try {
-            writableDatabase.delete(TABLE_MESSAGES, null, null)
+            val existing = readStoredPayloads(db, TABLE_MESSAGES, "message_id")
             val timestamp = System.currentTimeMillis()
-            messages.forEach { message ->
-                writableDatabase.insertOrThrow(TABLE_MESSAGES, null, ContentValues().apply {
-                    put("message_id", message.id)
-                    put("user_id", message.userId)
-                    put("category", message.category)
-                    put("created_at", message.createdAtMillis)
-                    put("is_read", if (message.isRead) 1 else 0)
-                    put("payload_json", gson.toJson(message))
-                    put("updated_at", timestamp)
-                })
-                appendAudit(writableDatabase, message.userId, "message", message.id, action, gson.toJson(message), timestamp)
+            existing.keys.filterNot(incoming::containsKey).forEach { id ->
+                db.delete(TABLE_MESSAGES, "message_id = ?", arrayOf(id))
             }
-            writableDatabase.setTransactionSuccessful()
+            incoming.values.forEach { message ->
+                val payload = gson.toJson(message)
+                if (existing[message.id] != payload) {
+                    db.insertWithOnConflict(TABLE_MESSAGES, null, ContentValues().apply {
+                        put("message_id", message.id)
+                        put("user_id", message.userId)
+                        put("category", message.category)
+                        put("created_at", message.createdAtMillis)
+                        put("is_read", if (message.isRead) 1 else 0)
+                        put("payload_json", payload)
+                        put("updated_at", timestamp)
+                    }, SQLiteDatabase.CONFLICT_REPLACE)
+                    appendAudit(db, message.userId, "message", message.id, action, payload, timestamp)
+                }
+            }
+            db.setTransactionSuccessful()
         } finally {
-            writableDatabase.endTransaction()
+            db.endTransaction()
         }
         true
     }.getOrDefault(false)
+    private fun readStoredPayloads(db: SQLiteDatabase, table: String, idColumn: String): Map<String, String> =
+        db.query(table, arrayOf(idColumn, "payload_json"), null, null, null, null, null).use { cursor ->
+            buildMap {
+                val idIndex = cursor.getColumnIndexOrThrow(idColumn)
+                val payloadIndex = cursor.getColumnIndexOrThrow("payload_json")
+                while (cursor.moveToNext()) put(cursor.getString(idIndex), cursor.getString(payloadIndex))
+            }
+        }
 
     private fun <T> readPayloads(table: String, idColumn: String, type: java.lang.reflect.Type): List<T> = runCatching {
         readableDatabase.query(table, arrayOf(idColumn, "payload_json"), null, null, null, null, "updated_at ASC").use { cursor ->

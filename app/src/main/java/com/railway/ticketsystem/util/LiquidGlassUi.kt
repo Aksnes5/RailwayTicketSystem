@@ -6,6 +6,7 @@ import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import android.view.Gravity
 import android.view.View
+import android.widget.LinearLayout
 import android.widget.TextView
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
@@ -41,6 +42,52 @@ object LiquidGlassUi {
             strokeWidth = context.dp(1)
         }
         applyIosPressScale()
+    }
+
+    /** Consistent iOS-style selectable chip for filters, seats and service options. */
+    fun selectionChip(context: Context, text: String, selected: Boolean = false): MaterialButton = actionButton(context, text).apply {
+        minHeight = context.dp(42)
+        cornerRadius = context.dp(16)
+        textSize = 14f
+        if (selected) {
+            backgroundTintList = ColorStateList.valueOf(Color.parseColor("#1677FF"))
+            setTextColor(Color.WHITE)
+            strokeWidth = 0
+        }
+    }
+
+    /** Glass list row shared by runtime-built settings, passenger and service pages. */
+    fun listRow(
+        context: Context,
+        title: String,
+        detail: String? = null,
+        emphasized: Boolean = false
+    ): MaterialCardView = card(context, emphasized).apply {
+        val content = LinearLayout(context).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(context.dp(18), context.dp(14), context.dp(18), context.dp(14))
+        }
+        content.addView(TextView(context).apply {
+            text = title
+            textSize = 16f
+            setTextColor(Color.parseColor("#15253A"))
+        })
+        detail?.takeIf { it.isNotBlank() }?.let { subtitle ->
+            content.addView(TextView(context).apply {
+                text = subtitle
+                textSize = 13f
+                setTextColor(Color.parseColor("#60758C"))
+                setPadding(0, context.dp(5), 0, 0)
+            })
+        }
+        addView(content)
+        applyIosPressScale()
+    }
+
+    /** Applies the same non-rectangular press feedback to arbitrary clickable controls. */
+    fun applyLiquidTap(target: View): View {
+        target.applyIosPressScale()
+        return target
     }
 
     fun capsule(context: Context, text: String, blue: Boolean = true): TextView = TextView(context).apply {

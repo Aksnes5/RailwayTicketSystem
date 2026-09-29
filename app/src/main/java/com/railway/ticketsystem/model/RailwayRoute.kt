@@ -48,6 +48,8 @@ data class RouteSegment(
 object RailwayRouteManager {
     private val routes = mutableListOf<RailwayRoute>()
     private val segments = mutableMapOf<String, RouteSegment>()
+    /** Structural validation results are retained for import diagnostics and map QA. */
+    private val qualityReports = mutableMapOf<String, com.railway.ticketsystem.data.RailwayRouteQualityReport>()
     
     // 图结构：邻接表。节点为站点名称，边包含价格/耗时/距离等属性
     private data class EdgeAttrs(
@@ -120,7 +122,9 @@ object RailwayRouteManager {
     fun addRoute(route: RailwayRoute) {
         minStopsCache.clear()   // 图变了，已缓存的路径可能不再成立
         val passengerRoute = PassengerServiceStationPolicy.passengerRoute(route)
-        if (passengerRoute.stations.size < 2 || !matchesServiceNetwork(passengerRoute)) return
+        val quality = com.railway.ticketsystem.data.RailwayNetworkQualityGate.inspectStructure(passengerRoute)
+        qualityReports[passengerRoute.routeId] = quality
+        if (!quality.isAccepted || passengerRoute.stations.size < 2 || !matchesServiceNetwork(passengerRoute)) return
         // A route declares one reasonable end-to-end second-class fare. Its
         // adjacent segments are weights, not independently additive fares:
         // normalise them once so a line with many close-together stations does
@@ -163,6 +167,14 @@ object RailwayRouteManager {
      */
     fun getAllRoutes(routeType: RouteType? = null): List<RailwayRoute> =
         routes.filter { routeType == null || it.routeType == routeType }
+
+    /** Safe during initialisation: contains structural issues only and does not resolve pins. */
+    fun getRouteQualityReport(routeId: String): com.railway.ticketsystem.data.RailwayRouteQualityReport? =
+        qualityReports[routeId]
+
+    /** Run after initialisation to audit exact station pins and suspicious map geometry. */
+    fun auditRegisteredRouteGeography(): List<com.railway.ticketsystem.data.RailwayRouteQualityReport> =
+        com.railway.ticketsystem.data.RailwayNetworkQualityGate.auditAllGeography(routes)
     
     /**
      * 根据起点和终点查找线路（支持双向）

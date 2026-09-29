@@ -212,7 +212,14 @@ class OrderRepository internal constructor(
 
     private fun persist(orders: List<Order>): Boolean {
         val databaseSaved = database?.replaceOrders(orders, action = "order_update") ?: true
-        val backupSaved = prefs.edit().putString("orders", gson.toJson(orders)).commit()
-        return databaseSaved && backupSaved
+        if (!databaseSaved) return false
+
+        val backup = prefs.edit().putString("orders", gson.toJson(orders))
+        // Once SQLite is available it is the source of truth. A best-effort encrypted backup
+        // must not turn a committed order into a reported failure and trigger an inventory rollback.
+        return if (database == null) backup.commit() else {
+            backup.apply()
+            true
+        }
     }
 }

@@ -225,7 +225,9 @@ class SeatInventoryRepository(private val context: Context) {
                     .apply()
                 true
             }
-            if (released) {
+            // A failed checkout only compensates a temporary hold. It must not be treated as
+            // a paid cancellation and prematurely advance another waitlist request.
+            if (released && order.status != "待支付") {
                 WaitlistFulfillmentEngine.onSeatReleased(
                     context,
                     order.trainNumber,
