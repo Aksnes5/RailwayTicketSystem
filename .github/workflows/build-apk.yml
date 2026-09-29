@@ -32,8 +32,8 @@ jobs:
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
       
-    - name: Build APK
-      run: ./gradlew --no-daemon --stacktrace assembleDebug
+    - name: Verify tested APK baseline
+      run: ./gradlew --no-daemon --stacktrace verifyReleaseBaseline
       
     - name: Upload APK
       uses: actions/upload-artifact@v6

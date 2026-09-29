@@ -37,7 +37,8 @@ data class RouteSegment(
     val toStation: String,      // 终点站
     val price: Double,          // 该段价格
     val duration: String,       // 该段耗时
-    val distance: Int           // 该段距离（公里）
+    val distance: Int,          // 该段距离（公里）
+    val segmentId: String = "" // 稳定物理区段 ID，用于地图与离线包缓存
 ) : Serializable
 
 /**
@@ -133,7 +134,7 @@ object RailwayRouteManager {
         for (i in 0 until pricedRoute.stations.size - 1) {
             val fromStation = pricedRoute.stations[i].name
             val toStation = pricedRoute.stations[i + 1].name
-            val segmentKey = "${physicalNetwork(pricedRoute.routeType)}:$fromStation-$toStation"
+            val segmentKey = com.railway.ticketsystem.data.RailwayNetworkIdentity.segment(pricedRoute.routeId, fromStation, toStation, pricedRoute.routeType).value
             
             val segmentPrice = pricedRoute.segmentPrices["$fromStation-$toStation"] ?: 0.0
             val segmentDuration = calculateSegmentDuration(pricedRoute.totalDuration, pricedRoute.stations.size, i)
@@ -144,7 +145,8 @@ object RailwayRouteManager {
                 toStation = toStation,
                 price = segmentPrice,
                 duration = segmentDuration,
-                distance = segmentDistance
+                distance = segmentDistance,
+                segmentId = segmentKey
             )
             // 同步构建图（双向边）
             val attrs = EdgeAttrs(

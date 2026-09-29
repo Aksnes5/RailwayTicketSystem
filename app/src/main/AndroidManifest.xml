@@ -110,6 +110,10 @@
             android:exported="false"
             android:theme="@style/Theme.RailwayTicketSystem" />
         <activity
+            android:name=".activity.TravelRecoveryAssistantActivity"
+            android:exported="false"
+            android:theme="@style/Theme.RailwayTicketSystem" />
+        <activity
             android:name=".activity.TestRoutesActivity"
             android:exported="false"
             android:theme="@style/Theme.RailwayTicketSystem" />

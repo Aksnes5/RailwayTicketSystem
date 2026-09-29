@@ -14,6 +14,7 @@ import java.util.UUID
 class MessageRepository(context: Context) {
     private val appContext = context.applicationContext
     private val prefs: SharedPreferences = SecurePreferences.open(appContext, "secure_message_data", "message_data")
+    private val database = CoreTravelDatabase(appContext)
     private val gson = Gson()
 
     companion object {
@@ -75,8 +76,9 @@ class MessageRepository(context: Context) {
             // Keep other accounts intact; limit only this account's visible inbox.
             val retained = messages.filter { it.userId != userId } +
                 (messages.filter { it.userId == userId } + message).takeLast(500)
-            if (prefs.edit().putString(MESSAGES_KEY, gson.toJson(retained))
-                    .putStringSet(EVENT_KEYS, keys).commit()) message else null
+            val backupSaved = prefs.edit().putString(MESSAGES_KEY, gson.toJson(retained))
+                .putStringSet(EVENT_KEYS, keys).commit()
+            if (backupSaved && database.replaceMessages(retained, action = "message_add")) message else null
         }
         saved?.let { LocalNotifications.post(appContext, it) }
         return saved
@@ -116,11 +118,17 @@ class MessageRepository(context: Context) {
     }
 
     private fun readMessages(): List<AppMessage> {
+        val databaseMessages = database.readMessages()
+        if (databaseMessages.isNotEmpty()) return databaseMessages
         val json = prefs.getString(MESSAGES_KEY, null) ?: return emptyList()
         val type = object : TypeToken<List<AppMessage>>() {}.type
-        return runCatching { gson.fromJson<List<AppMessage>>(json, type) ?: emptyList() }.getOrDefault(emptyList())
+        val legacy = runCatching { gson.fromJson<List<AppMessage>>(json, type) ?: emptyList() }.getOrDefault(emptyList())
+        if (legacy.isNotEmpty()) database.replaceMessages(legacy, action = "legacy_import")
+        return legacy
     }
 
-    private fun persist(messages: List<AppMessage>): Boolean =
-        prefs.edit().putString(MESSAGES_KEY, gson.toJson(messages)).commit()
+    private fun persist(messages: List<AppMessage>): Boolean {
+        val backupSaved = prefs.edit().putString(MESSAGES_KEY, gson.toJson(messages)).commit()
+        return backupSaved && database.replaceMessages(messages, action = "message_update")
+    }
 }

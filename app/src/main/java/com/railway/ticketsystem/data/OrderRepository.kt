@@ -6,8 +6,14 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.railway.ticketsystem.model.Order
 
-class OrderRepository internal constructor(private val prefs: SharedPreferences) {
-    constructor(context: Context) : this(SecurePreferences.open(context, "secure_order_data", "order_data"))
+class OrderRepository internal constructor(
+    private val prefs: SharedPreferences,
+    private val database: CoreTravelDatabase? = null
+) {
+    constructor(context: Context) : this(
+        SecurePreferences.open(context, "secure_order_data", "order_data"),
+        CoreTravelDatabase(context)
+    )
     private val gson = Gson()
     
     companion object {
@@ -179,9 +185,19 @@ class OrderRepository internal constructor(private val prefs: SharedPreferences)
     }
 
     private fun readOrders(): List<Order> {
+        val databaseOrders = database?.readOrders().orEmpty()
+        if (databaseOrders.isNotEmpty()) return normalizeLegacyPendingOrders(databaseOrders)
+
         val json = prefs.getString("orders", null) ?: return emptyList()
         val type = object : TypeToken<List<Order>>() {}.type
         val raw = runCatching { gson.fromJson<List<Order>>(json, type) ?: emptyList() }.getOrDefault(emptyList())
+        // One-time, idempotent migration. The encrypted preference snapshot remains as a
+        // recovery copy until a later schema migration can remove it deliberately.
+        if (raw.isNotEmpty()) database?.replaceOrders(raw, action = "legacy_import")
+        return normalizeLegacyPendingOrders(raw)
+    }
+
+    private fun normalizeLegacyPendingOrders(raw: List<Order>): List<Order> {
         // Gson skips constructor defaults; preserve the original creation clock for legacy holds.
         return raw.map { order ->
             if (order.status != "待支付") order else order.copy(
@@ -194,7 +210,9 @@ class OrderRepository internal constructor(private val prefs: SharedPreferences)
         }
     }
 
-    private fun persist(orders: List<Order>): Boolean = prefs.edit()
-        .putString("orders", gson.toJson(orders))
-        .commit()
+    private fun persist(orders: List<Order>): Boolean {
+        val databaseSaved = database?.replaceOrders(orders, action = "order_update") ?: true
+        val backupSaved = prefs.edit().putString("orders", gson.toJson(orders)).commit()
+        return databaseSaved && backupSaved
+    }
 }

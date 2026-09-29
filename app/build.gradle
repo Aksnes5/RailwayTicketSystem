@@ -45,18 +45,18 @@ tasks.withType(Test).configureEach {
 }
 
 // 将生成的 APK 复制并重命名到项目根目录，便于统一获取
-tasks.register('copyDebugApk', Copy) {
-    def srcApk = file("${project.buildDir}/outputs/apk/debug/app-debug.apk")
-    from(srcApk)
-    into(rootDir)
-    rename { String fileName -> '12306-debug.apk' }
-    duplicatesStrategy = DuplicatesStrategy.INCLUDE
-    // 关闭状态跟踪，避免 Gradle 扫描根目录导致失败
-    doNotTrackState("Copying APK to project root; destination may contain unreadable files")
-    // 确保每次执行
-    outputs.upToDateWhen { false }
-    onlyIf { srcApk.exists() }
+tasks.register('copyDebugApk') {
     mustRunAfter('assembleDebug')
+    doLast {
+        def srcApk = file("${project.buildDir}/outputs/apk/debug/app-debug.apk")
+        if (srcApk.exists()) {
+            copy {
+                from srcApk
+                into rootDir
+                rename { '12306-debug.apk' }
+            }
+        }
+    }
 }
 
 afterEvaluate {
@@ -64,32 +64,26 @@ afterEvaluate {
     if (t != null) {
         t.finalizedBy 'copyDebugApk'
     }
-    def redirect = tasks.findByName('createDebugApkListingFileRedirect')
-    if (redirect != null) {
-        redirect.dependsOn 'copyDebugApk'
-    }
 }
 
-tasks.register('copyReleaseApk', Copy) {
-    def srcApk = file("${project.buildDir}/outputs/apk/release/app-release.apk")
-    from(srcApk)
-    into(rootDir)
-    rename { String fileName -> '12306-release.apk' }
-    duplicatesStrategy = DuplicatesStrategy.INCLUDE
-    doNotTrackState("Copying APK to project root; destination may contain unreadable files")
-    outputs.upToDateWhen { false }
-    onlyIf { srcApk.exists() }
+tasks.register('copyReleaseApk') {
     mustRunAfter('assembleRelease')
+    doLast {
+        def srcApk = file("${project.buildDir}/outputs/apk/release/app-release.apk")
+        if (srcApk.exists()) {
+            copy {
+                from srcApk
+                into rootDir
+                rename { '12306-release.apk' }
+            }
+        }
+    }
 }
 
 afterEvaluate {
     def tRel = tasks.findByName('assembleRelease')
     if (tRel != null) {
         tRel.finalizedBy 'copyReleaseApk'
-    }
-    def redirectRel = tasks.findByName('createReleaseApkListingFileRedirect')
-    if (redirectRel != null) {
-        redirectRel.dependsOn 'copyReleaseApk'
     }
 }
 
@@ -111,4 +105,11 @@ dependencies {
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+}
+// One reproducible entry point for local checks and CI.  Keep tests and packaging together so
+// a green APK artifact always corresponds to the source and behavior that were validated.
+tasks.register('verifyReleaseBaseline') {
+    group = 'verification'
+    description = 'Runs unit tests and packages the debug APK used for release verification.'
+    dependsOn 'testDebugUnitTest', 'assembleDebug'
 }
