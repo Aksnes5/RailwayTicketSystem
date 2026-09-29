@@ -85,9 +85,13 @@ object RailwayData {
         return RailwayGraphManager.getRecommendedRoutes(from, to)
     }
     
-    fun findShortestPath(from: String, to: String): RailwayGraph.PathResult? {
+    fun findShortestPath(
+        from: String,
+        to: String,
+        routeType: com.railway.ticketsystem.model.RouteType = com.railway.ticketsystem.model.RouteType.HIGH_SPEED
+    ): RailwayGraph.PathResult? {
         ensureInitialized()
-        return RailwayGraphManager.findShortestPath(from, to)
+        return RailwayGraphManager.findShortestPath(from, to, routeType)
     }
     
     /**

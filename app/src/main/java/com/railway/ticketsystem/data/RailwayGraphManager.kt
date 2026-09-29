@@ -63,8 +63,8 @@ object RailwayGraphManager {
                 val fare = route.segmentPrices["${from.name}-${to.name}"] ?: 0.0
                 val distance = estimateSegmentDistance(fare, route.routeType)
                 val duration = sectionDuration.coerceAtLeast(1)
-                graph.addRoute(from.name, to.name, distance, fare, duration)
-                graph.addRoute(to.name, from.name, distance, fare, duration)
+                graph.addRoute(from.name, to.name, distance, fare, duration, route.routeType)
+                graph.addRoute(to.name, from.name, distance, fare, duration, route.routeType)
             }
         }
     }
@@ -147,8 +147,12 @@ object RailwayGraphManager {
     /**
      * 查找最短路径和总价格
      */
-    fun findShortestPath(from: String, to: String): RailwayGraph.PathResult? {
-        return graph.findShortestPath(from, to)
+    fun findShortestPath(
+        from: String,
+        to: String,
+        routeType: com.railway.ticketsystem.model.RouteType = com.railway.ticketsystem.model.RouteType.HIGH_SPEED
+    ): RailwayGraph.PathResult? {
+        return graph.findShortestPath(from, to, routeType)
     }
     
     /**

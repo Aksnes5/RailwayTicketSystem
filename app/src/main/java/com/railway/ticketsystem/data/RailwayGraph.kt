@@ -1,6 +1,7 @@
 package com.railway.ticketsystem.data
 
 import com.railway.ticketsystem.model.Station
+import com.railway.ticketsystem.model.RouteType
 import com.railway.ticketsystem.model.Train
 import java.util.*
 
@@ -19,7 +20,8 @@ class RailwayGraph {
         val to: String,
         val distance: Int, // 距离（公里）
         val basePrice: Double, // 基础价格（二等座）
-        val duration: Int // 运行时间（分钟）
+        val duration: Int, // 运行时间（分钟）
+        val routeType: RouteType
     )
     
     /**
@@ -35,10 +37,17 @@ class RailwayGraph {
     /**
      * 添加路线
      */
-    fun addRoute(from: String, to: String, distance: Int, basePrice: Double, duration: Int) {
+    fun addRoute(
+        from: String,
+        to: String,
+        distance: Int,
+        basePrice: Double,
+        duration: Int,
+        routeType: RouteType = RouteType.HIGH_SPEED
+    ) {
         val neighbours = routes[from] ?: return
-        if (neighbours.none { it.to == to && it.basePrice == basePrice && it.duration == duration }) {
-            neighbours += Route(from, to, distance, basePrice, duration)
+        if (neighbours.none { it.to == to && it.basePrice == basePrice && it.duration == duration && it.routeType == routeType }) {
+            neighbours += Route(from, to, distance, basePrice, duration, routeType)
         }
     }
     
@@ -59,12 +68,18 @@ class RailwayGraph {
      */
     fun getAllTrains(): List<Train> = trains
     
-    /** Directly connected physical neighbours, sorted by the bundled line fare. */
-    fun getDirectNeighbours(stationName: String): List<Station> =
+    /**
+     * Direct physical neighbours. INTERCITY belongs to the high-speed network;
+     * a conventional route is never returned for a high-speed service (or vice versa).
+     */
+    fun getDirectNeighbours(stationName: String, serviceType: RouteType? = null): List<Station> =
         routes[stationName].orEmpty()
+            .asSequence()
+            .filter { route -> serviceType == null || route.routeType.samePhysicalNetworkAs(serviceType) }
             .sortedBy { it.basePrice }
             .mapNotNull { stations[it.to] }
             .distinctBy { it.name }
+            .toList()
 
     /**
      * 根据起点和终点查找车次
@@ -78,7 +93,7 @@ class RailwayGraph {
     /**
      * 计算两站之间的最短路径和总价格
      */
-    fun findShortestPath(from: String, to: String): PathResult? {
+    fun findShortestPath(from: String, to: String, serviceType: RouteType = RouteType.HIGH_SPEED): PathResult? {
         if (!stations.containsKey(from) || !stations.containsKey(to)) return null
         
         val distances = mutableMapOf<String, Double>()
@@ -101,6 +116,7 @@ class RailwayGraph {
             if (current == to) break
             
             routes[current]?.forEach { route ->
+                if (!route.routeType.samePhysicalNetworkAs(serviceType)) return@forEach
                 val newDist = currentDist + route.basePrice
                 if (newDist < (distances[route.to] ?: Double.MAX_VALUE)) {
                     distances[route.to] = newDist
@@ -129,6 +145,10 @@ class RailwayGraph {
         val totalPrice: Double
     )
     
+
+    private fun RouteType.samePhysicalNetworkAs(other: RouteType): Boolean =
+        (this == RouteType.CONVENTIONAL) == (other == RouteType.CONVENTIONAL)
+
     /**
      * 搜索车站（支持中文名搜索）
      */
