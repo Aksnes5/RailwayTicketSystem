@@ -27,14 +27,19 @@ class RailwayGraph {
      */
     fun addStation(station: Station) {
         stations[station.name] = station
-        routes[station.name] = mutableListOf()
+        // A later catalogue import may enrich a station that already has route edges.
+        // Keep those edges instead of silently disconnecting the station.
+        routes.getOrPut(station.name) { mutableListOf() }
     }
     
     /**
      * 添加路线
      */
     fun addRoute(from: String, to: String, distance: Int, basePrice: Double, duration: Int) {
-        routes[from]?.add(Route(from, to, distance, basePrice, duration))
+        val neighbours = routes[from] ?: return
+        if (neighbours.none { it.to == to && it.basePrice == basePrice && it.duration == duration }) {
+            neighbours += Route(from, to, distance, basePrice, duration)
+        }
     }
     
     /**
@@ -54,6 +59,13 @@ class RailwayGraph {
      */
     fun getAllTrains(): List<Train> = trains
     
+    /** Directly connected physical neighbours, sorted by the bundled line fare. */
+    fun getDirectNeighbours(stationName: String): List<Station> =
+        routes[stationName].orEmpty()
+            .sortedBy { it.basePrice }
+            .mapNotNull { stations[it.to] }
+            .distinctBy { it.name }
+
     /**
      * 根据起点和终点查找车次
      */

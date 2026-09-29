@@ -10,6 +10,7 @@ object RailwayData {
     
     // 延迟初始化标志
     private var isInitialized = false
+    @Volatile private var routeQualityReports: List<RailwayRouteQualityReport> = emptyList()
     
     // 使用图数据管理器
     val stations: List<Station> get() = RailwayGraphManager.getAllStations()
@@ -30,8 +31,16 @@ object RailwayData {
                 val routes = RealRailwayRoutes.getAllRoutes()
                 android.util.Log.d("RailwayData", "预加载的线路数量: ${routes.size}")
                 
+                // The coordinate resolver consults this catalogue; mark it ready before audit.
                 isInitialized = true
-                android.util.Log.d("RailwayData", "铁路数据预加载完成")
+                routeQualityReports = runCatching {
+                    RailwayRouteManager.auditRegisteredRouteGeography()
+                }.getOrElse { error ->
+                    android.util.Log.w("RailwayData", "线路地理审计跳过", error)
+                    emptyList()
+                }
+                val geographyWarnings = routeQualityReports.sumOf { it.issues.size }
+                android.util.Log.d("RailwayData", "铁路数据预加载完成；线路地理审计发现 $geographyWarnings 项待核对")
             } catch (e: Exception) {
                 e.printStackTrace()
                 android.util.Log.e("RailwayData", "预加载失败: ${e.message}")
@@ -87,6 +96,12 @@ object RailwayData {
     fun getAllRoutes(): List<RailwayRoute> {
         ensureInitialized()
         return RealRailwayRoutes.getAllRoutes()
+    }
+
+    /** Data-maintenance diagnostics; these warnings never block a user's booking flow. */
+    fun getRouteQualityReports(): List<RailwayRouteQualityReport> {
+        ensureInitialized()
+        return routeQualityReports
     }
     
     /**

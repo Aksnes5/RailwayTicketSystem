@@ -166,26 +166,12 @@ class TravelRecoveryAssistantActivity : ImmersiveActivity() {
             })
         }
 
-    private fun messageCard(title: String, body: String): View = LiquidGlassUi.card(this).apply {
-        layoutParams = cardParams(bottom = 12)
-        addView(LinearLayout(context).apply {
-            orientation = LinearLayout.VERTICAL
-            setPadding(dp(18), dp(16), dp(18), dp(16))
-            addView(TextView(context).apply {
-                text = title
-                textSize = 16f
-                setTypeface(typeface, android.graphics.Typeface.BOLD)
-                setTextColor(Color.parseColor("#173F62"))
-            })
-            addView(TextView(context).apply {
-                text = body
-                textSize = 13.5f
-                setTextColor(Color.parseColor("#5C7790"))
-                setLineSpacing(dp(3).toFloat(), 1f)
-                setPadding(0, dp(7), 0, 0)
-            })
-        })
-    }
+    private fun messageCard(title: String, body: String): View =
+        LiquidGlassUi.listRow(this, title, body).apply {
+            layoutParams = cardParams(bottom = 12)
+            isClickable = false
+            isFocusable = false
+        }
 
     private fun sectionTitle(text: String) = TextView(this).apply {
         this.text = text

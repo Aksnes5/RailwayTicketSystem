@@ -2,7 +2,6 @@ package com.railway.ticketsystem.data
 
 import com.railway.ticketsystem.model.Station
 import com.railway.ticketsystem.model.Train
-import kotlin.random.Random
 
 /**
  * 铁路图数据管理器
@@ -11,6 +10,7 @@ import kotlin.random.Random
 object RailwayGraphManager {
     
     private val graph = RailwayGraph()
+    private var realRouteEdgesInstalled = false
     
     init {
         initializeGraph()
@@ -25,8 +25,8 @@ object RailwayGraphManager {
             graph.addStation(station)
         }
         
-        // 添加路线关系（基于真实的地理位置和距离）
-        addRoutes()
+        // Real route edges are installed after the complete bundled corridor catalogue loads.
+        // Do not connect every station pair here: that would create fictional railway paths.
         
         // 添加车次数据
         ChinaRailwayData.trains.filter(::isPassengerTrain).forEach { train ->
@@ -37,91 +37,48 @@ object RailwayGraphManager {
     /**
      * 初始化真实铁路线路数据
      */
+    @Synchronized
     fun initializeRealRoutes() {
         try {
-            // 初始化真实铁路线路
             RealRailwayRoutes.initializeRoutes()
-            // Add the service-specific station catalog to directory search. The route
-            // manager, not this generic directory graph, decides which service can run.
-            RealRailwayRoutes.getAllRoutes().flatMap { it.stations }.distinctBy { it.name }.forEach(::addStation)
-            // 启动阶段不再生成车次；仅准备线路与图结构
+            val realRoutes = RealRailwayRoutes.getAllRoutes()
+            // Add the service-specific station catalog without clearing previously connected edges,
+            // then build only real adjacent railway sections.
+            realRoutes.flatMap { it.stations }.distinctBy { it.name }.forEach(::addStation)
+            if (!realRouteEdgesInstalled) {
+                connectRealRouteEdges(realRoutes)
+                realRouteEdgesInstalled = true
+            }
         } catch (e: Exception) {
             e.printStackTrace()
-            // 如果初始化失败，至少确保基本功能可用
         }
     }
     
-    /**
-     * 添加路线关系
-     */
-    private fun addRoutes() {
-        val passengerStations = PassengerServiceStationPolicy.filterStations(ChinaRailwayData.stations)
-        val stationMap = passengerStations.associateBy { it.name }
-        
-        // 为每个车站添加与其他车站的路线关系
-        passengerStations.forEach { fromStation ->
-            passengerStations.forEach { toStation ->
-                if (fromStation != toStation) {
-                    // 计算距离和价格（基于车站名称的哈希值）
-                    val distance = calculateDistance(fromStation.name, toStation.name)
-                    val basePrice = calculateBasePrice(distance)
-                    val duration = calculateDuration(distance)
-                    
-                    // 只有距离合理的路线才添加
-                    if (distance > 0 && distance < 2000) {
-                        graph.addRoute(
-                            fromStation.name,
-                            toStation.name,
-                            distance,
-                            basePrice,
-                            duration
-                        )
-                    }
-                }
+    /** Builds the generic path graph solely from registered physical railway sections. */
+    private fun connectRealRouteEdges(routes: List<com.railway.ticketsystem.model.RailwayRoute>) {
+        routes.forEach { route ->
+            val sectionCount = (route.stations.size - 1).coerceAtLeast(1)
+            val sectionDuration = parseRouteDurationMinutes(route.totalDuration) / sectionCount
+            route.stations.zipWithNext().forEach { (from, to) ->
+                val fare = route.segmentPrices["${from.name}-${to.name}"] ?: 0.0
+                val distance = estimateSegmentDistance(fare, route.routeType)
+                val duration = sectionDuration.coerceAtLeast(1)
+                graph.addRoute(from.name, to.name, distance, fare, duration)
+                graph.addRoute(to.name, from.name, distance, fare, duration)
             }
         }
     }
-    
-    /**
-     * 计算两站之间的距离（公里）
-     */
-    private fun calculateDistance(from: String, to: String): Int {
-        // 基于车站名称的哈希值计算距离（简化实现）
-        val hash1 = from.hashCode()
-        val hash2 = to.hashCode()
-        val distance = kotlin.math.abs(hash1 - hash2) % 1500 + 50
-        
-        return when {
-            distance < 100 -> Random.nextInt(50, 200)
-            distance < 300 -> Random.nextInt(200, 500)
-            distance < 600 -> Random.nextInt(500, 1000)
-            distance < 1000 -> Random.nextInt(1000, 1500)
-            else -> Random.nextInt(1500, 2000)
-        }
+
+    private fun parseRouteDurationMinutes(value: String): Int {
+        val hours = Regex("(\\d+)小时").find(value)?.groupValues?.get(1)?.toIntOrNull() ?: 0
+        val minutes = Regex("(\\d+)分").find(value)?.groupValues?.get(1)?.toIntOrNull() ?: 0
+        return (hours * 60 + minutes).coerceAtLeast(1)
     }
-    
-    /**
-     * 根据距离计算基础价格
-     */
-    private fun calculateBasePrice(distance: Int): Double {
-        return when {
-            distance < 100 -> Random.nextDouble(20.0, 80.0)
-            distance < 300 -> Random.nextDouble(80.0, 200.0)
-            distance < 600 -> Random.nextDouble(200.0, 400.0)
-            distance < 1000 -> Random.nextDouble(400.0, 600.0)
-            else -> Random.nextDouble(600.0, 1000.0)
-        }
+
+    private fun estimateSegmentDistance(fare: Double, routeType: com.railway.ticketsystem.model.RouteType): Int {
+        val kmPerYuan = if (routeType == com.railway.ticketsystem.model.RouteType.CONVENTIONAL) 7.0 else 3.0
+        return (fare.coerceAtLeast(1.0) * kmPerYuan).toInt().coerceAtLeast(1)
     }
-    
-    /**
-     * 根据距离计算运行时间（分钟）
-     */
-    private fun calculateDuration(distance: Int): Int {
-        // 高铁平均速度约300km/h
-        val baseTime = (distance * 60) / 300
-        return baseTime + Random.nextInt(-30, 30) // 添加随机变化
-    }
-    
     /**
      * 获取所有车站
      */
@@ -282,18 +239,10 @@ object RailwayGraphManager {
     }
     
     /**
-     * 获取附近车站
+     * 推荐换乘只从真实物理相邻站中选择，绝不随机跳到无关城市。
      */
-    private fun getNearbyStations(stationName: String, count: Int): List<Station> {
-        val allStations = getAllStations()
-        val station = allStations.find { it.name == stationName } ?: return emptyList()
-        
-        // 简化实现：随机选择几个车站作为"附近"车站
-        return allStations
-            .filter { it.name != stationName }
-            .shuffled()
-            .take(count)
-    }
+    private fun getNearbyStations(stationName: String, count: Int): List<Station> =
+        graph.getDirectNeighbours(stationName).take(count)
 
     private fun isPassengerTrain(train: Train): Boolean =
         PassengerServiceStationPolicy.isPassengerServiceStation(train.departureStation) &&
